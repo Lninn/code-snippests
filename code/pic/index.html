@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Pic</title>
+    <style>
+      #canvas {
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="600" height="400"></canvas>
+
+    <script>
+      const canvas = document.getElementById("canvas")
+      const ctx = canvas.getContext("2d")
+
+      const cons = function(a, b) {
+        return [a, b]
+      }
+
+      const car = function(a) {
+        return a[0]
+      }
+
+      const cdr = function(a) {
+        return a[1]
+      }
+
+      const makeVector = function(x, y) {
+        return cons(x, y)
+      }
+
+      const xcor = function(v) {
+        return car(v)
+      }
+
+      const ycor = function(v) {
+        return cdr(v)
+      }
+
+      const pulsVect = function(v1, v2) {
+        const t1 = xcor(v1) + xcor(v2)
+        const t2 = ycor(v1) + ycor(v2)
+        return makeVector(t1, t2)
+      }
+
+      const scale = function(s, v) {
+        const t1 = s * xcor(v)
+        const t2 = s * ycor(v)
+        return makeVector(t1, t2)
+      }
+
+      const drawLine = function(s) {
+        const v1 = segStart(s)
+        const v2 = segEnd(s)
+        ctx.beginPath()
+        ctx.moveTo(xcor(v1), ycor(v1))
+        ctx.lineTo(xcor(v2), ycor(v2))
+        ctx.stroke()
+      }
+
+      const makeSegment = function(v1, v2) {
+        return cons(v1, v2)
+      }
+
+      const segStart = function(s) {
+        return car(s)
+      }
+
+      const segEnd = function(s) {
+        return cdr(s)
+      }
+
+      const makeRect = function(o, h, v) {
+        return [o, h, v]
+      }
+
+      const horiz = function(r) {
+        return r[1]
+      }
+
+      const vert = function(r) {
+        return r[2]
+      }
+
+      const origin = function(r) {
+        return r[0]
+      }
+
+      let coordMap = function(rect) {
+        return function(point) {
+          const t1 = scale(xcor(point), horiz(rect))
+          const t2 = scale(ycor(point), vert(rect))
+          return pulsVect(pulsVect(t1, t2), origin(rect))
+        }
+      }
+
+      let makePicture = function(segList) {
+        return function(rect) {
+          segList.forEach(s => {
+            const p1 = coordMap(rect)(segStart(s))
+            const p2 = coordMap(rect)(segEnd(s))
+            drawLine(makeSegment(p1, p2))
+          })
+        }
+      }
+
+      let beside = function(p1, p2, a) {
+        return function(rect) {
+          const r1 = makeRect(origin(rect), scale(a, horiz(rect)), vert(rect))
+          const r2 = makeRect(
+            pulsVect(origin(rect), scale(a, horiz(rect))),
+            scale(1 - a, horiz(rect)),
+            vert(rect),
+          )
+          p1(r2)
+          p2(r1)
+        }
+      }
+
+      //
+      const r0 = makeRect(makeVector(0, 0), makeVector(1, 0), makeVector(0, 1))
+
+      const r1 = makeRect(
+        makeVector(-70, -20),
+        makeVector(1, 0),
+        makeVector(3, 1),
+      )
+
+      const r2 = makeRect(
+        makeVector(-50, -20),
+        makeVector(4, 0),
+        makeVector(2, 1),
+      )
+
+      const r3 = makeRect(
+        makeVector(0, -20),
+        makeVector(2, 0),
+        makeVector(2, 3),
+      )
+
+      const v1 = makeVector(75, 50)
+      const v2 = makeVector(100, 75)
+      const v3 = makeVector(100, 25)
+      const s1 = makeSegment(v1, v2)
+      const s2 = makeSegment(v2, v3)
+      const s3 = makeSegment(v1, v3)
+
+      const list = [s1, s2, s3]
+      const p = makePicture(list)
+
+      beside(p, p, 0.4)(r0)
+      beside(p, p, 0.3)(r1)
+      beside(p, p, 0.6)(r2)
+      beside(p, p, 0.8)(r3)
+    </script>
+  </body>
+</html>
