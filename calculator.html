@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Calculator</title>
+
+  <style>
+    :root {
+      --main-white: #fff;
+      --main-black: #000;
+      --main-dark-gray: #4d4d4d;
+      --main-light-gray: #666666;
+      --main-red: #ac3939;
+      --main-drak-blue: #004466;
+      --main-orange: #ffa500;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    html {
+      font-size: 62.5%;
+      line-height: 1.6;
+    }
+
+    .app {
+      margin: auto;
+      width: 300px;
+      height: 450px;
+
+      border: 1px solid var(--main-black);
+      background: var(--main-black);
+
+      display: flex;
+      flex-direction: column;
+
+      box-sizing: border-box;
+      padding: 0.75rem;
+    }
+
+    .display {
+      color: var(--main-orange);
+      font-size: 2.2rem;
+      text-align: right;
+    }
+
+    .control {
+      flex: 1;
+
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+
+      border-bottom: 1px solid var(--main-black);
+      border-right: 1px solid var(--main-black);
+    }
+
+    .item {
+      border-top: 1px solid var(--main-black);
+      border-left: 1px solid var(--main-black);
+      /* border-right: 1px solid #000;
+        border-bottom: 1px solid #000; */
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      font-size: 2.75rem;
+      color: #fff;
+
+      background: var(--main-dark-gray);
+      cursor: pointer;
+
+      user-select: none;
+    }
+
+    .item:hover {
+      color: black;
+      outline: .05em solid grey;
+      z-index: 3;
+    }
+
+    .result {
+      font-size: 3rem;
+      color: var(--main-white);
+    }
+
+    .row-2 {
+      grid-column: span 2;
+    }
+
+    .col-2 {
+      grid-row: span 2;
+    }
+
+    .empty {
+      visibility: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="display">
+      <p class="user-input">
+        <span class="empty">0</span>
+      </p>
+      <p class="result">
+        <span class="empty">0</span>
+      </p>
+    </div>
+    <div class="control"></div>
+  </div>
+
+  <script>
+    const doMath = function(op, a, b) {
+      switch (op) {
+        case "+":
+          return a + b
+        case "-":
+          return a - b
+        case "*":
+          return a * b
+        case "/":
+          return a / b
+      }
+    }
+
+    const isNum = value => typeof value === "number"
+    const isFloat = value => `${value}`.indexOf(".") !== -1
+
+    let stacks = []
+    const empty = () => stacks.length === 0
+    const getTop = () => stacks[stacks.length - 1]
+    const setTop = value => (stacks[stacks.length - 1] = value)
+
+    const doCalc = function(list, index = 0) {
+      if (index >= list.length - 1) {
+        return isNum(list[list.length - 1]) ? list[list.length - 1] : list[list.length - 2]
+      }
+
+      if (["+", "-", "*", "/"].includes(list[index])) {
+        const a = list[index - 1]
+        const op = list[index]
+        const b = list[index + 1]
+        
+        list[index + 1] = doMath(op, a, b)
+        return doCalc(list, index + 2)
+      } else {
+        return doCalc(list, index + 1)
+      }
+    }
+
+    const getResult = function() {
+      return doCalc(stacks, 0)
+    }
+
+    const addNumber = (number) => {
+      const top = getTop()
+
+      if (isFloat(top)) {
+        setTop(
+          parseFloat(`${top}${number}`)
+        )
+        return
+      }
+
+      if (isNum(top)) {
+        setTop(
+          top * 10 + number
+        )
+      } else {
+        stacks.push(number)
+      }
+    }
+
+    const addOperator = function(op) {
+      const top = getTop()
+
+      if (top === undefined) {
+        return
+      }
+
+      if (isNum(top)) {
+        stacks.push(op)
+      } else {
+        setTop(op)
+      }
+    }
+
+    const displayResult = function(value) {
+      if (isNum(value) && `${value}`.length === 18) {
+        value = value.toFixed(12)
+      }
+
+      e('.result').innerHTML = `<span>${value}</span>`
+    }
+
+    const handleDot = function() {
+      const top = getTop()
+
+      if (isFloat(top)) {
+        return
+      }
+      
+      if (empty()) {
+        stacks[0] = "0."
+      } else if (isNum(top)) {
+        setTop(top + ".")
+      } else {
+        displayResult("Error")
+      }
+    }
+
+    const AllClear = function() {
+      stacks = []
+
+      e('.user-input').innerHTML = `<span class="empty">0</span>`
+      e('.result').innerHTML = `<span class="empty">0</span>`
+    }
+
+    function handle(input) {
+      const number = parseInt(input)
+
+      if (isNaN(number)) {
+        addOperator(input)
+      } else {
+        addNumber(number)
+      }
+    }
+  </script>
+  <script>
+    // 所有的按键
+    const ALLCLEAR = "AC"
+    const MUL = "*"
+    const DIV = "/"
+    const ADD = "+"
+    const SUB = "-"
+    const ONE = "1"
+    const TWO = "2"
+    const THREE = "3"
+    const FOUR = "4"
+    const FIVE = "5"
+    const SIX = "6"
+    const SEVEN = "7"
+    const EIGHT = "8"
+    const NINE = "9"
+    const ZERO = "0"
+    const DOT = "."
+    const EQUAL = "="
+
+    const COLORS = {
+      darkGray: "#4d4d4d",
+      lightGray: "#666666",
+      mainRed: "#ac3939",
+      drakBlue: "#004466",
+      mainOrange: "#ffa500",
+    }
+
+    const KEYBOARDS = [
+      [ALLCLEAR, { class: "row-2", color: COLORS.mainRed }], DIV, MUL,
+      SEVEN, EIGHT, NINE, SUB,
+      FOUR, FIVE, SIX, ADD,
+      ONE, TWO, THREE, [EQUAL, { class: "col-2", color: COLORS.drakBlue }],
+      [ZERO, { class: "row-2", color: COLORS.darkGray }], DOT,
+    ]
+
+    let html = ''
+    const toHtml = function (key) {
+      if (typeof key === 'string') {
+        return `<div class="item">${key}</div>`
+      } else {
+        const [value, props] = key
+        return `<div class="item ${props.class}" style="background-color: ${props.color}">${value}</div>`
+      }
+    }
+
+    for (const key of KEYBOARDS) {
+      html += toHtml(key)
+    }
+
+    function display() {
+      if (empty()) {
+        return
+      }
+
+      const ret = stacks.map(c => `<span>${c}</span>`).join('')
+      
+      const el = e('.user-input')
+      el.innerHTML = ret
+    }
+
+    const handleClick = function (evt) {
+      const el = evt.target
+      if (!el || !el.classList.contains("item")) {
+        return
+      }
+
+      const value = el.innerHTML
+
+      if(value == ".") {
+        handleDot()
+      } else if (value == "AC") {
+        AllClear()
+      } else if (value === "=") {
+        displayResult(getResult())
+        stacks = []
+      } else {
+        handle(value)
+        display()
+      }
+    }
+
+    const e = sel => document.querySelector(sel)
+    const control = e('.control')
+
+    control.innerHTML = html
+    control.onclick = handleClick
+  </script>
+</body>
+
+</html>

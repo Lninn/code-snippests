@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random quote machine</title>
+
+    <style>
+        :root {
+            --main-color: #e74c3c;
+        }
+
+        body, div, p {
+            padding: 0;
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--main-color);
+        }
+
+        html {
+            height: 100%;
+            font-size: 62.5%;
+        }
+
+        body {
+            color: #fff;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            text-align: center;
+
+            display: flex;
+            justify-content: center;
+            align-items:center;
+
+            height: 100%;
+            background: var(--main-color);
+        }
+
+
+        #quote-box {
+            color: var(--main-color);
+            background: #fff;
+
+            padding: 3rem;
+            border-radius: 3px;
+            max-width: 40vw;
+        }
+
+        #text {
+            font-size: 3rem;
+        }
+
+        #author {
+            text-align: right;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            border: none;
+            color: #fff;
+            background: var(--main-color);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: .8;
+        }
+
+        .op {
+            margin-top: 1.5rem;
+
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .social-links {
+            display: flex;
+        }
+
+        .social-links a {
+            display: block;
+            color: #fff;
+            font-size: 2rem;
+            background: var(--main-color);
+            padding: 0.5rem 0.75rem;
+            border-radius: 3px;
+        }
+
+        .social-links a + a {
+            margin-left: 0.5rem;
+        }
+
+        #text, #author {
+            transition: opacity .5s ease-out;
+        }
+
+        body, button {
+            transition: background-color .5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="quote-box">
+        <div class="quote-content">
+            <p id="text">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+            </p>
+    
+            <p id="author">
+                - Albert Einstein
+            </p>
+        </div>
+
+        <div class="op">
+            <div class="social-links">
+                <a href="twitter.com/intent/tweet" id="tweet-quote">Tweet</a>
+                <a href="#" id="fb-quote">Facebook</a>
+            </div>
+            
+            <button id="new-quote">New quote</button>
+        </div>
+    </div>
+
+    <script>
+        const colors = ['#16a085', '#27ae60', '#2c3e50', '#f39c12', '#e74c3c', '#9b59b6', '#FB6964', '#342224', "#472E32", "#BDBB99", "#77B1A9", "#73A857"]
+        const data = [
+            {
+                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+                author: "Lorem ipsum",
+            },
+            {
+                text: "Euismod elementum nisi quis eleifend quam adipiscing. Morbi tristique senectus et netus et malesuada fames ac turpis",
+                author: "Euismod elementum",
+            },
+            {
+                text: "Lectus nulla at volutpat diam. Turpis egestas maecenas pharetra convallis",
+                author: "Lectus nulla",
+            },
+            {
+                text: "In mollis nunc sed id. Id velit ut tortor pretium viverra suspendisse",
+                author: "In mollis",
+            },
+            {
+                text: "Feugiat scelerisque varius morbi enim nunc faucibus a pellentesque. Turpis egestas integer eget aliquet nibh praesent tristique magna sit",
+                author: "Feugiat scelerisque",
+            },
+        ]
+        
+        const e = sel => document.querySelector(sel)
+        
+        function getRandomInt(min, max) {
+            min = Math.ceil(min)
+            max = Math.floor(max)
+            return Math.floor(Math.random() * (max - min)) + min
+        }
+
+        function getRandomColor() {
+            const index = getRandomInt(0, colors.length - 1)
+            const color = colors[index]
+            return color
+        }
+
+        function getRandomQuote() {
+            const index = getRandomInt(0, 4)
+            return data[index]
+        }
+
+        function bgChange(color) {
+            e('body').style.backgroundColor = color
+            e('button').style.backgroundColor = color
+            e('#tweet-quote').style.backgroundColor = color
+            e('#fb-quote').style.backgroundColor = color
+        }
+
+        function quoteChange({ text, author }, color) {
+            e('.quote-content').innerHTML = `
+                <div class="quote-content" style="color: ${color}">
+                    <p id="text">
+                        ${text}
+                    </p>
+            
+                    <p id="author">
+                        - ${author}
+                    </p>
+                </div>
+                `
+        }
+
+        const handleClick = function() {
+            const quote = getRandomQuote()
+            const color = getRandomColor()
+
+            quoteChange(quote, color)
+            bgChange(color)
+        }
+
+        const quoteBtn = e("#new-quote")
+        quoteBtn.onclick = handleClick
+    </script>
+</body>
+</html>
