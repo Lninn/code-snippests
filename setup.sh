@@ -1,1 +1,0 @@
-echo "There is nothing to execute";
