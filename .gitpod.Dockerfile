@@ -1,7 +1,8 @@
 FROM gitpod/workspace-full
-FROM gitpod/workspace-mysql
                     
-RUN sudo apt-get -q update && sudo apt-get -yq install mit-scheme
+RUN sudo apt-get -q update && sudo apt-get -yq install mit-scheme rlwrap
+
+ENV sicp="rlwrap scheme"
 # Install custom tools, runtime, etc. using apt-get
 # For example, the command below would install "bastet" - a command line tetris clone:
 #
