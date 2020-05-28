@@ -16,3 +16,8 @@ $ vim ~/.bash_aliases
 
 alias sicp=`rlwrap mit-scheme`
 ```
+
+> open file from terminal
+```
+code -r . file-name
+```
