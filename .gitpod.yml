@@ -3,4 +3,6 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - command: echo "alias sicp='rlwrap mit-scheme'" > ~/.bash_aliases
+  - command: >
+        echo "alias sicp='rlwrap mit-scheme'" > ~/.bash_aliases &&
+        source ~/.bash_aliases
