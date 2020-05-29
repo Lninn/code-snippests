@@ -14,3 +14,5 @@
 > http://www.gnu.org/software/mit-scheme/documentation/mit-scheme-user/Debugging.html#Debugging
 
 > random 是 scheme 中的基本过程，返回比其输入小的某个非负整数
+
+> exact->inexact 有理数的转化
