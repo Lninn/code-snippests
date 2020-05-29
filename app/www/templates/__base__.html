@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="cn" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        {% block meta %}<!-- block meta -->{% endblock %}
+        <title>{% block title %}<!-- block title -->{% endblock %} - Awesome Python Awebapp</title>
+
+        <!-- css -->
+        <!-- <link rel="stylesheet" href="/static/css/uikit.min.css"> -->
+        <link rel="stylesheet" href="/static/css/uikit.almost-flat.min.css">
+        <link rel="stylesheet" href="/static/css/main.css">
+
+        <!-- js -->
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js" async defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue" async defer></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js" async defer></script>
+
+        <script src="//unpkg.com/crypto-js/crypto-js.js"></script>
+
+        <!-- 官网引用的 CDN -->
+        <link rel="stylesheet" href="//cdn.bootcss.com/uikit/2.25.0/css/uikit.css" />
+        <script src="//cdn.bootcss.com/uikit/2.25.0/js/uikit.js"></script>
+
+        <!-- Element UI -->
+        <!-- 引入样式 -->
+        <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+        <!-- 引入组件库 -->
+        <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+        <!-- <script src="/static/js/uikit-icons.min.js"></script> -->
+        <script src="/static/js/main.js""></script>
+
+        <link rel="icon" sizes="128x128"  href="/static/img/site.ico" />
+
+        {% block beforehead %}<!-- bofore head -->{% endblock %}
+    </head>
+    <body>
+
+        <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+            <nav class="uk-navbar uk-margin-large-bottom">
+                <a class="uk-navbar-brand uk-hidden-small" href="/">首页</a>
+                <ul class="uk-navbar-nav uk-hidden-small">
+                    <li>
+                        <a href="/manage/blogs">博客</a>
+                    </li>
+                    <li>
+                        <a href="#">相册</a>
+                    </li>
+                    <li class="uk-active">
+                        <a href="#">读书</a>
+                    </li>
+                    <li>
+                        <a href="#">联系</a>
+                    </li>
+                    <li>
+                        <a href="#">关于</a>
+                    </li>
+                </ul>
+                <a href="#offcanvas" class="uk-navbar-toggle uk-visible-small" data-uk-offcanvas></a>
+                <div class="uk-navbar-brand uk-navbar-center uk-visible-small">首页</div>
+
+                <div class="uk-navbar-flip">
+                    <ul class="uk-navbar-nav">
+                        {% if __user__ %}
+                            <li><a href="/signout"><i class="uk-icon-sign-in"></i>注销</a></li>
+                            <li><a href="#">欢迎, {{ __user__.name }}</a></li>
+                        {% else %}
+                            <li><a href="/signin"><i class="uk-icon-sign-in"></i>登陆</a></li>
+                            <li><a href="/register"><i class="uk-icon-edit"></i>注册</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="uk-grid" data-uk-grid-margin>
+                {% block content %}
+                {% endblock %}
+            </div>
+
+        </div>
+
+        <div id="offcanvas" class="uk-offcanvas">
+            <div class="uk-offcanvas-bar">
+                <ul class="uk-nav uk-nav-offcanvas">
+                    <li>
+                        <a href="layouts_frontpage.html">Frontpage</a>
+                    </li>
+                    <li>
+                        <a href="layouts_portfolio.html">Portfolio</a>
+                    </li>
+                    <li>
+                        <a href="layouts_blog.html">Blog</a>
+                    </li>
+                    <li class="uk-active">
+                        <a href="layouts_documentation.html">Documentation</a>
+                    </li>
+                    <li>
+                        <a href="layouts_contact.html">Contact</a>
+                    </li>
+                    <li>
+                        <a href="layouts_login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+    </body>
+</html>

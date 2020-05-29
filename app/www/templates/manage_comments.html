@@ -1,0 +1,131 @@
+{% extends '__base__.html' %}
+
+{% block title %}评论{% endblock %}
+
+{% block beforehead %}
+
+<script>
+    function initVM(data) {
+        $('#vm').show();
+        var vm = new Vue({
+            el: '#vm',
+            data: {
+                comments: data.comments,
+                page: data.page,
+                currentPage: '1'
+            },
+            methods: {
+                delete_comment: function (comment) {
+                    var content = comment.content.length > 20 ? comment.content.substring(0, 20) + '...' : comment.content;
+                    if (confirm('确认要删除评论“' + comment.content + '”？删除后不可恢复！')) {
+                        axios.post('/api/comments/' + comment.id + '/delete', {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(function (data) {
+                            data = data.data
+
+                            if (data.error) {
+                                return alert('error status: ' + data.error + 'message: ' + data.message)
+                            } else {
+                                return history.go(0)
+                            }
+                        })
+                        .catch(function (error) {
+                        })
+
+                    }
+                },
+                handleSizeChange (val) {
+
+                },
+                handleCurrentChange (val) {
+
+                }
+            }
+        });
+    }
+
+    window.onload = function () {
+        const index = {{ page_index }}
+        axios.get('/api/comments', {
+            page: index
+        })
+        .then(function (data) {
+            data = data.data
+
+            if (data.error) {
+                return alert('error status: ' + data.error + 'message: ' + data.message)
+            } else {
+                $('#loading').hide()
+                initVM(data)
+            }
+        })
+        .catch(function (error) {
+        })
+    }
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-1-1 uk-margin-bottom">
+        <div class="uk-panel uk-panel-box">
+            <ul class="uk-breadcrumb">
+                <li class="uk-active"><span>评论</span></li>
+                <li><a href="/manage/blogs">日志</a></li>
+                <li><a href="/manage/users">用户</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="error" class="uk-width-1-1">
+    </div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> 正在加载...</span>
+    </div>
+
+    <div id="vm" class="uk-width-1-1" style="display:none">
+        <table class="uk-table uk-table-hover">
+            <thead>
+                <tr>
+                    <th>作者</th>
+                    <th >内容</th>
+                    <th >创建时间</th>
+                    <th >操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="comment in comments" >
+                    <td>
+                            <span v-text="comment.user_name"></span>
+                    </td>
+                    <td>
+                            <span v-text="comment.content"></span>
+                    </td>
+                    <td>
+                        <span v-text="new Date(comment.created_at * 1000).toLocaleString()"></span>
+                    </td>
+                    <td>
+                        <button type="button" @click="delete_comment(comment)" name="button">删除</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="block">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[7, 10, 15]"
+            :page-size="page.page_size"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="page.page_total">
+          </el-pagination>
+        </div>
+
+    </div>
+{% endblock %}

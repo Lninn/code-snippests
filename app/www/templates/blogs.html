@@ -1,0 +1,163 @@
+{% extends '__base__.html' %}
+
+{% block title %}日志{% endblock %}
+
+{% block beforehead %}
+<script>
+
+    window.onload = function() {
+        const vm = new Vue({
+            el: '#vm',
+            data () {
+                return {
+                    blogs: [],
+                    page: {
+                        page_size: 0,
+                        page_total: 0
+                    },
+                    currentPage: 1
+                }
+            },
+            beforeCreate() {
+                const that = this
+                axios.get('api/blogs', {
+                    page: '1'
+                })
+                .then(function (data) {
+                    data = data.data
+
+                    if (data.error) {
+                        return alert('error status: ' + data.error + 'message: ' + data.message)
+                    } else {
+                        that.blogs = data.blogs
+                        that.page = data.page
+                    }
+                })
+                .catch(function (error) {
+                    console.log('Error: ', error)
+                })
+            },
+            methods: {
+                handleSizeChange(val) {
+
+                },
+                handleCurrentChange(val) {
+                    const that = this
+                    axios.get('api/blogs?page=' + val)
+                    .then(function (data) {
+                        data = data.data
+
+                        if (data.error) {
+                            return alert('error status: ' + data.error + 'message: ' + data.message)
+                        } else {
+                            that.blogs = data.blogs
+                            that.page = data.page
+                            console.log(that.blogs)
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log('Error: ', error)
+                    })
+                },
+                formatText(value) {
+                    return '123' + value
+                }
+            },
+            filters: {
+              capitalize: function (value) {
+                var now = new Date()
+                delta = now.getTime() / 1000 - value
+
+                if (delta < 60) {
+                    return '1分钟前'
+                }
+                if (delta < 3600) {
+                    return Math.floor((delta / 60)) + '分钟前'
+                }
+                if (delta < 86400) {
+                    return Math.floor((delta / 3600)) + '小时前'
+                }
+                if (delta < 604800) {
+                    return Math.floor((delta / 86400)) + '小时前'
+                }
+
+                var dt = new Date(value * 1000)
+
+                return dt.getFullYear() + '年' + dt.getMonth() + '月' + dt.getDate() + '日'
+              }
+            }
+        })
+    }
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-medium-3-4" id="vm">
+        <template id="" v-for="blog in blogs">
+            <article class="uk-article">
+                <h1 class="uk-article-title">
+                    <a :href="'blog/' + blog.id" v-text="blog.name"></a>
+                </h1>
+
+                <p class="uk-article-meta" >发布时间:<span v-bind:text-content.prop="blog.created_at | capitalize"></span><a> In Blog</a></p>
+
+                <p v-text="blog.summary"></p>
+
+                <p>
+                    <a class="uk-button uk-button-primary" href="#">继续阅读</a>
+                    <a class="uk-button" href="#" v-html="blog.comments_num + '人评论'"></a>
+                </p>
+
+            </article>
+            <hr class="uk-article-divider">
+        </template>
+
+        <div class="block">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[7, 10, 15]"
+            :page-size="page.page_size"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="page.page_total">
+          </el-pagination>
+        </div>
+
+    </div>
+
+    <div class="uk-width-medium-1-4">
+        <div class="uk-panel">
+            <h3 class="uk-panel-title">分类</h3>
+            <ul class="uk-list uk-list-line">
+                <li><a href="#">Python</a></li>
+                <li><a href="#">C#</a></li>
+                <li><a href="#">Vue</a></li>
+                <li><a href="#">LeetCode</a></li>
+                <li><a href="#">C</a></li>
+            </ul>
+        </div>
+        <div class="uk-panel">
+            <h3 class="uk-panel-title">档案</h3>
+            <ul class="uk-list uk-list-line">
+                <li><a href="#">2014年8月</a></li>
+                <li><a href="#">2014年9月</a></li>
+                <li><a href="#">2014年10月</a></li>
+                <li><a href="#">2014年11月</a></li>
+                <li><a href="#">2014年12月</a></li>
+            </ul>
+        </div>
+        <div class="uk-panel">
+            <h3 class="uk-panel-title">社交</h3>
+            <ul class="uk-list">
+                <li><a href="#">GitHub</a></li>
+                <li><a href="#">Twitter</a></li>
+                <li><a href="#">Facebook</a></li>
+                <li><a href="#">Wechat</a></li>
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
