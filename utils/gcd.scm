@@ -1,5 +1,5 @@
 ; Gcd
 (define (gcd a b)
-  (if (= a 0)
-      b
+  (if (= b 0)
+      a
       (gcd b (remainder a b))))
