@@ -1,0 +1,5 @@
+(define (print-value name value)
+  (newline)
+  (display name)
+  (display " ")
+  (display value))

@@ -1,5 +1,0 @@
-(define (print-pair pair)
-  (newline)
-  (display (car pair))
-  (display " ")
-  (display (cdr pair)))
