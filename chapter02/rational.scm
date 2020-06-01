@@ -1,4 +1,4 @@
-(load "/home/ubuntu/github-res/code-snippests/utils/gcd.scm")
+(load "../utils/gcd.scm")
 
 ; 根据有理数的运算规则可以定义下面的过程
 (define (add-rat x y)
