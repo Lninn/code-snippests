@@ -1,0 +1,40 @@
+(load "interval.scm")
+
+(define (mul-interval x y)
+  (let ((x1 (lower-bound x))
+        (x2 (upper-bound x))
+        (y1 (lower-bound y))
+        (y2 (upper-bound y))
+        (p1 (* x1 y1))
+        (p2 (* x1 y2))
+        (p3 (* x2 y1))
+        (p4 (* x2 y2)))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4))))
+
+; https://zero4drift.github.io/posts/sicp-refresher-chapter-21/
+(define (mul-interval x y)
+  (let ((x1 (lower-bound x))
+        (x2 (upper-bound x))
+        (y1 (lower-bound y))
+        (y2 (upper-bound y)))
+    (cond ((and (positive? x1) (positive? y1))
+           ; 两个区间的下界都为非负数
+           (make-interval (* x1 y1) (x2 y2)))
+          ((and (positive? x1) (negative? y1))
+           ; 第一个区间的下界为非负数，第二个区间的下界为非正数
+           ; 如果第二个区间的上界为负数的情况下，(x1 * y2) > (x2 * y2)
+           (make-interval (* x2 y1) (* (if (negative? y2) x1 x2) y2)))
+          ((and (negative? x1) (positive? y1))
+           ;第一个区间的下界为非正数，第二个区间的下界为非负数
+           (make-interval (* x1 y2) (* (if (negative? x2) y1 y2) x2)))
+          ((and (positive? x2) (positive? y2))
+           (let ((l (min (* x1 y2) (* x2 y1)))
+                 (u (max (* x1 y1) (* x2 y2))))
+             (make-interval l u)))
+          ((and (positive? x2) (negative? y2))
+           (make-interval (* x2 y1) (* x1 y1)))
+          ((and (negative? x2) (positive? y2))
+           (make-interval (* x1 y2) (* x1 y1)))
+          (else
+           (make-interval (* x2 y2) (* x1 y1))))))

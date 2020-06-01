@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+    body {
+        font-size: 18px;
+    }
+    .form-control {
+        max-width: 300px;
+        margin-top: 10px;
+    }
+    .form-control span {
+        margin-right: 5px;
+    }
+    .form-control select {
+        font-size: 18px;
+    }
+    .form-submit {
+        text-align: right;
+    }
+    </style>
+</head>
+<body>
+    <main>
+    <form id="my-form" action="#">
+        <div class="form-control">
+            <span>Value x1</span>
+            <select name="x1" id="x1">
+                <option value="-3">-3</option>
+                <option value="2">2</option>
+            </select>
+        </div>
+        <div class="form-control">
+            <span>Value x2</span>
+            <select name="x2" id="x2">
+                <option value="-763">-763</option>
+                <option value="32">32</option>
+            </select>
+        </div>
+        <div class="form-control">
+            <span>Value y1</span>
+            <select name="y1" id="y1">
+                <option value="-13">-13</option>
+                <option value="12">12</option>
+            </select>
+        </div>
+        <div class="form-control">
+            <span>Value y2</span>
+            <select name="y2" id="y2">
+                <option value="-10">-10</option>
+                <option value="20">20</option>
+            </select>
+        </div>
+        <div class="form-control form-submit">
+            <input type="submit" value="提交">
+        </div>
+    </form>
+    
+    <section id="content">
+    </section>
+    </main>
+
+    <script>
+    var e = sel => document.querySelector(sel)
+
+    e("#my-form").addEventListener("submit", function(evt) {
+        evt.preventDefault()
+
+        var x1 = e("#x1").value
+        var x2 = e("#x2").value
+        var y1 = e("#y1").value
+        var y2 = e("#y2").value
+
+        var temp = [
+            ["x1 * y1", x1 * y1],
+            ["x1 * y2", x1 * y2],
+            ["x2 * y1", x2 * y1],
+            ["x2 * y2", x2 * y2],
+        ]
+        var values = temp.map(x => x[1])
+
+        // var maxIndex = values.findIndex(x => {
+        //     return x === Math.max(values)
+        // })
+        // var minIndex = values.findIndex(x => {
+        //     return x === Math.min(values)
+        // })
+
+        var maxVal = Math.max(...values)
+        var minVal = Math.min(...values)
+        var html = ''
+
+        for (var item of temp) {
+            if (item[1] === maxVal) {
+                html += `<p>${item[0]} = ${item[1]} 最大</p>`
+            } else if (item[1] === minVal) {
+                html += `<p>${item[0]} = ${item[1]} 最小</p>`
+            } else {
+                html += `<p>${item[0]} = ${item[1]}</p>`
+            }
+        }
+
+        e("#content").innerHTML = html
+    }, false)
+    </script>
+</body>
+</html>
