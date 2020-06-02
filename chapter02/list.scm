@@ -25,6 +25,15 @@
       list2
       (cons (car list1) (append (cdr list1) list2))))
 
+
+; 对面表的映射
+(define (scale-list items factor)
+  (if (null? items)
+      '()
+      (cons (* factor (car items))
+            (scale-list (cdr items) factor))))
+
+
 ; Usage
 (define squares (list 1 4 9 16 25))
 
