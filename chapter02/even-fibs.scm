@@ -1,0 +1,15 @@
+(define (fib n)
+  (if (or (< n 0) (= n 0))
+      1
+      (+ (fib (- n 1))
+         (fib (- n 2)))))
+
+(define (even-fibs n)
+  (define (next k)
+    (if (> k n)
+        '()
+        (let ((f (fib k)))
+          (if (even? f)
+              (cons f (next (+ k 1)))
+              (next (+ k 1))))))
+  (next 0))
