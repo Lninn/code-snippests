@@ -1,3 +1,4 @@
+// 返回一个集合的所有子集(包括空集合)
 var subsets = function(list) {
     if (list.length == 0) {
         return [[]]
