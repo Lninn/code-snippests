@@ -11,33 +11,28 @@
          false)
         (else (every predicate (cdr sequence)))))
 
-; 不考虑顺序 remove last
-(define (remove-last items)
-  (if (not (null? items))
-      (cdr (reverse items))))
-
-(define (same-pair? p1 p2)
+(define (same-pair? p1 p2 i)
   (= (abs (- (car p1) (cadr p1)))
      (abs (- (car p2) (cadr p2)))))
 
 (define (safe? k positions)
-    ; 需要判断三个方向是否安全
-    (if (null? positions)
-        true
-        (let ((crt (car positions))
-              (rest (cdr positions)))
-          (every (lambda (item)
-                   (and (not (= (car crt) (car item)))
-                        (not (same-pair? crt item))))
-           rest))))
+  (define (check p1 p2 i)
+    (and (not (= (car p1) (car p2)))
+         (not (same-pair? p1 p2 i))))
+  (define (iter new-pos rest i)
+    (cond ((null? rest) true)
+          ((not (check new-pos (car rest) i))
+           false)
+          (else (iter new-pos (cdr rest) (+ i 1)))))
+  (iter (car positions) (cdr positions) 1))
 
 (define (queens board-size)
   (define nil '())
 
   (define empty-board nil)
 
-  (define (adjoin-position new-row k rest-of-queens)
-    (append (list (cons new-row (cons k nil))) rest-of-queens))
+  (define (adjoin-position row col rest)
+    (append (list (cons row (cons col nil))) rest))
 
   (define (queen-cols k)
     (if (= k 0)
@@ -48,7 +43,7 @@
           (lambda (rest-of-queens)
             (map (lambda (new-row)
                    (adjoin-position new-row k rest-of-queens))
-                 (enumerate-interval 1 board-size)))
+                 (enumerate-interval 1 8)))
           (queen-cols (- k 1))))))
   (queen-cols board-size))
 
@@ -64,10 +59,7 @@
 (newline)
 (display (length result))
 
-(print-queens result)
-
-; (4, 7) (2, 5)
-; (4, 7) (7, 4)
+;(print-queens result)
 
 (define seq (list (list 1 1)
                   (list 1 2)
