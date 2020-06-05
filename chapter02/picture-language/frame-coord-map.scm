@@ -1,7 +1,5 @@
-(load "vect.scm")
-(load "escher-frame.scm")
+(load "../chapter02/vect.scm")
 
-; 框架的坐标映射
 (define (frame-coord-map frame)
   (lambda (v)
     (add-vect

@@ -1,0 +1,11 @@
+(load "beside.scm")
+(load "below.scm")
+(load "corner.scm")
+(load "flip-horiz.scm")
+(load "flip-vert.scm")
+(load "corner-split.scm")
+
+(define (square-limit painter n)
+  (let ((quarter (corner-split painter n)))
+    (let ((half (beside (flip-horiz quarter) quarter)))
+      (below (flip-vert half) half))))
