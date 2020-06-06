@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+  <a href="/">Home</a>
+  <article>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.body }}</p>
+  </article>
+{% endblock %}
