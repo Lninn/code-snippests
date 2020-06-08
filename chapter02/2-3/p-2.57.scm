@@ -5,7 +5,7 @@
         ((= 3 (length s)) (caddr s))
         (else
          (append (list '+) (cddr s)))))
- 
+
 (define (multiplicand p)
   (cond ((not (pair? p)) p)
         ((= 3 (length p)) (caddr p))
