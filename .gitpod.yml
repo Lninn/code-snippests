@@ -4,5 +4,4 @@ image:
 
 tasks:
   - command: >
-        echo "alias sicp='rlwrap mit-scheme'" > ~/.bash_aliases &&
-        source ~/.bash_aliases
+        echo "alias sicp='rlwrap mit-scheme'" > ~/.bash_aliases && source ~/.bash_aliases
