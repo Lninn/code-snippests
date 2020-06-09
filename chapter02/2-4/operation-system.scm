@@ -1,3 +1,12 @@
+(load "table.scm")
+
+(define operation-table (make-table))
+(define get (operation-table 'lookup-proc))
+(define put (operation-table 'insert-proc!))
+
+(load "apply-generic.scm")
+
+; common op
 (define (add x y) (apply-generic 'add x y))
 (define (sub x y) (apply-generic 'sub x y))
 (define (mul x y) (apply-generic 'mul x y))
@@ -17,7 +26,7 @@
        (lambda (x y) (tag (/ x y))))
   (put 'make 'scheme-number
        (lambda (x) (tag x)))
-  'done)
+  'ok)
 
 (define (make-scheme-number n)
   ((get 'make 'scheme-number) n))
@@ -31,7 +40,7 @@
     (let ((g (gcd n d)))
       (cons (/ n g) (/ d g))))
   (define (add x y)
-    (make (+ (* (numer x) (denom y))
+    (make-rat (+ (* (numer x) (denom y))
                  (* (numer y) (denom x)))
               (* (denom x) (denom y))))
   (define (sub x y)
@@ -55,19 +64,26 @@
   (put 'div '(rational rational)
        (lambda (x y) (tag (div x y))))
   (put 'make 'rational
-       (lambda (n d) (tag (make n d))))
-  'done)
+       (lambda (n d) (tag (make-rat n d))))
+  'ok)
 
 (define (make-rational n d)
   ((get 'make 'rational) n d))
 
+(load "type.scm")
+(load "rectangular-pkg.scm")
+(load "polar-pkg.scm")
+(load "complex-pkg.scm")
+
+(install-polar-package)
+(install-rectangular-package)
 
 (define (install-complex-package)
  ;; imported procedures from rectangular and polar packages
   (define (make-from-real-imag x y)
-    ((get 'make-from-real-imag 'rectangular) x y))
+    ((get 'make-from-real-imag '(rectangular)) x y))
   (define (make-from-mag-ang r a)
-    ((get 'make-from-mag-ang 'polar) r a))
+    ((get 'make-from-mag-ang '(polar)) r a))
  ;; internal procedures
   (define (add z1 z2)
     (make-from-real-imag (+ (real-part z1) (real-part z2))
@@ -95,10 +111,20 @@
        (lambda (x y) (tag (make-from-real-imag x y))))
   (put 'make-from-mag-ang 'complex
        (lambda (r a) (tag (make-from-mag-ang r a))))
-  'done)
+  (put 'real-part '(complex) real-part)
+  (put 'imag-part '(complex) imag-part)
+  (put 'magnitude '(complex) magnitude)
+  (put 'angle '(complex) angle)
+  'ok)
 
 (define (make-complex-from-real-imag x y)
   ((get 'make-from-real-imag 'complex) x y))
 
 (define (make-complex-from-mag-ang r a)
   ((get 'make-from-mag-ang 'complex) r a))
+
+
+; Useage
+(install-scheme-number-package)
+(install-rational-package)
+(install-complex-package)
