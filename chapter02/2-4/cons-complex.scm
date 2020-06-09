@@ -1,6 +1,7 @@
 (load "cons-complex-rect.scm")
 (load "cons-complex-polar.scm")
 
+; 基于类型的分派
 (define (real-part z)
   (cond ((rectangular? z)
          (real-part-rectangular (contents z)))
