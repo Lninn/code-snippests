@@ -1,3 +1,5 @@
+(load "operation-system.scm")
+
 (define (attach-tag type-tag contents)
   (cond ((number? contents) contents)
         (else (cons type-tag contents))))
@@ -19,3 +21,5 @@
 
 (define (polar? z)
   (eq? (type-tag z) 'polar))
+
+
