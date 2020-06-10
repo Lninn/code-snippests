@@ -6,10 +6,18 @@
 
 (load "operation-system.scm")
 
-(define (scheme-number->complex n)
-  (make-complex-from-real-imag (contents n) 0))
+; scheme-number TO rational
+(define (scheme-number->rational n)
+  (make-rational (contents n) 1))
+(put-coercion 'scheme-number 'rational scheme-number->rational)
 
-(put-coercion 'scheme-number 'complex scheme-number->complex)
+; rational TO complex
+(define (rational->complex r)
+  (make-complex-from-real-imag
+    (exact->inexact (let ((val (contents r)))
+                      (/ (car val) (cdr val))))
+    0))
+(put-coercion 'rational 'complex rational->complex)
 
 (define (apply-generic op . args)
   (let ((type-tags (map type-tag args)))
