@@ -26,6 +26,10 @@
        (lambda (x y) (tag (/ x y))))
   (put 'make 'scheme-number
        (lambda (x) (tag x)))
+  
+  (put '=zero? '(scheme-number)
+       (lambda (x)
+         (= x 0)))
   'ok)
 
 (define (make-scheme-number n)
@@ -71,6 +75,10 @@
        (lambda (n d) (tag (make-rat n d))))
   (put 'equal? 'rational equal-rat?)
   (put 'rational? 'rational rational?)
+
+  (put '=zero? '(rational)
+       (lambda (x)
+         (= 0 (numer x))))
   'ok)
 
 (define (make-rational n d)
@@ -127,6 +135,10 @@
   (put 'angle '(complex) angle)
   (put 'equal? 'complex equal)
   (put 'complex? 'complex complex?)
+
+  (put '=zero? '(complex)
+    (lambda (z)
+      (and (= 0 (real-part z)) (= 0 (imag-part z)))))
   'ok)
 
 (define (make-complex-from-real-imag x y)
