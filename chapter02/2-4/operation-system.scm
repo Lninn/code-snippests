@@ -53,6 +53,10 @@
   (define (div x y)
     (make-rat (* (numer x) (denom y))
               (* (denom x) (numer y))))
+  (define (equal-rat? x y)
+    (= (* (numer x) (denom y))
+       (* (numer y) (denom x))))
+  (define (rational? x) (= 'rational (type-tag x)))
  ;;interface to rest of the system
   (define (tag x) (attach-tag 'rational x))
   (put 'add '(rational rational)
@@ -65,6 +69,8 @@
        (lambda (x y) (tag (div x y))))
   (put 'make 'rational
        (lambda (n d) (tag (make-rat n d))))
+  (put 'equal? 'rational equal-rat?)
+  (put 'rational? 'rational rational?)
   'ok)
 
 (define (make-rational n d)
@@ -97,6 +103,10 @@
   (define (div z1 z2)
     (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
                        (- (angle z1) (angle z2))))
+  (define (equal z1 z2)
+    (and (= (real-part z1) (real-part z2))
+         (= (imag-part z1) (imag-part z2))))
+  (define (complex? z) (= 'complex (type-tag z)))
  ;; interface to rest of the system
   (define (tag z) (attach-tag 'complex z))
   (put 'add '(complex complex)
@@ -115,6 +125,8 @@
   (put 'imag-part '(complex) imag-part)
   (put 'magnitude '(complex) magnitude)
   (put 'angle '(complex) angle)
+  (put 'equal? 'complex equal)
+  (put 'complex? 'complex complex?)
   'ok)
 
 (define (make-complex-from-real-imag x y)
