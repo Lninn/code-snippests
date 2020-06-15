@@ -7,7 +7,10 @@
 
 (define l1 (cons 1 (cons 2 (cons 3 '()))))
 
-(define l2 (cons (cons (cons '() 1) 2) 3))
+(define x (cons 2 '()))
+(define y (cons 1 x))
+(define l2 (cons x y))
 
-(define l3
-  (cons (cons 1 2) (cons 3 4)))
+(define x (cons 1 '()))
+(define y (cons x x))
+(define l3 (cons y y))
