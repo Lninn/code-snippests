@@ -52,10 +52,3 @@
            queue
            (cdr (front-ptr queue)))
            queue)))
-
-(define q (make-queue))
-
-(insert-queue! q 1)
-(insert-queue! q 2)
-(insert-queue! q 3)
-(insert-queue! q 4)
