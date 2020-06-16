@@ -1,3 +1,44 @@
+; deque
+
+(define (front-ptr deque)
+  (car deque))
+
+(define (rear-ptr deque)
+  (cdr deque))
+
+(define (set-front-ptr! deque item)
+  (set-car! deque item))
+
+(define (set-rear-ptr! deque item)
+  (set-cdr! deque item))
+
+(define (make-deque) (cons '() '()))
+
+(define (make-pair item)
+  (cons item (cons '() '())))
+
+(define (empty-deque? deque)
+  (null? (front-ptr deque)))
+
+(define (front-insert-deque! deque item)
+  (let ((new-pair (make-pair item)))
+    (cond ((empty-deque? deque)
+           (set-front-ptr! deque new-pair)
+           (set-rear-ptr! deque new-pair)
+           deque)
+          (else
+           (set-cdr! (cdr new-pair) (front-ptr deque))
+           (set-car! (cdr (front-ptr deque)) new-pair)
+           (set-front-ptr! deque new-pair)))))
+
+(define q1 (make-deque))
+
+(front-insert-deque! q1 1)
+(front-insert-deque! q1 2)
+
+
+;->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+;FROM http://weimalearnstoprogram.blogspot.com/2009/11/sicp-exercise-323.html
 ; Exercise 3.23.  A deque (``double-ended queue'') is a sequence in which items can be inserted and deleted at either the front or the rear. Operations on deques are the constructor make-deque, the predicate empty-deque?, selectors front-deque and rear-deque, and mutators front-insert-deque!, rear-insert-deque!, front-delete-deque!, and rear-delete-deque!. Show how to represent deques using pairs, and give implementations of the operations. All operations should be accomplished in O(1) steps.
 ;
 
@@ -5,19 +46,12 @@
 
 (define (make-queue)
   (define (make-node data)(cons data (cons '() '())))
-
   (define (node-forward-ptr node)(cddr node))
-
   (define (set-node-forward-ptr! node ptr)(set-cdr! (cdr node) ptr))
-
   (define (node-backward-ptr node)(cadr node))
-
   (define (set-node-backward-ptr! node ptr)(set-car! (cdr node) ptr))
-
   (define (node-data node)(car node))
-
   (define (node-print node) (display (node-data node)))
-
   (let ((front-ptr '())
         (rear-ptr  '()))
     (define (set-front-ptr! item)(set! front-ptr item))
@@ -27,7 +61,6 @@
       (if (empty-queue?)
         (error "FRONT called with empty queue")
         (node-data front-ptr)))
-
     (define (rear-insert-queue! item)
       (let ((new-pair (make-node item)))
         (cond ((empty-queue?)
@@ -37,7 +70,6 @@
                 (set-node-forward-ptr! rear-ptr new-pair)
                 (set-node-backward-ptr! new-pair rear-ptr)
                 (set-rear-ptr! new-pair)))))
-
     (define (front-insert-queue! item)
       (let ((new-pair (make-node item)))
         (cond ((empty-queue?)
@@ -47,7 +79,6 @@
                 (set-node-forward-ptr! new-pair front-ptr)
                 (set-node-backward-ptr! front-ptr new-pair)
                 (set-front-ptr! new-pair)))))
-
     (define (front-delete-queue!)
       (cond ((empty-queue?)
              (error "DELETE! called on empty queue"))
