@@ -15,8 +15,3 @@
   (cond ((and (= 0 s1) (= 0 s2)) 0)
         ((or (= 1 s1) (= 1 s2)) 1)
         (else (error "Invalid signal" (list s1 s2)))))
-
-0 0 0
-0 1 1
-1 0 1
-1 1 1
