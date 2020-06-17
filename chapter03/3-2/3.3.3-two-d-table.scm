@@ -34,6 +34,7 @@
     (define (dispatch m)
       (cond ((eq? m 'lookup-proc) lookup)
             ((eq? m 'insert-proc!) insert!)
+            ((eq? m 'debug) local-table)
             (else (error "Unknow operation -- TABLE" m))))
 
     dispatch))
@@ -41,3 +42,4 @@
 (define operation-table (make-table))
 (define get (operation-table 'lookup-proc))
 (define put (operation-table 'insert-proc!))
+(define debug (operation-table 'debug))

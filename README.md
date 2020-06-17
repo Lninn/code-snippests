@@ -21,6 +21,8 @@
 
 > 目录 P17
 
+> 序列的表示 P84
+
 ## site
 
 > https://www.biwascheme.org/
