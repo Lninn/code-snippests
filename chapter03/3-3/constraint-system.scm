@@ -11,7 +11,7 @@
                        me))
           ((and (has-value? a2) (has-value? sum))
            (set-value! a1
-                       (- (get-value sum) (get-value a1))
+                       (- (get-value sum) (get-value a2))
                        me))))
   
   (define (process-forget-value)
@@ -37,26 +37,26 @@
 (define (multiplier m1 m2 product)
   
   (define (process-new-value)
-    (cond ((or (and (has-value? m1) (= (get-value m1) 0))
-               (and (has-value? m2) (= (get-value m2) 0)))
+    (cond ((or (and (has-value? m1) (eq? (get-value m1) 0))
+               (and (has-value? m2) (eq? (get-value m2) 0)))
            (set-value! product 0 me))
           ((and (has-value? m1) (has-value? m2))
            (set-value! product
                        (* (get-value m1) (get-value m2))
                        me))
-          (and (has-value? m1) (has-value? product)
+          ((and (has-value? m1) (has-value? product))
            (set-value! m2
                        (/ (get-value product) (get-value m1))
                        me))
-          (and (has-value? m2) (has-value? product)
+          ((and (has-value? m2) (has-value? product))
            (set-value! m1
                        (/ (get-value product) (get-value m2))
                        me))))
 
   (define (process-forget-value)
-    (for-value! product me)
-    (for-value! m1 me)
-    (for-value! m2 me)
+    (forget-value! product me)
+    (forget-value! m1 me)
+    (forget-value! m2 me)
     (process-new-value))
 
   (define (me request)
@@ -104,7 +104,7 @@
            (process-forget-value))
           (else
            (error "Unknow request -- PROBE" request))))
-  (connector connector me)
+  (connect connector me)
   me)
 
 ; Connector constraint
@@ -120,7 +120,7 @@
              (for-each-except setter
                               inform-about-value
                               constraints))
-            ((not (= value newval))
+            ((not (eq? value newval))
              (error "Contraiction" (list value newval)))
             (else 'ignored)))
 
@@ -156,7 +156,7 @@
   (connector 'has-value?))
 
 (define (get-value connector)
-  (connector 'get-value))
+  (connector 'value))
 
 (define (set-value! connector new-value informant)
   ((connector 'set-value!) new-value informant))
