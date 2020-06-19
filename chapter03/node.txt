@@ -4,4 +4,133 @@
 
 一个数字信号在任何时刻都只能具有 0 和 1可能值之一
 
-P198
+3.4.1 并发系统中的时间的性质
+
+1 Peter 从两人共有的账户里面提取 10 元，而后 Paul 提款 25 元
+  按照两次提款顺序的不同，账户余额变化的序列可以是
+  - 100 → 90 → 65
+  - 100 → 75 → 65
+
+`
+(define (make-withdraw balance)
+  (lambda (amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds")))
+`
+
+2
+`
+(set! balance (- balance amount))
+`
+① 取得 balance 的值
+② 计算新的余额
+③ 将 balance 设置为新的值
+
+## 对共享变量的串行访问
+
+- 串行化组 serializer
+使进程可以并发的执行，但是其中也有一些过程不能并发的执行
+
+parallel-execute
+(parallel-execute <p1> <p2> ... <pk>)
+
+`
+; example
+(define x 10)
+
+(parallel-execute (lambda () (set! x (* x x)))
+                  (lambda () (set! x (+ x 1))))
+`
+
+101 -> (p1 100) -> (p2 101)
+121 -> (p2 11) -> (p1 11)
+110 -> (p1 x=10) (p2 11) (p1 10 11)
+11 -> (p2 x=10) (p1 100) (p2 11)
+100 -> (p1 x=10) (p2 11) (p1 100)
+
+; make-serializer
+`
+(define x 10)
+(define s (make-serializer))
+(parallel-execute (s (lambda () (set! x (* x x))))
+                  (s (lambda () (set! x (+ x 1)))))
+`
+101 -> (p1 100) (p2 101)
+121 -> (p2 11) (p1 121)
+
+`
+(define (exchange account1 account2)
+  (let ((difference (- (account1 'balance)
+                       (account2 'balance))))
+    ((account1 'withdraw) difference)
+    ((account2 'deposit) difference)))
+`
+
+; a1=80 a2=120 a3=140
+
+; Peter -> a1 a2 [40] -> a1=120 a2=80
+; Paul  -> a1 a3 [60] -> a1=140 a3=80
+
+为了得到正确的过程，就必须确保在执行 exchange 完成期间，
+封锁所有任何对 account1 和 account2 的其他访问。
+
+"用两个账户的串行化组将整个 exchange 串行化"
+
+`
+(define (make-account-and-serializer balance)
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+  
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  
+  (let ((balance-serializer (make-serializer)))
+    (define (dispatch m)
+      (cond ((eq? m 'withdraw) withdraw)
+            ((eq? m 'deposit) deposit)
+            ((eq? m 'balance) balance)
+            ((eq? m 'serializer) balance-serializer)
+            (else
+              (error "Unknow request -- MAKE-ACCOUNT" m))))
+    dispatch))
+`
+
+`
+(define (serialized-exchange account1 account2)
+  (let ((serializer1 (account1 'serializer))
+        (serializer2 (account2 'serializer)))
+    ((serializer1 (serializer2 exchange))
+     account1
+     account2)))
+`
+
+## 串行化的实现
+
+
+
+
+
+
+
+
+
+
+(define (add a b)
+  (+ a b))
+
+(define (make)
+  (lambda (p)
+    (define (f . args)
+      (apply p args))
+    f))
+
+(define s (make))
+
+((s add) 1 2)
+
