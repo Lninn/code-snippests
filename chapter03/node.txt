@@ -112,25 +112,3 @@ parallel-execute
 
 ## 串行化的实现
 
-
-
-
-
-
-
-
-
-
-(define (add a b)
-  (+ a b))
-
-(define (make)
-  (lambda (p)
-    (define (f . args)
-      (apply p args))
-    f))
-
-(define s (make))
-
-((s add) 1 2)
-
