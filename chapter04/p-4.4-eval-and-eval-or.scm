@@ -51,8 +51,24 @@ and
             false)
         false)
     false)
+|#
 
+(define (eval-and exp env)
+  
+  (define (iter exp)
+    (if (null? exp)
+        'true
+        (let ((f (first-exp exp))
+              (r (rest-exp exp)))
+          (if (last-exp? exp)
+              (eval f env)
+              (make-if (eval f env)
+                       (iter r)
+                       'false)))))
 
+  (iter (cdr exp)))
+
+#|
 or
 (or a b c)
 
@@ -64,3 +80,16 @@ or
             c
             false)))
 |#
+
+(define (eval-or exp env)
+  
+  (define (iter exp)
+    (if (null? exp)
+        'false
+        (let ((f (first-exp exp))
+              (r (rest-exp exp)))
+          (make-if (eval f env)
+                   (eval f env)
+                   (iter r)))))
+
+  (iter (cdr exp)))
