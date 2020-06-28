@@ -29,7 +29,7 @@ begin表达式：begin?
         ((cond? exp) (eval (cond->if exp) env))
         ((application? exp)
          (apply (eval (operator exp) env)
-                (list-of-values (operatands exp) env)))
+                (list-of-values (operands exp) env)))
         (else
          (error "Unknow expression type -- EVAL" exp))))
 
@@ -48,6 +48,8 @@ compound-procedure?
 调用的实际参数
 |#
 (define (apply procedure arguments)
+  (newline)
+  (display procedure)
   (cond ((primitive-procedure? procedure)
          (apply-primitive-procedure procedure arguments))
         ((compound-procedure? procedure)
