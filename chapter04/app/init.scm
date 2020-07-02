@@ -29,4 +29,11 @@
 
 (define the-global-environment (setup-environment))
 
-(driver-loop)
+; (driver-loop)
+
+; (define (append x y)
+;   (if (null? x)
+;       y
+;       (cons (car x) (append (cdr x) y))))
+
+; (define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))

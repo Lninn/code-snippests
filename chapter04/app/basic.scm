@@ -77,14 +77,14 @@
 (define (begin-actions exp)
 	(cdr exp))
 
-(define (last-exp? exp)
-	(null? (cdr exp)))
+(define (last-exp? seq)
+	(null? (cdr seq)))
 
-(define (first-exp exp)
-  (car exp))
+(define (first-exp seq)
+  (car seq))
 
-(define (rest-exps exp)
-	(cdr exp))
+(define (rest-exps seq)
+	(cdr seq))
 
 (define (sequence->exp seq)
 	(cond ((null? seq) seq)
