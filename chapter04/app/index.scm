@@ -1,1 +1,8 @@
 (load "tagged-list.scm")
+(load "eval.scm")
+(load "apply.scm")
+(load "basic.scm")
+(load "environment.scm")
+(load "procedure.scm")
+(load "input.scm")
+(load "init.scm")
