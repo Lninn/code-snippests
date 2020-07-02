@@ -27,7 +27,7 @@
   (map (lambda (p) (list 'primitive (cadr p)))
        primitive-procedures))
 
-(define the-global-environment (setup-environment))
+(define global (setup-environment))
 
 ; (driver-loop)
 

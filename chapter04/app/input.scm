@@ -4,7 +4,7 @@
 (define (driver-loop)
 	(prompt-for-input input-prompt)
 	(let ((input (read)))
-		(let ((output (eval input the-global-environment)))
+		(let ((output (eval input global)))
 			(announce-output output-prompt)
 			(user-print output)))
 	(driver-loop))
