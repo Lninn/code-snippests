@@ -10,7 +10,7 @@
                                 arguments
                                 (procedure-env procedure))))
         (else
-         (error "Unknow procedure type -- APPLY" procedure))))
+         (error "Unknow procedure type -- APPLY" (list procedure arguments)))))
 
 (define (list-of-values exps env)
   (if (no-operands? exps)

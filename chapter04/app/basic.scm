@@ -1,7 +1,7 @@
 (define (self-evaluating? exp)
   (cond ((number? exp) true)
         ((string? exp) true)
-        (else flase)))
+        (else false)))
 
 
 (define (variable? exp)
@@ -9,7 +9,7 @@
 
 
 (define (quoted? exp)
-	(tagged-list exp 'quote))
+	(tagged-list? exp 'quote))
 
 (define (text-of-quotation exp)
 	(cadr exp))
@@ -104,7 +104,7 @@
 (define (operands exp)
   (cdr exp))
 
-(define (no-operands ops)
+(define (no-operands? ops)
   (null? ops))
 
 (define (first-operand ops)
