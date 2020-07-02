@@ -1,11 +1,11 @@
 (define (primitive-procedure? p)
-	(tagged-list? p 'primitive))
+  (tagged-list? p 'primitive))
 
 (define (primitive-implementation p)
-	(cadr p))
+  (cadr p))
 
 (define (apply-primitive-procedure p args)
-	(apply-in-underlying-scheme
+  (apply-in-underlying-scheme
 	 (primitive-implementation p) args))
 
 
