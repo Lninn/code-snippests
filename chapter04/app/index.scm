@@ -1,7 +1,7 @@
 (load "tagged-list.scm")
 (load "eval.scm")
 (load "apply.scm")
-(load "basic.scm")
+(load "sytanx.scm")
 (load "environment.scm")
 (load "procedure.scm")
 (load "input.scm")
