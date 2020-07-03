@@ -1,3 +1,6 @@
+求值器决定了一个程序设计语言中各个表达式的意义，而它本身也不过就是另一个程序。
+
+
 ```
 exp ->
 (define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
