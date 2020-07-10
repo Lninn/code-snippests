@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mouse Postion</title>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+		integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<style>
+		body {
+			padding-top: 5rem;
+      position: relative;
+		}
+
+		.starter-template {
+			padding: 3rem 1.5rem;
+			text-align: center;
+		}
+
+    footer {
+      width: 2440px;
+    }
+
+    .horiz-line {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      top: var(--pagey, 0);
+      background-color: #FF8066;
+    }
+
+    .vertical-line {
+      position: absolute;
+      width: 1px;
+      height: 100vh;
+      top: 0;
+      left: var(--pagex, 0);
+      background-color: #FF8066;
+    }
+
+    .client-horiz-line {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      top: var(--clienty, 0);
+      background-color: #54d2d2;
+    }
+
+    .client-vertical-line {
+      position: absolute;
+      width: 1px;
+      height: 100vh;
+      top: 0;
+      left: var(--clientx, 0);
+      background-color: #54d2d2;
+    }
+
+    .line {
+      z-index: 9999;
+    }
+	</style>
+</head>
+
+<body>
+  <!-- page postion -->
+  <div class="horiz-line line"></div>
+  <div class="vertical-line line"></div>
+
+  <!-- client position -->
+  <div class="client-horiz-line line"></div>
+  <div class="client-vertical-line line"></div>
+
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+		<a class="navbar-brand" href="#">Navbar</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+		<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#">Link</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false">Dropdown</a>
+					<div class="dropdown-menu" aria-labelledby="dropdown01">
+						<a class="dropdown-item" href="#">Action</a>
+						<a class="dropdown-item" href="#">Another action</a>
+						<a class="dropdown-item" href="#">Something else here</a>
+					</div>
+				</li>
+			</ul>
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+				<button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+			</form>
+		</div>
+	</nav>
+
+	<main role="main" class="container">
+
+		<div class="starter-template">
+			<h1>Bootstrap starter template</h1>
+			<p class="lead">Use this document as a way to quickly start any new
+				project.<br> All you get is this text and a mostly barebones HTML document.</p>
+		</div>
+
+	</main>
+
+  <footer>
+  HELLOWORLD
+  </footer>
+
+  <script>
+
+  // document.addEventListener('mousedown', function(event) {
+  //   var body = document.body;
+
+  //   body.style.setProperty('--pagex', event.pageX + 'px');
+  //   body.style.setProperty('--pagey', event.pageY + 'px');
+  // })
+
+  document.addEventListener('mousemove', function(event) {
+    var body = document.body;
+    var html = document.documentElement;
+
+    body.style.setProperty('--pagex', event.pageX + 'px');
+    body.style.setProperty('--pagey', event.pageY + 'px');
+
+    html.style.setProperty('--clientx', event.clientX + 'px');
+    html.style.setProperty('--clienty', event.clientY + 'px');
+  })
+
+  </script>
+
+</body>
+
+</html>
