@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading Progress</title>
+
+  <style>
+  .container {
+    padding: 20px;
+  }
+
+  .bar {
+    width: 300px;
+    height: 20px;
+    background-color: #f5f5f5;
+
+    margin: 5px 0 10px;
+  }
+  .bar::before {
+    display: block;
+
+    counter-reset: progress var(--percent);
+    content: counter(progress) '%\2002';
+    width: calc(300px * var(--percent) / 100);
+
+    background-color: #2486ff;
+    text-align: right;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <h2>Loading Progress</h2>
+
+    <div class="bar" style="--percent: 60;"></div>
+
+    <div class="bar" style="--percent: 40;"></div>
+
+    <div class="bar" style="--percent: 20;"></div>
+  </div>
+</body>
+</html>
