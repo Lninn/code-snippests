@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu</title>
+
+  <style>
+  .container {
+    width: 500px;
+    margin: auto;
+
+    margin-top: 100px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .tabs {
+    position: relative;
+
+    width: 414px;
+    margin: auto;
+
+    display: flex;
+    justify-content: space-between;
+
+    background-color: #fff;
+    border-bottom: 1px solid #717678;
+  }
+
+  .tabs[style]::before,
+  .tabs[style]::after {
+    content: '';
+  }
+
+  .tabs[style]::before,
+  .tabs[style]::after {
+    position: absolute;
+    width: calc(var(--target-width, 0) * 1px);
+    left: calc(var(--target-left, -299) * 1px);
+    color: #2a80eb;
+  }
+
+  .tabs::before {
+    background-color: currentColor;
+    height: calc(var(--target-height) * 1px);
+    mix-blend-mode: overlay;
+  }
+
+  .tabs::after {
+    border-bottom: solid;
+    bottom: -2px;
+    transition: left .2s, width .2s;
+  }
+
+  .tab-item {
+    color:  #717678;
+    padding: 10px 0;
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <a href="javascript:" class="tab-item">QQ阅读</a>
+      <a href="javascript:" class="tab-item">起点读书</a>
+      <a href="javascript:" class="tab-item">红袖读书</a>
+      <a href="javascript:" class="tab-item">飞读免费小说</a>
+    </div>
+  </div>
+
+  <script>
+    const item = document.querySelector('.tab-item');
+    item.parentElement.style.setProperty('--target-width', item.clientWidth);
+    item.parentElement.style.setProperty('--target-height', item.clientHeight);
+    item.parentElement.style.setProperty('--target-left', item.offsetLeft);
+    item.parentElement.style.setProperty('--target-top', item.offsetTop);
+
+    document.addEventListener('mousedown', function (event) {
+      var target = event.target;
+      var body = document.body;
+      var html = document.documentElement;
+
+      // 设置自定义属性值
+      body.style.setProperty('--pagex', event.pageX);
+      body.style.setProperty('--pagey', event.pageY);
+
+      html.style.setProperty('--clientx', event.clientX);
+      html.style.setProperty('--clienty', event.clientY);
+      html.style.setProperty('--scrolly', window.pageYOffset);
+
+      target.style.setProperty('--offsetx', event.offsetX);
+      target.style.setProperty('--offsety', event.offsetY);
+      target.parentElement.style.setProperty('--target-width', target.clientWidth);
+      target.parentElement.style.setProperty('--target-height', target.clientHeight);
+      target.parentElement.style.setProperty('--target-left', target.offsetLeft);
+      target.parentElement.style.setProperty('--target-top', target.offsetTop);
+    });
+  </script>
+</body>
+</html>
