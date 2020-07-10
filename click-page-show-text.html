@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Show Text</title>
+
+  <style>
+  html, body {
+    height: 100vh;
+  }
+
+  body:active::after {
+    transform: translate(-50%, -100%);
+    opacity: .5;
+    transition: 0s;
+    left: -999px;
+  }
+  body::after {
+    content: "Hello World";
+
+    z-index: 999;
+    
+    position: absolute;
+    left: calc(var(--pagex, -999) * 1px);
+    top: calc(var(--pagey, -999) * 1px);
+
+    transform: translate(-50%, calc(-100% - 20px));
+    opacity: 0;
+
+    transition: transform .3s, opacity .5s;
+  }
+  </style>
+</head>
+<body>
+  <script>
+  document.addEventListener('mousedown', function(event) {
+    const body = document.body;
+
+    body.style.setProperty('--pagex', event.pageX);
+    body.style.setProperty('--pagey', event.pageY);
+  })
+  </script>
+</body>
+</html>
