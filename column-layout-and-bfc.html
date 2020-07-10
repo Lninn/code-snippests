@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Column Layout</title>
+
+  <style>
+  .demo + .demo {
+    margin-top: 20px;
+  }
+  
+  .demo {
+    width: 600px;
+    height: 300px;
+    border: 1px solid #ddd;
+  }
+
+  .demo-1 img {
+    width: 160px;
+    background-color: red;
+
+    float: left;
+  }
+
+  .demo-1 .container {
+    width: 500px;
+
+    overflow: auto;
+    resize: horizontal;
+  }
+
+  .demo-1 .content{
+    margin-left: 180px;
+  }
+
+  .demo-2 img {
+    width: 160px;
+    background-color: red;
+
+    float: left;
+    margin-right: 20px;
+  }
+
+  .demo-2 .content {
+    display: table-cell;
+    width: 9999px;
+  }
+
+  .demo-2 .container {
+    overflow: auto;
+    resize: horizontal;
+  }
+  </style>
+</head>
+<body>
+  
+  <div class="demo demo-1">
+    <div class="container">
+      <img src="https://cdn.pixabay.com/photo/2020/07/05/19/50/daisy-5374389_960_720.jpg" alt="">
+      <div class="content">
+        Lorem ipsum dolor sit amet,Et ligula ullamcorper malesuada proin libero nunc.Non consectetur a erat nam at lectus. Quam vulputate dignissim suspendisse in. Volutpat diam ut venenatis tellus in metus vulputate eu
+      </div>
+    </div>
+  </div>
+
+  <div class="demo demo-2">
+    <div class="container">
+      <img src="https://cdn.pixabay.com/photo/2020/07/05/19/50/daisy-5374389_960_720.jpg" alt="">
+      <div class="content">
+        Lorem ipsum dolor sit amet,Et ligula ullamcorper malesuada proin libero nunc.Non consectetur a erat nam at lectus. Quam vulputate dignissim suspendisse in. Volutpat diam ut venenatis tellus in metus vulputate eu
+      </div>
+    </div>
+  </div>
+</body>
+</html>
