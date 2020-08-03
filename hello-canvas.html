@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello Canvas</title>
+  <style>
+    body {
+      background-color: #dddddd;
+    }
+
+    canvas {
+      margin: 10px;
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #aaaaaa;
+
+      width: 600px;
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="id-canvas" width="600" height="300">
+    你的浏览器不支持 Canvas 元素
+  </canvas>
+
+  <script>
+    const canvas = document.getElementById('id-canvas')
+
+    function setup(canvas) {
+      const { width, height } = canvas
+      // console.log(`width ${width}, height ${height}`)
+
+      const ctx = canvas.getContext('2d')
+
+      ctx.hello = function() {}
+      console.log(ctx)
+
+      ctx.font = '36px Arial'
+      ctx.fillStyle = 'cornflowerblue'
+      ctx.strokeStyle = 'blue'
+
+      ctx.fillText('Hello Canvas', width / 2 - 150, height / 2 - 15)
+      ctx.strokeText('Hello Canvas', width / 2 - 150, height / 2 - 15)
+    }
+
+    setup(canvas)
+  </script>
+</body>
+</html>

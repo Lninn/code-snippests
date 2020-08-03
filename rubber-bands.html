@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rubber bands with layered elements</title>
+  <style>
+    body {
+      background-color: rgba(100, 145, 250, 0.3);
+    }
+
+    canvas {
+      margin-left: 20px;
+      margin-right: 0;
+      margin-bottom: 20px;
+      border: thin solid #aaaaaa;
+      padding: 0;
+      cursor: crosshair;
+    }
+
+    #rubberbandDiv {
+      display: none;
+      position: absolute;
+      border: 3px solid blue;
+      cursor: crosshair;
+    }
+
+    #controls {
+      margin: 20px 0 20px 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <input type="button" value="Reset" id="reset-btn">
+  </div>
+
+  <div id="rubberbandDiv"></div>
+
+  <canvas id="id-canvas" width="800" height="520">
+    你的浏览器不支持 Canvas 元素
+  </canvas>
+
+  <script>
+    const canvas = document.getElementById('id-canvas')
+    const ctx = canvas.getContext('2d')
+    const resetBtn = document.querySelector('#reset-btn')
+
+    class Control {
+      constructor(sel) {
+        const el = document.querySelector(sel)
+        this.el = el
+      }
+
+      move() {
+        const { el } = this
+        el.style.top = rubberbandRectangle.top + 'px'
+        el.style.left = rubberbandRectangle.left + 'px'
+      }
+
+      show() {
+        this.el.style.display = 'inline'
+      }
+
+      hidden() {
+        this.el.style.display = 'none'
+      }
+
+      resize() {
+        const { el } = this
+        el.style.width = rubberbandRectangle.width + 'px'
+        el.style.height = rubberbandRectangle.height + 'px'
+      }
+
+      reset() {
+        const { el } =  this
+        el.style.width = 0
+        el.style.height = 0
+      }
+    }
+
+    const rubberband = new Control('#rubberbandDiv')
+
+    function c({ clientX, clientY }) {
+      return { x: clientX, y: clientY }
+    }
+
+    const mousedown = {}
+    let rubberbandRectangle = {}
+    let dragging = false
+
+    function rubberbandStretch(x, y) {
+      rubberbandRectangle.left = x < mousedown.x ? x : mousedown.x
+      rubberbandRectangle.top = y < mousedown.y ? y : mousedown.y
+      
+      rubberbandRectangle.width = Math.abs(x - mousedown.x)
+      rubberbandRectangle.height = Math.abs(y - mousedown.y)
+      
+      rubberband.move()
+      rubberband.resize()
+    }
+
+    canvas.onmousedown = function(e) {
+      const { which } = e
+      if (which != 1) {
+        return
+      }
+      
+      const { x, y } = c(e)
+
+      mousedown.x = x
+      mousedown.y = y
+
+      rubberbandRectangle.left = x
+      rubberbandRectangle.top = y
+
+      rubberband.move()
+      rubberband.show()
+      dragging = true
+    }
+
+    window.onmousemove = function(e) {
+      const { x, y } = c(e)
+
+      e.preventDefault()
+      if (dragging) {
+        rubberbandStretch(x, y)
+      }
+    }
+
+    window.onmouseup = function(e) {
+      const bbox = canvas.getBoundingClientRect()
+
+      try {
+        ctx.drawImage(
+          canvas,
+          rubberbandRectangle.left - bbox.left,
+          rubberbandRectangle.top - bbox.top,
+          rubberbandRectangle.width,
+          rubberbandRectangle.height,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        )
+      } catch (error) {
+        console.log('error')
+      }
+
+      rubberbandRectangle = {
+        top: 0,
+        left: 0,
+        width: 0,
+        height: 0
+      } 
+
+      rubberband.hidden()
+      rubberband.reset()
+
+      dragging = false
+    }
+
+    const image = new Image()
+    image.onload = function() {
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+    }
+    image.src="./img/hello-bg.jpg"
+
+    resetBtn.addEventListener('click', function(e) {
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+    }) 
+  </script>
+</body>
+</html>

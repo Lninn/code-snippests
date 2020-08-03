@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprite sheets</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #dddddd;
+    }
+
+    canvas {
+      margin: 20px;
+      background-color: #ffffff;
+      border: 1px solid #aaaaaa;
+    }
+
+    #read-out {
+      margin-top: 10px;
+      margin-left: 15px;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <div id="read-out"></div>
+
+  <canvas id="id-canvas" width="500" height="506">
+    你的浏览器不支持 Canvas 元素
+  </canvas>
+
+  <script>
+    const canvas = document.getElementById('id-canvas')
+    const readout = document.getElementById('read-out')
+    const ctx = canvas.getContext('2d')
+
+    function windowToCanvas(canvas, x, y) {
+      const bbox = canvas.getBoundingClientRect()
+
+      return {
+        x: x - bbox.left * (canvas.width / bbox.width),
+        y: y - bbox.top * (canvas.height / bbox.height)
+      }
+    }
+
+    function drawVerticalLine(x) {
+      ctx.beginPath()
+      ctx.moveTo(x + 0.5, 0)
+      ctx.lineTo(x + 0.5, canvas.height)
+      ctx.stroke()
+    }
+
+    function drawHorizontalLine(y) {
+      ctx.beginPath()
+      ctx.moveTo(0, y + 0.5)
+      ctx.lineTo(canvas.width, y + 0.5)
+      ctx.stroke()
+    }
+
+    function drawGuidelines(x, y) {
+      ctx.strokeStyle = 'rgba(0, 0, 230, 0.8)'
+      ctx.lineWidth = 0.5
+
+      drawVerticalLine(x)
+      drawHorizontalLine(y)
+    }
+
+    function updateReadout(x, y) {
+      readout.innerText = `(${x.toFixed(0)}, ${y.toFixed(0)})`
+    }
+
+    canvas.onmousemove = function(e) {
+      const loc = windowToCanvas(canvas, e.clientX, e.clientY)
+      
+      drawBackground()
+      drawSpriteSheet()
+      drawGuidelines(loc.x, loc.y)
+      updateReadout(loc.x, loc.y)
+    }
+    
+    function drawBackground() {
+      const VERTICAL_LINE_SPAING = 12
+      const { width, height } = canvas
+
+      let i = height
+
+      ctx.clearRect(0, 0, width, height)
+      ctx.strokeStyle = 'lightgray'
+      ctx.lineWidth = 0.5
+
+      while (i > VERTICAL_LINE_SPAING * 21) {
+        ctx.beginPath()
+        ctx.moveTo(0, i)
+        ctx.lineTo(width, i)
+        ctx.stroke()
+
+        i -= VERTICAL_LINE_SPAING
+      }
+    }
+
+    const spritesheet = new Image()
+
+    function drawSpriteSheet() {
+      ctx.drawImage(spritesheet, 0, 0)
+    }
+
+    spritesheet.onload = function() {
+      drawSpriteSheet()
+    }
+    spritesheet.src="./img/explosion-sprite-sheet.png"
+
+    function __main() {
+      drawBackground()
+    }
+
+    __main()
+  </script>
+</body>
+</html>
