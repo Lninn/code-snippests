@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make Cutout Shape</title>
+  <style>
+
+    canvas {
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="1000" height="700"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    
+    function addOuterRectanglePath() {
+      ctx.rect(110, 25, 370, 335)
+    }
+
+    function addCirclePath() {
+      ctx.arc(300, 300, 40, 40, Math.PI * 2, true)
+    }
+
+    function addRectanglePath() {
+      rect(310, 55, 70, 35, true)
+    }
+
+    function rect(x, y, w, h, directon) {
+      if (directon) {
+        ctx.moveTo(x, y)
+        ctx.lineTo(x, y + h)
+        ctx.lineTo(x + w, y + h)
+        ctx.lineTo(x + w, y)
+        ctx.closePath()
+      } else {
+        ctx.moveTo(x, y)
+        ctx.lineTo(x + w, y)
+        ctx.lineTo(x + w, y + h)
+        ctx.lineTo(x, y + h)
+        ctx.closePath()
+      }
+    }
+
+    function addTrianglePath() {
+      ctx.moveTo(400, 200)
+      ctx.lineTo(250, 115)
+      ctx.lineTo(200, 200)
+      ctx.closePath()
+    }
+
+    function drawCutouts() {
+      ctx.beginPath()
+      addOuterRectanglePath()  // CW
+
+      addCirclePath()
+      addRectanglePath()
+      addTrianglePath()
+
+      ctx.fill()  // Cut out shapes
+    }
+
+    function strokeCutoutShapes() {
+      ctx.save()
+      
+      ctx.strokeStyle = 'rgba(0, 0, 0, .7)'
+      ctx.beginPath()
+
+      addCirclePath()
+      addRectanglePath()
+      addTrianglePath()
+      ctx.stroke()
+
+      ctx.restore()
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      ctx.save()
+
+      ctx.shadowColor = 'rgba(200, 200, 0, .5)'
+      ctx.shadowOffsetX = 12
+      ctx.shadowOffsetY = 12
+      ctx.shadowBlur = 15
+
+      drawCutouts()
+      strokeCutoutShapes()
+
+      ctx.restore()
+    }
+
+    ctx.fillStyle = 'goldenrod'
+    draw()
+  </script>
+</body>
+</html>

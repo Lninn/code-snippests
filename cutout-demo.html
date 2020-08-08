@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cutout Demo</title>
+  <style>
+
+    canvas {
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="1000" height="700"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    
+    function drawTwoArcs() {
+      ctx.beginPath()
+      ctx.arc(300, 190, 150, 0, Math.PI * 2, false)  // Outer:CCW
+      ctx.arc(300, 190, 100, 0, Math.PI * 2, true)   // Inner: CW
+
+      ctx.fill()
+      ctx.shadowColor = undefined
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+      ctx.stroke()
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.save()
+
+      ctx.shadowColor = 'rgba(0, 0, 0, .8)'
+      ctx.shadowOffsetX = 12
+      ctx.shadowOffsetY = 12
+      ctx.shadowBlur = 15
+
+      drawTwoArcs()
+
+      ctx.restore()
+    }
+
+    ctx.fillStyle = 'rgba(100, 140, 230, .5)'
+    ctx.strokeStyle = ctx.fillStyle
+
+    draw()
+  </script>
+</body>
+</html>
