@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draw Grid Demo</title>
+  <style>
+    body {
+      background-color: #dddddd;
+    }
+
+    canvas {
+      margin: 10px;
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #aaaaaa;
+
+      width: 600px;
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="id-canvas" width="600" height="300">
+    你的浏览器不支持 Canvas 元素
+  </canvas>
+
+  <script>
+    const canvas = document.getElementById('id-canvas')
+    const ctx = canvas.getContext('2d')
+
+    function drawGrid(ctx, color, stepx, stepy) {
+      ctx.strokeStyle = color
+      ctx.lineWidth = 0.5
+
+      var i = stepx + 0.5
+      var { width: w, height: h } = ctx.canvas
+      for (; i < w; i += stepx) {
+        ctx.beginPath()
+        ctx.moveTo(i, 0)
+        ctx.lineTo(i, h)
+        ctx.stroke()
+      }
+
+      i = stepy + 0.5
+      for (; i < h; i += stepy) {
+        ctx.beginPath()
+        ctx.moveTo(0, i)
+        ctx.lineTo(w, i)
+        ctx.stroke()
+      }
+    }
+
+    drawGrid(ctx, 'lightgray', 10, 10)
+  </script>
+</body>
+</html>

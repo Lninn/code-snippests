@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axis of Coordinates</title>
+  <style>
+    body {
+      background-color: #dddddd;
+    }
+
+    canvas {
+      margin: 10px;
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #aaaaaa;
+
+      width: 600px;
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="id-canvas" width="600" height="300">
+    你的浏览器不支持 Canvas 元素
+  </canvas>
+
+  <script>
+    var canvas = document.getElementById('id-canvas')
+    var ctx = canvas.getContext('2d')
+
+    var AXIS_MARGIN = 40,
+        AXIS_ORIGIN = {
+          x: AXIS_MARGIN,
+          y: canvas.height - AXIS_MARGIN
+        },
+        
+        AXIS_TOP = AXIS_MARGIN,
+        AXIS_RIGHT = canvas.width - AXIS_MARGIN,
+
+        HORIZONTAL_TICK_SPACING = 10,
+        VERTICAL_TICK_SPAING = 10,
+
+        AXIS_WIDTH = AXIS_RIGHT - AXIS_ORIGIN.x,
+        AXIS_HEIGHY = AXIS_ORIGIN.y - AXIS_TOP,
+
+        NUM_VERTICAL_TICKS = AXIS_HEIGHY / VERTICAL_TICK_SPAING,
+        NUM_HORIZONTAL_TICKS = AXIS_WIDTH / HORIZONTAL_TICK_SPACING,
+
+        TICK_WIDTH = 10,
+        TICKS_LINEWIDTH = 0.5,
+        TICKS_COLOR = 'navy',
+
+        AXIS_LINEWIDTH = 1.0,
+        AXIS_COLOR = 'blue'
+
+    function drawHorizontalAxis() {
+      ctx.beginPath()
+      ctx.moveTo(AXIS_ORIGIN.x, AXIS_ORIGIN.y)
+      ctx.lineTo(AXIS_RIGHT, AXIS_ORIGIN.y)
+      ctx.stroke()
+    }
+
+    function drawVerricalAxis() {
+      ctx.beginPath()
+      ctx.moveTo(AXIS_ORIGIN.x, AXIS_ORIGIN.y)
+      ctx.lineTo(AXIS_ORIGIN.x, AXIS_TOP)
+      ctx.stroke()
+    }
+
+    function drawVerticalAxisTicks() {
+      var deltaX
+
+      var i = 1
+      for (; i < NUM_VERTICAL_TICKS; i++) {
+        ctx.beginPath()
+
+        if (i % 5 === 0) {
+          deltaX = TICK_WIDTH
+        } else {
+          deltaX = TICK_WIDTH / 2
+        }
+
+        ctx.moveTo(
+          AXIS_ORIGIN.x - deltaX,
+          AXIS_ORIGIN.y - i * VERTICAL_TICK_SPAING
+        )
+        ctx.lineTo(
+          AXIS_ORIGIN.x + deltaX,
+          AXIS_ORIGIN.y - i * VERTICAL_TICK_SPAING
+        )
+        ctx.stroke()
+      }
+    }
+
+    function drawHorizontalAxisTicks() {
+      var deltaY
+
+      var i = 1
+      for (; i < NUM_HORIZONTAL_TICKS; i++) {
+        ctx.beginPath()
+
+        if (i % 5 === 0) {
+          deltaY = TICK_WIDTH
+        } else {
+          deltaY = TICK_WIDTH / 2
+        }
+
+        ctx.moveTo(
+          AXIS_ORIGIN.x + i * HORIZONTAL_TICK_SPACING,
+          AXIS_ORIGIN.y - deltaY
+        )
+        ctx.lineTo(
+          AXIS_ORIGIN.x + i * HORIZONTAL_TICK_SPACING,
+          AXIS_ORIGIN.y + deltaY
+        )
+        ctx.stroke()
+      }
+    }
+
+    function drawAxes() {
+      ctx.save()
+
+      ctx.strokeStyle = AXIS_COLOR
+      ctx.lineWidth = AXIS_LINEWIDTH
+
+      drawHorizontalAxis()
+      drawVerricalAxis()
+
+      ctx.lineWidth = TICKS_LINEWIDTH
+      ctx.strokeStyle = TICKS_COLOR
+
+      drawVerticalAxisTicks()
+      drawHorizontalAxisTicks()
+
+      ctx.restore()
+    }
+
+    function drawGrid(ctx, color, stepx, stepy) {
+      ctx.strokeStyle = color
+      ctx.lineWidth = 0.5
+
+      var i = stepx + 0.5
+      var { width: w, height: h } = ctx.canvas
+      for (; i < w; i += stepx) {
+        ctx.beginPath()
+        ctx.moveTo(i, 0)
+        ctx.lineTo(i, h)
+        ctx.stroke()
+      }
+
+      i = stepy + 0.5
+      for (; i < h; i += stepy) {
+        ctx.beginPath()
+        ctx.moveTo(0, i)
+        ctx.lineTo(w, i)
+        ctx.stroke()
+      }
+    }
+
+    drawGrid(ctx, 'lightgray', 10, 10)
+    drawAxes()
+  </script>
+</body>
+</html>
