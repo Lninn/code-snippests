@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draw Dashed line</title>
+  <style>
+    body {
+      background-color: #dddddd;
+    }
+
+    canvas {
+      margin: 10px;
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #aaaaaa;
+
+      width: 600px;
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="id-canvas" width="600" height="300">
+    你的浏览器不支持 Canvas 元素
+  </canvas>
+
+  <script>
+    const canvas = document.getElementById('id-canvas')
+    const ctx = canvas.getContext('2d')
+
+    // 绘制虚线的函数
+    function drawDashedLine(ctx, start, end, dashLength) {
+      dashLength = dashLength === undefined ? 5 : dashLength
+
+      const [x1, y1] = start
+      const [x2, y2] = end
+
+      const deltaX = x2 - x1
+      const deltaY = y2 - y1
+      
+      // 计算两点间的距离
+      const numDashes = Math.floor(
+        Math.sqrt(deltaX * deltaX + deltaY * deltaY) / dashLength
+      )
+
+      var i = 0
+      var t
+      for (; i < numDashes; i++) {
+        t = i % 2 === 0 ? 'moveTo' : 'lineTo'
+        ctx[t](
+          x1 + (deltaX / numDashes) * i,
+          y1 + (deltaY / numDashes) * i
+        )
+      }
+
+      ctx.stroke()
+    }
+
+    ctx.lineWidth = 3
+    ctx.strokeStyle = 'blue'
+
+    // drawDashedLine(ctx, [20, 20], [canvas.width - 20, 20])
+    // drawDashedLine(
+    //   ctx,
+    //   [canvas.width - 20, 20],
+    //   [canvas.width - 20, canvas.height - 20],
+    //   10
+    // )
+    // drawDashedLine(
+    //   ctx,
+    //   [canvas.width - 20, canvas.height - 20],
+    //   [canvas.height - 20, 20],
+    //   5
+    // )
+    // drawDashedLine(
+    //   ctx,
+    //   [20, canvas.height - 20],
+    //   [20, 20],
+    //   2
+    // )
+
+    //
+    const moveToFunction = CanvasRenderingContext2D.prototype.moveTo
+    CanvasRenderingContext2D.prototype.lastMoveToLocation = {}
+
+    CanvasRenderingContext2D.prototype.moveTo = function(x, y) {
+      moveToFunction.apply(ctx, [x, y])
+
+      this.lastMoveToLocation.x = x
+      this.lastMoveToLocation.y = y
+    }
+
+    CanvasRenderingContext2D.prototype.dashedLineTo = function(x2, y2, dashLength) {
+      dashLength = dashLength === undefined ? 5 : dashLength
+
+      const x1 = this.lastMoveToLocation.x
+      const y1 = this.lastMoveToLocation.y
+
+      const deltaX = x2 - x1
+      const deltaY = y2 - y1
+      
+      // 计算两点间的距离
+      const numDashes = Math.floor(
+        Math.sqrt(deltaX * deltaX + deltaY * deltaY) / dashLength
+      )
+
+      var i = 0
+      var t
+      for (; i < numDashes; i++) {
+        t = i % 2 === 0 ? 'moveTo' : 'lineTo'
+        ctx[t](
+          x1 + (deltaX / numDashes) * i,
+          y1 + (deltaY / numDashes) * i
+        )
+      }
+
+      this.moveTo(x2, y2)
+      ctx.stroke()
+    }
+
+    ctx.moveTo(20, 20)
+    ctx.dashedLineTo(canvas.width - 20, 20)
+    ctx.dashedLineTo(canvas.width - 20, canvas.height - 20)
+    ctx.dashedLineTo(20, canvas.height - 20, 2)
+
+  </script>
+</body>
+</html>
