@@ -119,10 +119,29 @@
     }
 
     function drawRubberbandShape(loc) {
+      let angle, radius
+
+      // horizontal line
+      if (mousedown.y == loc.y) {
+        radius = Math.abs(loc.x - mousedown.x)
+      } else {
+        angle = Math.atan(rubberbandRect.height / rubberbandRect.width)
+        radius = rubberbandRect.height / Math.sin(angle)
+      }
+
       ctx.beginPath()
-      ctx.moveTo(mousedown.x, mousedown.y)
-      ctx.lineTo(loc.x, loc.y)
+      ctx.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2, false)
       ctx.stroke()
+
+      if (guidewires) {
+        ctx.fill()
+      }
+
+      // draw single line
+      // ctx.beginPath()
+      // ctx.moveTo(mousedown.x, mousedown.y)
+      // ctx.lineTo(loc.x, loc.y)
+      // ctx.stroke()
     }
 
     // Guidewires
@@ -203,6 +222,7 @@
     const strokeStyleSelect = document.getElementById('strokeStyleSelect')
     strokeStyleSelect.onchange = function(e) {
       ctx.strokeStyle = strokeStyleSelect.value
+      ctx.fillStyle = strokeStyleSelect.value
     }
     
     guidewireCheckbox.onchange = function() {
