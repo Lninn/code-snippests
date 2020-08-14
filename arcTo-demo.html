@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArcTo Demo</title>
+  <style>
+    body {
+      margin: 0;
+    }
+    canvas {
+      box-sizing: border-box;
+      border: 1px solid #aaaaaa;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="id-canvas" width="600" height="300">
+    你的浏览器不支持 Canvas 元素
+  </canvas>
+
+  <p id="log"></p>
+
+  <script>
+    const canvas = document.getElementById('id-canvas')
+    const ctx = canvas.getContext('2d')
+    const log = document.getElementById('log')
+
+    canvas.onmousemove = function(e) {
+      log.innerHTML = `x: ${e.clientX}, y: ${e.clientY}`
+    }
+
+    ctx.setLineDash([])
+    ctx.beginPath();
+    ctx.moveTo(150, 20);
+    ctx.arcTo(150,100,50,20,30);
+    ctx.stroke();
+
+    ctx.fillStyle = 'blue';
+    // base point
+    ctx.fillRect(150, 20, 10, 10);
+
+    ctx.fillStyle = 'red';
+    // control point one
+    ctx.fillRect(150, 100, 10, 10);
+    // control point two
+    ctx.fillRect(50, 20, 10, 10);
+    //
+    ctx.setLineDash([5,5])
+    ctx.moveTo(150, 20);
+    ctx.lineTo(150,100);
+    ctx.lineTo(50, 20);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(120,38,30,0,2*Math.PI);
+    ctx.stroke();
+  </script>
+</body>
+</html>
