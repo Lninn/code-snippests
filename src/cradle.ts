@@ -70,8 +70,40 @@ const EmitLn = (s: string) => {
   console.log('\n')
 }
 
-const Expression = () => {
+const Term = () => {
   EmitLn('MOVE #' + GetNum() + ',D0')
+}
+
+const Add = () => {
+  Match('+')
+  Term()
+  EmitLn('ADD D1,D0')
+}
+
+const Subtract = () => {
+  Match('-')
+  Term()
+  EmitLn('SUB D1,D0')
+  EmitLn('NEG D0')
+}
+
+const Expression = () => {
+  Term();
+  EmitLn('MOVE D0,D1')
+
+  // ??
+  GetChar()
+
+  switch (Look) {
+    case '+':
+      Add()
+      break
+    case '-':
+      Subtract()
+      break
+    default:
+      Expected('Addop')
+  }
 }
 
 
