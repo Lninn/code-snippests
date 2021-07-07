@@ -1,31 +1,37 @@
 import readlineSync from 'readline-sync'
 
+// Cradle
+
+// 常量定义
 const TAB = '  '
 
+// 变量定义
 let Look: string
 
+// 从输入流读取一个字符
 const GetChar = () => {
   Look = readlineSync.question('INPUT: ')
 }
 
+// 报告一个错误
 const ReportError = (s: string) => {
-  console.log('\n')
-  console.log('Error: ' + s + '.')
+  throw new Error('Error: ' + s + '.')
 }
 
 const Abort = (s: string) => {
   ReportError(s)
 }
 
+// 输出期望的信息
 const Expected = (s: string) => {
-  Abort(s)
+  Abort(s + ' Expected')
 }
 
 const Match = (x: string) => {
   if (Look === x) {
     GetChar()
   } else {
-    Expected('' + x + '')
+    Expected('"' + x + '"')
   }
 }
 
@@ -64,37 +70,10 @@ const EmitLn = (s: string) => {
   console.log('\n')
 }
 
-const Term = () => {
-  EmitLn('Move # ' + GetNum() + ', D0')
-  GetChar()
-}
-
-const Add = () => {
-  Match('+')
-  Term()
-  EmitLn('ADD D1, D0')
-}
-
-const Subtract = () => {
-  Match('-')
-  Term()
-  EmitLn('SUB D1, D0')
-}
-
 const Expression = () => {
-  Term()
-  EmitLn('MOVE D0, D1')
-  switch (Look) {
-    case '+':
-      Add
-      break
-    case '-':
-      Subtract()
-      break
-    default:
-      Expected('Addop')
-  }
+  EmitLn('MOVE #' + GetNum() + ',D0')
 }
+
 
 const Init = () => {
   GetChar()
