@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { drawSegments, mock, getCurrentPoint, updatePoint } from './game'
 
+// TODO
+// 创建新的文件
 let paused = false
 function getPaused() {
   return paused
@@ -53,6 +55,8 @@ function createManageGame({
       timeFlag = !timeFlag
     }
 
+    // TODO
+    // 分离出更新执行的逻辑
     process = times - started
     actionFlag = process >= 1000
     if (actionFlag) {
