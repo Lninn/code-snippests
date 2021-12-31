@@ -1,109 +1,130 @@
-import { useEffect, useRef } from "react";
-import { drawSegmentsMap, drawSegments, mock } from "./game";
+import { useEffect, useRef } from 'react'
+import { drawSegments, mock, getCurrentPoint, updatePoint } from './game'
 
-const BOARD_WIDTH = 300;
-const BOARD_HEIGHT = 300;
+let paused = false
+function getPaused() {
+  return paused
+}
+function updatePaused() {
+  paused = !paused
+}
 
-const BLOCK_WIDTH = 30;
-const BLOCK_HEIGHT = 30;
+type Actions = {
+  onPaused: () => void
+  move: () => void
+}
+function createManageGame({
+  canvas,
+  ctx,
+  register,
+}: {
+  canvas: HTMLCanvasElement
+  ctx: CanvasRenderingContext2D
+  register: (actions: Actions) => void
+}) {
+  const width = canvas.width
+  const height = canvas.height
 
-const movePoint = {
-  x: 0,
-  y: 0,
-  speed: BLOCK_HEIGHT,
-};
+  function clearRect() {
+    ctx.clearRect(0, 0, width, height)
+  }
 
-function draw(ctx: CanvasRenderingContext2D) {
-  // drawShape(ctx);
-  // drawSegmentsMap(ctx, segmentsMap);
+  function update(actionFlag: boolean) {
+    if (!getPaused() && actionFlag) {
+      updatePoint()
+    }
+  }
 
-  const ss = mock(movePoint);
+  function draw() {
+    const currentPoint = getCurrentPoint()
+    const segments = mock(currentPoint)
 
-  drawSegments(ctx, ss);
+    drawSegments(ctx, segments)
+  }
+
+  let frameId: number
+  let started: number,
+    process: number,
+    timeFlag = true,
+    actionFlag: boolean
+  function run(times: any) {
+    if (timeFlag) {
+      started = times
+      timeFlag = !timeFlag
+    }
+
+    process = times - started
+    actionFlag = process >= 1000
+    if (actionFlag) {
+      timeFlag = true
+    }
+
+    loop(actionFlag)
+
+    frameId = requestAnimationFrame(run)
+  }
+
+  function loop(actionFlag: boolean) {
+    clearRect()
+
+    update(actionFlag)
+
+    draw()
+  }
+
+  function start() {
+    register({
+      onPaused() {
+        updatePaused()
+      },
+      move() {
+        updatePoint()
+      },
+    })
+    frameId = requestAnimationFrame(run)
+  }
+
+  function cancel() {
+    cancelAnimationFrame(frameId)
+  }
+
+  return {
+    start,
+    cancel,
+  }
 }
 
 function App() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const actionsRef = useRef({
-    togglePaused() {},
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const actionsRef = useRef<Actions>({
+    onPaused() {},
     move() {},
-  });
+  })
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const width = canvas.width;
-    const height = canvas.height;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const manage = createManageGame({
+      canvas,
+      ctx,
+      register(actions: Actions) {
+        actionsRef.current = actions
+      },
+    })
 
-    function clearRect() {
-      ctx?.clearRect(0, 0, width, height);
-    }
-
-    function move() {
-      movePoint.y += movePoint.speed;
-      if (movePoint.y >= BOARD_HEIGHT - BLOCK_HEIGHT * 2 || movePoint.y <= 0) {
-        movePoint.speed *= -1;
-      }
-
-      console.log(movePoint);
-    }
-
-    let paused = false;
-    function togglePaused() {
-      paused = !paused;
-    }
-
-    actionsRef.current = {
-      togglePaused,
-      move,
-    };
-
-    let frameId = requestAnimationFrame(run);
-    let started: number,
-      process: number,
-      timeFlag = true,
-      actionFlag: boolean;
-    function run(times: any) {
-      if (timeFlag) {
-        started = times;
-        timeFlag = !timeFlag;
-      }
-
-      process = times - started;
-      actionFlag = process >= 1000;
-      if (actionFlag) {
-        timeFlag = true;
-      }
-
-      if (!paused) {
-        loop(actionFlag);
-      }
-
-      frameId = requestAnimationFrame(run);
-    }
-    function loop(actionFlag: boolean) {
-      if (!ctx) return;
-
-      clearRect();
-
-      if (actionFlag) {
-        // move();
-      }
-
-      draw(ctx);
-    }
-  }, []);
+    manage.start()
+  }, [])
 
   function handlePausedClick() {
-    actionsRef.current.togglePaused();
+    actionsRef.current.onPaused()
   }
 
   function handleMoveClick() {
-    actionsRef.current.move();
+    actionsRef.current.move()
   }
 
   return (
@@ -114,7 +135,7 @@ function App() {
       </div>
       <canvas ref={canvasRef} width="300" height="300"></canvas>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
