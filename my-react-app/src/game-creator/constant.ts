@@ -27,4 +27,6 @@ export const metaSources: Record<ElementKey, Source> = {
   ],
 };
 
-export const elementKeys = Object.keys(metaSources);
+export const elementKeys = Object.keys(metaSources) as ElementKey[];
+
+export const InitialElementKey = elementKeys[0];

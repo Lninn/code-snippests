@@ -4,27 +4,34 @@ import {
   createRectsSegments,
   drawSegments,
 } from "./render";
-import { Source, Point, Segment } from "./type";
-import { Config } from "./constant";
+import { Source, Point, Segment, ElementKey } from "./type";
+import { Config, metaSources, InitialElementKey } from "./constant";
 
 function getInitialPostion(): Point {
   return { x: Config.BlockSize * 3, y: -Config.BlockSize };
 }
 
 class Element {
-  private data: Source;
+  private key: ElementKey = InitialElementKey;
+  private data: Source = [];
+
   private segments: Segment[];
 
   private position: Point;
   private speed: number;
 
-  constructor(data: Source) {
-    this.data = data;
+  constructor(key: ElementKey) {
+    this.updateKey(key);
 
     this.segments = [];
 
     this.position = getInitialPostion();
     this.speed = Config.BlockSize;
+  }
+
+  updateKey(key: ElementKey) {
+    this.key = key;
+    this.data = metaSources[key];
   }
 
   getHeight() {

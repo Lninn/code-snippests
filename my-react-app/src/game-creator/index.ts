@@ -1,12 +1,7 @@
 import { ElementKey, Actions } from "./type";
 import { Element } from "./element";
-import { metaSources } from "./constant";
 
-let currentElement = new Element(metaSources["T"]);
-
-function updateKey(key: ElementKey) {
-  currentElement = new Element(metaSources[key]);
-}
+const currentElement = new Element("T");
 
 // TODO
 // 创建新的文件
@@ -91,7 +86,7 @@ function createManageGame({
         console.log(currentElement);
       },
       onElementUpdate(key: ElementKey) {
-        updateKey(key);
+        currentElement.updateKey(key);
       },
     });
 
