@@ -1,7 +1,7 @@
 import { ElementKey, Actions } from "./type";
 import { Element } from "./element";
 
-const currentElement = new Element("T");
+const currentElement = new Element();
 
 // TODO
 // 创建新的文件

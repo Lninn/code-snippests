@@ -20,8 +20,8 @@ class Element {
   private position: Point;
   private speed: number;
 
-  constructor(key: ElementKey) {
-    this.updateKey(key);
+  constructor() {
+    this.updateKey(this.key);
 
     this.segments = [];
 
