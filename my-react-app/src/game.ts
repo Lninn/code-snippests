@@ -10,8 +10,6 @@ const metaSources: Record<ShapeKey, Source> = {
   L: [[1], [1], [1, 1]],
 }
 
-type ValueOf<T> = T[keyof T]
-
 interface Point {
   x: number
   y: number
@@ -208,18 +206,6 @@ function filterSegments(segments: Segment[]) {
   return filterList
 }
 
-const currentData = metaSources['T']
-function getHeight() {
-  return currentData.length * BlockSize
-}
-
-function mock(point: Point) {
-  const testRects = createRects(currentData, point)
-  const testSegmentss = createRectsSegments(testRects)
-
-  return testSegmentss
-}
-
 function drawSegments(ctx: CanvasRenderingContext2D, segments: Segment[]) {
   for (const segment of segments) {
     drawSegment(ctx, segment)
@@ -227,27 +213,59 @@ function drawSegments(ctx: CanvasRenderingContext2D, segments: Segment[]) {
 }
 
 const BOARD_HEIGHT = 300
-const InitialState = {
-  point: { x: 0, y: 0 },
-  speed: BlockSize,
-}
-const currentState = InitialState
-function getCurrentPoint() {
-  return currentState.point
-}
-function updatePoint() {
-  const { point } = currentState
-  point.y += currentState.speed
-  if (point.y >= BOARD_HEIGHT - getHeight() || point.y <= 0) {
-    currentState.speed *= -1
+
+// Element
+class Element {
+  private data: Source
+  private segments: Segment[]
+
+  private position: Point
+  private speed: number
+
+  constructor(data: Source) {
+    this.data = data
+
+    this.segments = []
+
+    this.position = { x: 0, y: -BlockSize }
+    this.speed = BlockSize
+  }
+
+  getHeight() {
+    return this.data.length * BlockSize
+  }
+
+  updatePosition() {
+    const height = this.getHeight()
+
+    const { position } = this
+    position.y += this.speed
+
+    if (position.y >= BOARD_HEIGHT - height || position.y < 0) {
+      this.speed *= -1
+    }
+  }
+
+  updateSegments() {
+    const { data, position } = this
+    const rects = createRects(data, position)
+    const newSegments = createRectsSegments(rects)
+
+    this.segments = newSegments
+  }
+
+  update() {
+    this.updatePosition()
+    this.updateSegments()
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    const { segments } = this
+
+    drawSegments(ctx, segments)
   }
 }
 
-export {
-  getCurrentPoint,
-  updatePoint,
-  createRects,
-  drawSegmentsMap,
-  drawSegments,
-  mock,
-}
+const currentElement = new Element(metaSources['L'])
+
+export { currentElement }

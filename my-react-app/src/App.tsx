@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { drawSegments, mock, getCurrentPoint, updatePoint } from './game'
+import { currentElement } from './game'
 
 // TODO
 // 创建新的文件
@@ -33,15 +33,12 @@ function createManageGame({
 
   function update(actionFlag: boolean) {
     if (!getPaused() && actionFlag) {
-      updatePoint()
+      currentElement.update()
     }
   }
 
   function draw() {
-    const currentPoint = getCurrentPoint()
-    const segments = mock(currentPoint)
-
-    drawSegments(ctx, segments)
+    currentElement.draw(ctx)
   }
 
   let frameId: number
@@ -82,7 +79,7 @@ function createManageGame({
         updatePaused()
       },
       move() {
-        updatePoint()
+        currentElement.update()
       },
     })
     frameId = requestAnimationFrame(run)
