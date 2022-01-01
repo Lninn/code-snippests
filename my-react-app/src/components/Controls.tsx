@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ElementKey, Actions } from "../game-creator/type";
-import { elementKeys, updateKey } from "../game-creator";
+import { elementKeys } from "../game-creator";
 
 interface ControlsProps {
   actions?: Actions;
@@ -20,8 +20,9 @@ function Controls({ actions }: ControlsProps) {
           value={selKey}
           onChange={(e) => {
             const key = e.target.value;
+
             setSelKey(key);
-            updateKey(key as ElementKey);
+            actions?.onElementUpdate(key as ElementKey);
           }}
         >
           {elementKeys.map((key) => {
