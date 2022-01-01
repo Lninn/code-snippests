@@ -7,7 +7,7 @@ const metaSources: Record<ElementKey, Source> = {
     [0, 1],
   ],
   L: [[1], [1], [1, 1]],
-  I: [[1], [1], [1]],
+  I: [[1], [1], [1], [1]],
   S: [
     [0, 1, 1],
     [1, 1, 0],
@@ -25,6 +25,7 @@ const metaSources: Record<ElementKey, Source> = {
 const elementKeys = Object.keys(metaSources);
 
 let currentElement = new Element(metaSources["T"]);
+console.log(currentElement);
 
 function updateKey(key: ElementKey) {
   currentElement = new Element(metaSources[key]);

@@ -87,6 +87,8 @@ function createManageGame({
         currentElement.transform();
       },
     });
+
+    draw();
     frameId = requestAnimationFrame(run);
   }
 
