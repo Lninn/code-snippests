@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Controls from "./Controls";
 import { currentElement } from "./game";
 
 // TODO
@@ -11,7 +12,7 @@ function updatePaused() {
   paused = !paused;
 }
 
-type Actions = {
+export type Actions = {
   onPaused: () => void;
   move: () => void;
   onTransform: () => void;
@@ -101,11 +102,8 @@ function createManageGame({
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const actionsRef = useRef<Actions>({
-    onPaused() {},
-    move() {},
-    onTransform() {},
-  });
+
+  const [actions, setActions] = useState<Actions>();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -118,32 +116,17 @@ function App() {
       canvas,
       ctx,
       register(actions: Actions) {
-        actionsRef.current = actions;
+        setActions(actions);
       },
     });
 
     manage.start();
   }, []);
 
-  function handlePausedClick() {
-    actionsRef.current.onPaused();
-  }
-
-  function handleMoveClick() {
-    actionsRef.current.move();
-  }
-
-  function handleTranaformClick() {
-    actionsRef.current.onTransform();
-  }
-
   return (
     <div className="App">
-      <div>
-        <button onClick={handlePausedClick}>暂停</button>
-        <button onClick={handleMoveClick}>Move(1)</button>
-        <button onClick={handleTranaformClick}>变形</button>
-      </div>
+      <Controls actions={actions} />
+
       <canvas ref={canvasRef} width="300" height="300"></canvas>
     </div>
   );

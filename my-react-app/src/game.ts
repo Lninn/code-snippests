@@ -1,6 +1,6 @@
 type Source = number[][];
 
-type ShapeKey = "T" | "L" | "I" | "S" | "Z" | "O";
+export type ShapeKey = "T" | "L" | "I" | "S" | "Z" | "O";
 
 const metaSources: Record<ShapeKey, Source> = {
   T: [
@@ -22,6 +22,8 @@ const metaSources: Record<ShapeKey, Source> = {
     [1, 1],
   ],
 };
+
+export const elementKeys = Object.keys(metaSources);
 
 interface Point {
   x: number;
@@ -302,6 +304,10 @@ class Element {
   }
 }
 
-const currentElement = new Element(metaSources["O"]);
+let currentElement = new Element(metaSources["T"]);
 
-export { currentElement };
+function updateKey(key: ShapeKey) {
+  currentElement = new Element(metaSources[key]);
+}
+
+export { updateKey, currentElement };
