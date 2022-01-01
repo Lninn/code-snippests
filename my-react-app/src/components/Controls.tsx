@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Actions } from "./App";
-import { elementKeys, updateKey, ShapeKey } from "../Game";
+import { ElementKey } from "../game/type";
+import { elementKeys, updateKey } from "../game";
 
 interface ControlsProps {
   actions?: Actions;
@@ -21,7 +22,7 @@ function Controls({ actions }: ControlsProps) {
           onChange={(e) => {
             const key = e.target.value;
             setSelKey(key);
-            updateKey(key as ShapeKey);
+            updateKey(key as ElementKey);
           }}
         >
           {elementKeys.map((key) => {

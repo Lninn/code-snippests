@@ -1,10 +1,10 @@
-import { Source, Point, Segment } from "./type";
 import {
   dataTransform,
   createRects,
   createRectsSegments,
   drawSegments,
 } from "./render";
+import { Source, Point, Segment } from "./type";
 import { Config } from "./constant";
 
 function getInitialPostion(): Point {

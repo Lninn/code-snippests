@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Controls from "./Controls";
-import { currentElement } from "../Game";
+import { currentElement } from "../game";
 
 // TODO
 // 创建新的文件

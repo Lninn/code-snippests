@@ -1,5 +1,5 @@
 import { Source, ElementKey } from "./type";
-import { Element } from "./Element";
+import { Element } from "./element";
 
 const metaSources: Record<ElementKey, Source> = {
   T: [
