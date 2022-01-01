@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Controls from "./Controls";
-import { currentElement } from "../game";
-import { Actions } from "../game/type";
+import { currentElement } from "../game-creator";
+import { Actions } from "../game-creator/type";
 
 // TODO
 // 创建新的文件
