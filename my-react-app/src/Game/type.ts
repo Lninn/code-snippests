@@ -23,4 +23,5 @@ export type Actions = {
   onPaused: () => void;
   move: () => void;
   onTransform: () => void;
+  onPrint: () => void;
 };

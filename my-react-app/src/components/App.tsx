@@ -82,6 +82,9 @@ function createManageGame({
       onTransform() {
         currentElement.transform();
       },
+      onPrint() {
+        console.log(currentElement);
+      },
     });
 
     draw();

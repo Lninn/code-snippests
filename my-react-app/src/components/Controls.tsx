@@ -32,6 +32,7 @@ function Controls({ actions }: ControlsProps) {
             );
           })}
         </select>
+        <button onClick={actions?.onPrint}>日志</button>
       </div>
     </div>
   );

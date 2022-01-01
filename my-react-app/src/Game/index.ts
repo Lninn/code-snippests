@@ -25,7 +25,6 @@ const metaSources: Record<ElementKey, Source> = {
 const elementKeys = Object.keys(metaSources);
 
 let currentElement = new Element(metaSources["T"]);
-console.log(currentElement);
 
 function updateKey(key: ElementKey) {
   currentElement = new Element(metaSources[key]);
