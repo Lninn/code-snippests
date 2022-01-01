@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Controls from "./Controls";
 import { currentElement } from "../game";
+import { Actions } from "../game/type";
 
 // TODO
 // 创建新的文件
@@ -12,11 +13,6 @@ function updatePaused() {
   paused = !paused;
 }
 
-export type Actions = {
-  onPaused: () => void;
-  move: () => void;
-  onTransform: () => void;
-};
 function createManageGame({
   canvas,
   ctx,
