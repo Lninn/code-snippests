@@ -269,3 +269,46 @@ class Element {
 const currentElement = new Element(metaSources['L'])
 
 export { currentElement }
+
+/**
+ *
+ * 位置置换
+ * @param data 更新元数据
+ *
+ *
+ *  1 2
+ *  3 4
+ *
+ *  3 1
+ *  4 2
+ *
+ *  4 3
+ *  2 1
+ *
+ *  2 4
+ *  1 3
+ *
+ *  0 1
+ *  1 1 1
+ *
+ *  row = 2
+ *  col = 3
+ *
+ */
+function dataTransform(data: Source) {
+  const row = data.length
+  const col = Math.max(...data.map((dataItem) => dataItem.length))
+
+  const newData: Source = []
+
+  let i = 0,
+    j = 0
+  while (i < row) {
+    j = 0
+    while (j < col) {
+      newData[j][i] = data[i][j]
+    }
+  }
+
+  return newData
+}
