@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ElementKey, Actions } from "../game-creator/type";
-import { elementKeys } from "../game-creator";
+import { elementKeys } from "../game-creator/constant";
 
 interface ControlsProps {
   actions?: Actions;
