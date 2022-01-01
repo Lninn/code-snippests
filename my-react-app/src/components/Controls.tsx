@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Actions } from "./App";
-import { elementKeys, updateKey, ShapeKey } from "./game";
+import { elementKeys, updateKey, ShapeKey } from "../Game";
 
 interface ControlsProps {
   actions?: Actions;
