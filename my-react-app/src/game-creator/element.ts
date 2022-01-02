@@ -23,7 +23,7 @@ class Updater {
     }
 
     this.timeProcess = timestamp - this.timeStart;
-    this.updateStatus = this.timeProcess >= 100;
+    this.updateStatus = this.timeProcess >= 300;
     if (this.updateStatus) {
       this.timeStatus = true;
     }
@@ -65,6 +65,16 @@ class Element extends Updater {
   transform() {
     this.data = dataTransform(this.data);
 
+    this.updateSegments();
+  }
+
+  moveLeft() {
+    this.position.x -= this.speed;
+    this.updateSegments();
+  }
+
+  moveRight() {
+    this.position.x += this.speed;
     this.updateSegments();
   }
 

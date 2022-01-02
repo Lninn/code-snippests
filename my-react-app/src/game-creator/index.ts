@@ -29,6 +29,14 @@ class ElementManage {
     return true;
   }
 
+  moveLeft() {
+    this.currentElement.moveLeft();
+  }
+
+  moveRight() {
+    this.currentElement.moveRight();
+  }
+
   update(timestamp: number) {
     if (this.canMove()) {
       this.currentElement.update(timestamp);
@@ -115,6 +123,16 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
   function getActions(setActions: (actions: Actions) => void) {
     setActions(actions);
   }
+
+  document.addEventListener("keyup", (e) => {
+    const key = e.key;
+
+    if (key === "ArrowRight" || key === "d") {
+      elementManage.moveRight();
+    } else if (key === "ArrowLeft" || key === "a") {
+      elementManage.moveLeft();
+    }
+  });
 
   return {
     start,
