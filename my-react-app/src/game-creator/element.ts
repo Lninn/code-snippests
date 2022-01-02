@@ -23,7 +23,7 @@ class Updater {
     }
 
     this.timeProcess = timestamp - this.timeStart;
-    this.updateStatus = this.timeProcess >= 300;
+    this.updateStatus = this.timeProcess >= 1000;
     if (this.updateStatus) {
       this.timeStatus = true;
     }

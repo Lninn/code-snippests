@@ -1,7 +1,7 @@
 import { ElementKey, Actions, Point } from "./type";
 import { Element } from "./element";
 import { Config } from "./constant";
-import { drawPoint, getTopEdge, getBottomEdge } from "./render";
+import { drawPoint, getPointsEdge } from "./render";
 
 class ElementManage {
   currentElement: Element;
@@ -13,15 +13,15 @@ class ElementManage {
   }
 
   canMove() {
-    const elementEdge = getBottomEdge(this.currentElement.points);
-    const boardEdge = getTopEdge(this.cachePoints);
+    const elementEdge = getPointsEdge(this.currentElement.points, "bottom");
+    const boardEdge = getPointsEdge(this.cachePoints, "top");
 
     const keys = Object.keys(elementEdge);
     for (const key of keys) {
-      const elementVal = elementEdge[+key] ?? Config.BoardTop;
+      const elementVal = (elementEdge[+key] ?? 0) + Config.BlockSize;
       const boardVal = boardEdge[+key] ?? Config.BoardHeight;
 
-      if (elementVal >= boardVal) {
+      if (elementVal + Config.BlockSize > boardVal) {
         return false;
       }
     }
@@ -116,7 +116,7 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       elementManage.currentElement.transform();
     },
     onPrint() {
-      console.log(elementManage);
+      elementManage.canMove();
     },
   };
 

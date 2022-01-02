@@ -1,5 +1,6 @@
 import { Source, Point, Segment, Rect } from "./type";
-import { Config } from "./constant";
+import { Config, Direction } from "./constant";
+import { Element } from "./element";
 
 function dataTransform(data: Source) {
   const rowSpan = data.length;
@@ -186,30 +187,37 @@ function drawSegments(ctx: CanvasRenderingContext2D, segments: Segment[]) {
   }
 }
 
-function getTopEdge(points: Point[]) {
-  const edgeMap: Record<number, number> = {};
-
-  for (const point of points) {
-    let { x, y } = point;
-
-    edgeMap[x] = Math.min(edgeMap[x] ?? Config.BoardBottom, y);
+function getPointsEdge(data: Point[] | Element, dir: Direction) {
+  let points!: Point[];
+  if (!Array.isArray(data)) {
+    points = data.points;
+  } else {
+    points = data;
   }
 
-  return edgeMap;
-}
-
-function getBottomEdge(points: Point[]) {
-  points = points.map((point) => ({
-    ...point,
-    y: point.y + Config.BlockSize,
-  }));
-
   const edgeMap: Record<number, number> = {};
+
+  let compareFn!: (...args: number[]) => number;
+  let defaultVal!: number;
+
+  if (dir === "top") {
+    compareFn = Math.min;
+    defaultVal = Config.BoardHeight;
+  } else if (dir === "right") {
+    compareFn = Math.max;
+    defaultVal = Config.BoardWidth;
+  } else if (dir === "bottom") {
+    compareFn = Math.max;
+    defaultVal = 0;
+  } else if (dir === "left") {
+    compareFn = Math.min;
+    defaultVal = 0;
+  }
 
   for (const point of points) {
     let { x, y } = point;
 
-    edgeMap[x] = Math.max(edgeMap[x] ?? Config.BoardTop, y);
+    edgeMap[x] = compareFn(edgeMap[x] ?? defaultVal, y);
   }
 
   return edgeMap;
@@ -229,7 +237,6 @@ export {
   createPoints,
   createRectsSegments,
   drawSegments,
-  getTopEdge,
-  getBottomEdge,
+  getPointsEdge,
   drawPoint,
 };

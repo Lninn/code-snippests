@@ -2,12 +2,8 @@ import { ElementKey, Point, Source } from "./type";
 
 export const Config = {
   BlockSize: 30,
-
-  BoardHeight: 600,
+  BoardHeight: 300,
   BoardWidth: 300,
-
-  BoardTop: 0,
-  BoardBottom: 600 - 30,
 };
 
 export const metaSources: Record<ElementKey, Source> = {
@@ -42,3 +38,5 @@ export function randomKey() {
 
   return elementKeys[index];
 }
+
+export type Direction = "top" | "right" | "bottom" | "left";
