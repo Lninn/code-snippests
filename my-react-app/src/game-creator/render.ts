@@ -61,6 +61,34 @@ function createRects(data: Source, targetPoint?: Point) {
   return rects;
 }
 
+function createPosition(data: Source) {
+  const points: Point[] = [];
+
+  data.forEach((dataList: number[], y: number) => {
+    dataList.forEach((dataItem, x: number) => {
+      const point = { x, y };
+
+      if (isValidData(dataItem)) {
+        points.push(point);
+      }
+    });
+  });
+
+  return points;
+}
+
+function createPoints(unitPoints: Point[], targetPoint: Point) {
+  return unitPoints.map((unitPoint) => {
+    const x = unitPoint.x * Config.BlockSize;
+    const y = unitPoint.y * Config.BlockSize;
+
+    return {
+      x: x + targetPoint.x,
+      y: y + targetPoint.y,
+    };
+  });
+}
+
 function createSegments(rect: Rect) {
   const segments: Segment[] = [];
 
@@ -158,4 +186,50 @@ function drawSegments(ctx: CanvasRenderingContext2D, segments: Segment[]) {
   }
 }
 
-export { dataTransform, createRects, createRectsSegments, drawSegments };
+function getTopEdge(points: Point[]) {
+  const edgeMap: Record<number, number> = {};
+
+  for (const point of points) {
+    let { x, y } = point;
+
+    edgeMap[x] = Math.min(edgeMap[x] ?? Config.BoardBottom, y);
+  }
+
+  return edgeMap;
+}
+
+function getBottomEdge(points: Point[]) {
+  points = points.map((point) => ({
+    ...point,
+    y: point.y + Config.BlockSize,
+  }));
+
+  const edgeMap: Record<number, number> = {};
+
+  for (const point of points) {
+    let { x, y } = point;
+
+    edgeMap[x] = Math.max(edgeMap[x] ?? Config.BoardTop, y);
+  }
+
+  return edgeMap;
+}
+
+function drawPoint(ctx: CanvasRenderingContext2D, point: Point) {
+  ctx.beginPath();
+  ctx.rect(point.x, point.y, Config.BlockSize, Config.BlockSize);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+export {
+  dataTransform,
+  createRects,
+  createPosition,
+  createPoints,
+  createRectsSegments,
+  drawSegments,
+  getTopEdge,
+  getBottomEdge,
+  drawPoint,
+};

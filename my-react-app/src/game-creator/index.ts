@@ -1,35 +1,49 @@
-import { ElementKey, Actions } from "./type";
+import { ElementKey, Actions, Point } from "./type";
 import { Element } from "./element";
 import { Config } from "./constant";
-
-function edgeCheck(element: Element) {
-  return element.position.y >= Config.BoardHeight - element.getHeight();
-}
+import { drawPoint, getTopEdge, getBottomEdge } from "./render";
 
 class ElementManage {
   currentElement: Element;
-  private elements: Element[] = [];
+
+  cachePoints: Point[] = [];
 
   constructor() {
     this.currentElement = new Element();
   }
 
-  update(timestamp: number) {
-    const { currentElement } = this;
+  canMove() {
+    const elementEdge = getBottomEdge(this.currentElement.points);
+    const boardEdge = getTopEdge(this.cachePoints);
 
-    if (edgeCheck(currentElement)) {
-      this.elements.push(currentElement);
-      this.currentElement = new Element();
-    } else {
+    const keys = Object.keys(elementEdge);
+    for (const key of keys) {
+      const elementVal = elementEdge[+key] ?? Config.BoardTop;
+      const boardVal = boardEdge[+key] ?? Config.BoardHeight;
+
+      if (elementVal >= boardVal) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  update(timestamp: number) {
+    if (this.canMove()) {
       this.currentElement.update(timestamp);
+    } else {
+      this.cachePoints.push(...this.currentElement.points);
+
+      this.currentElement = new Element();
     }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
     this.currentElement.draw(ctx);
 
-    for (const element of this.elements) {
-      element.draw(ctx);
+    for (const point of this.cachePoints) {
+      drawPoint(ctx, point);
     }
   }
 }
@@ -94,7 +108,7 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       elementManage.currentElement.transform();
     },
     onPrint() {
-      console.log(elementManage.currentElement);
+      console.log(elementManage);
     },
   };
 

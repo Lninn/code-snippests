@@ -1,9 +1,13 @@
-import { ElementKey, Source } from "./type";
+import { ElementKey, Point, Source } from "./type";
 
 export const Config = {
   BlockSize: 30,
-  BoardHeight: 300,
+
+  BoardHeight: 600,
   BoardWidth: 300,
+
+  BoardTop: 0,
+  BoardBottom: 600 - 30,
 };
 
 export const metaSources: Record<ElementKey, Source> = {

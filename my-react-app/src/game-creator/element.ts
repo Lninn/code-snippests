@@ -3,6 +3,8 @@ import {
   createRects,
   createRectsSegments,
   drawSegments,
+  createPosition,
+  createPoints,
 } from "./render";
 import { Source, Point, Segment, ElementKey } from "./type";
 import { Config, metaSources, randomKey } from "./constant";
@@ -21,7 +23,7 @@ class Updater {
     }
 
     this.timeProcess = timestamp - this.timeStart;
-    this.updateStatus = this.timeProcess >= 1000;
+    this.updateStatus = this.timeProcess >= 100;
     if (this.updateStatus) {
       this.timeStatus = true;
     }
@@ -35,9 +37,10 @@ function getInitialPostion(): Point {
 class Element extends Updater {
   private speed!: number;
   position!: Point;
-  private data!: Source;
+  data!: Source;
   private segments!: Segment[];
-  private key!: ElementKey;
+  positions!: Point[];
+  points!: Point[];
 
   constructor() {
     super();
@@ -50,7 +53,6 @@ class Element extends Updater {
     this.speed = Config.BlockSize;
 
     const key = randomKey();
-    this.key = key;
     this.data = metaSources[key];
     this.position = getInitialPostion();
     this.updateSegments();
@@ -76,6 +78,8 @@ class Element extends Updater {
     const rects = createRects(data, position);
     const newSegments = createRectsSegments(rects);
 
+    this.positions = createPosition(this.data);
+    this.points = createPoints(this.positions, this.position);
     this.segments = newSegments;
   }
 
