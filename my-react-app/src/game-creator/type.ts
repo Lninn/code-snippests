@@ -24,5 +24,4 @@ export type Actions = {
   move: () => void;
   onTransform: () => void;
   onPrint: () => void;
-  onElementUpdate: (key: ElementKey) => void;
 };

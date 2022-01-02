@@ -37,28 +37,22 @@ class Element extends Updater {
   position!: Point;
   private data!: Source;
   private segments!: Segment[];
+  private key!: ElementKey;
 
   constructor() {
     super();
 
     this.initial();
-    this.reset();
   }
 
   private initial() {
     this.segments = [];
     this.speed = Config.BlockSize;
-  }
 
-  reset(key?: ElementKey) {
-    if (!key) {
-      key = randomKey();
-    }
-
+    const key = randomKey();
+    this.key = key;
     this.data = metaSources[key];
-
     this.position = getInitialPostion();
-
     this.updateSegments();
   }
 
@@ -78,6 +72,7 @@ class Element extends Updater {
 
   private updateSegments() {
     const { data, position } = this;
+
     const rects = createRects(data, position);
     const newSegments = createRectsSegments(rects);
 

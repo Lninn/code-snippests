@@ -96,9 +96,6 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     onPrint() {
       console.log(elementManage.currentElement);
     },
-    onElementUpdate(key: ElementKey) {
-      elementManage.currentElement.reset(key);
-    },
   };
 
   function getActions(setActions: (actions: Actions) => void) {
