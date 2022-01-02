@@ -1,7 +1,40 @@
 import { ElementKey, Actions } from "./type";
 import { Element } from "./element";
+import { Config } from "./constant";
 
-const currentElement = new Element();
+function edgeCheck(element: Element) {
+  return element.position.y >= Config.BoardHeight - element.getHeight();
+}
+
+class ElementManage {
+  currentElement: Element;
+  private elements: Element[] = [];
+
+  constructor() {
+    this.currentElement = new Element();
+  }
+
+  update(timestamp: number) {
+    const { currentElement } = this;
+
+    if (edgeCheck(currentElement)) {
+      this.elements.push(currentElement);
+      this.currentElement = new Element();
+    } else {
+      this.currentElement.update(timestamp);
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    this.currentElement.draw(ctx);
+
+    for (const element of this.elements) {
+      element.draw(ctx);
+    }
+  }
+}
+
+const elementManage = new ElementManage();
 
 function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
   const ctx: CanvasRenderingContext2D = canvas.getContext(
@@ -33,12 +66,12 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
 
   function update(timestamp: number) {
     if (!isPaused) {
-      currentElement.update(timestamp);
+      elementManage.update(timestamp);
     }
   }
 
   function draw() {
-    currentElement.draw(ctx);
+    elementManage.draw(ctx);
   }
 
   function start() {
@@ -55,16 +88,16 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       isPaused = !isPaused;
     },
     move() {
-      currentElement.updateData();
+      elementManage.currentElement.updateData();
     },
     onTransform() {
-      currentElement.transform();
+      elementManage.currentElement.transform();
     },
     onPrint() {
-      console.log(currentElement);
+      console.log(elementManage.currentElement);
     },
     onElementUpdate(key: ElementKey) {
-      currentElement.reset(key);
+      elementManage.currentElement.reset(key);
     },
   };
 

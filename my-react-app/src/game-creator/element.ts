@@ -34,7 +34,7 @@ function getInitialPostion(): Point {
 
 class Element extends Updater {
   private speed!: number;
-  private position!: Point;
+  position!: Point;
   private data!: Source;
   private segments!: Segment[];
 
@@ -62,7 +62,7 @@ class Element extends Updater {
     this.updateSegments();
   }
 
-  private getHeight() {
+  getHeight() {
     return this.data.length * Config.BlockSize;
   }
 
@@ -73,15 +73,7 @@ class Element extends Updater {
   }
 
   private updatePosition() {
-    const height = this.getHeight();
-
-    const { position } = this;
-
-    if (position.y >= Config.BoardHeight - height) {
-      this.reset();
-    } else {
-      position.y += this.speed;
-    }
+    this.position.y += this.speed;
   }
 
   private updateSegments() {
