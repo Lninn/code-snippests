@@ -5,7 +5,7 @@ import {
   drawSegments,
 } from "./render";
 import { Source, Point, Segment, ElementKey } from "./type";
-import { Config, metaSources, InitialElementKey } from "./constant";
+import { Config, metaSources, InitialElementKey, randomKey } from "./constant";
 
 class Updater {
   private timeStart: number = 0;
@@ -21,7 +21,7 @@ class Updater {
     }
 
     this.timeProcess = timestamp - this.timeStart;
-    this.updateStatus = this.timeProcess >= 1000;
+    this.updateStatus = this.timeProcess >= 100;
     if (this.updateStatus) {
       this.timeStatus = true;
     }
@@ -29,7 +29,7 @@ class Updater {
 }
 
 function getInitialPostion(): Point {
-  return { x: Config.BlockSize * 3, y: -Config.BlockSize };
+  return { x: Config.BlockSize * 3, y: 0 };
 }
 
 class Element extends Updater {
@@ -44,17 +44,19 @@ class Element extends Updater {
   constructor() {
     super();
 
-    this.updateKey(this.key);
-
     this.segments = [];
 
     this.position = getInitialPostion();
     this.speed = Config.BlockSize;
+
+    this.updateKey(this.key);
   }
 
   updateKey(key: ElementKey) {
     this.key = key;
     this.data = metaSources[key];
+
+    this.updateSegments();
   }
 
   private getHeight() {
@@ -71,10 +73,13 @@ class Element extends Updater {
     const height = this.getHeight();
 
     const { position } = this;
-    position.y += this.speed;
 
-    if (position.y >= Config.BoardHeight - height || position.y < 0) {
-      this.speed *= -1;
+    if (position.y >= Config.BoardHeight - height) {
+      const key = randomKey();
+      this.position = getInitialPostion();
+      this.updateKey(key);
+    } else {
+      position.y += this.speed;
     }
   }
 
