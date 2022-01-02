@@ -7,11 +7,32 @@ import {
 import { Source, Point, Segment, ElementKey } from "./type";
 import { Config, metaSources, InitialElementKey } from "./constant";
 
+class Updater {
+  private timeStart: number = 0;
+  private timeProcess: number = 0;
+
+  public updateStatus: boolean = true;
+  private timeStatus: boolean = true;
+
+  updateTimestamp(timestamp: number) {
+    if (this.timeStatus) {
+      this.timeStart = timestamp;
+      this.timeStatus = !this.timeStatus;
+    }
+
+    this.timeProcess = timestamp - this.timeStart;
+    this.updateStatus = this.timeProcess >= 1000;
+    if (this.updateStatus) {
+      this.timeStatus = true;
+    }
+  }
+}
+
 function getInitialPostion(): Point {
   return { x: Config.BlockSize * 3, y: -Config.BlockSize };
 }
 
-class Element {
+class Element extends Updater {
   private key: ElementKey = InitialElementKey;
   private data: Source = [];
 
@@ -21,6 +42,8 @@ class Element {
   private speed: number;
 
   constructor() {
+    super();
+
     this.updateKey(this.key);
 
     this.segments = [];
@@ -34,7 +57,7 @@ class Element {
     this.data = metaSources[key];
   }
 
-  getHeight() {
+  private getHeight() {
     return this.data.length * Config.BlockSize;
   }
 
@@ -44,7 +67,7 @@ class Element {
     this.updateSegments();
   }
 
-  updatePosition() {
+  private updatePosition() {
     const height = this.getHeight();
 
     const { position } = this;
@@ -55,7 +78,7 @@ class Element {
     }
   }
 
-  updateSegments() {
+  private updateSegments() {
     const { data, position } = this;
     const rects = createRects(data, position);
     const newSegments = createRectsSegments(rects);
@@ -63,7 +86,15 @@ class Element {
     this.segments = newSegments;
   }
 
-  update() {
+  update(timestamp: number) {
+    super.updateTimestamp(timestamp);
+
+    if (this.updateStatus) {
+      this.updateData();
+    }
+  }
+
+  updateData() {
     this.updatePosition();
     this.updateSegments();
   }
