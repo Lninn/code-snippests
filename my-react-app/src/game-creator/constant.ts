@@ -29,8 +29,6 @@ export const metaSources: Record<ElementKey, Source> = {
 
 export const elementKeys = Object.keys(metaSources) as ElementKey[];
 
-export const InitialElementKey = elementKeys[0];
-
 export function randomIntFromInterval(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }

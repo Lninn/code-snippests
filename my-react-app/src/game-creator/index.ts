@@ -64,7 +64,7 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       console.log(currentElement);
     },
     onElementUpdate(key: ElementKey) {
-      currentElement.updateKey(key);
+      currentElement.reset(key);
     },
   };
 
