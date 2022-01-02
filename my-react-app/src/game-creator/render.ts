@@ -62,12 +62,12 @@ function createRects(data: Source, targetPoint?: Point) {
   return rects;
 }
 
-function createPosition(data: Source) {
+function createPosition(data: Source, position: Point) {
   const points: Point[] = [];
 
   data.forEach((dataList: number[], y: number) => {
     dataList.forEach((dataItem, x: number) => {
-      const point = { x, y };
+      const point = { x: x + position.x, y: y + position.y };
 
       if (isValidData(dataItem)) {
         points.push(point);
@@ -78,14 +78,14 @@ function createPosition(data: Source) {
   return points;
 }
 
-function createPoints(unitPoints: Point[], targetPoint: Point) {
+function createPoints(unitPoints: Point[]) {
   return unitPoints.map((unitPoint) => {
     const x = unitPoint.x * Config.BlockSize;
     const y = unitPoint.y * Config.BlockSize;
 
     return {
-      x: x + targetPoint.x,
-      y: y + targetPoint.y,
+      x,
+      y,
     };
   });
 }

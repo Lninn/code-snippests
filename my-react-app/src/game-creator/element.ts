@@ -8,6 +8,7 @@ import {
 } from "./render";
 import { Source, Point, Segment, ElementKey } from "./type";
 import { Config, metaSources, randomKey } from "./constant";
+import { DataMap } from ".";
 
 class Updater {
   private timeStart: number = 0;
@@ -31,26 +32,33 @@ class Updater {
 }
 
 function getInitialPostion(): Point {
-  return { x: Config.BlockSize * 3, y: 0 };
+  return { x: 3, y: 0 };
+}
+
+interface State {
+  segments: Segment[];
+  position: Point;
 }
 
 class Element extends Updater {
-  private speed!: number;
   position!: Point;
   data!: Source;
   private segments!: Segment[];
   positions!: Point[];
   points!: Point[];
 
-  constructor() {
+  dataMap!: DataMap;
+
+  constructor(dataMap: DataMap) {
     super();
+
+    this.dataMap = dataMap;
 
     this.initial();
   }
 
   private initial() {
     this.segments = [];
-    this.speed = Config.BlockSize;
 
     const key = randomKey();
     this.data = metaSources[key];
@@ -69,27 +77,43 @@ class Element extends Updater {
   }
 
   moveLeft() {
-    this.position.x -= this.speed;
+    this.position.x--;
     this.updateSegments();
   }
 
   moveRight() {
-    this.position.x += this.speed;
+    this.position.x++;
     this.updateSegments();
   }
 
   private updatePosition() {
-    this.position.y += this.speed;
+    this.position.y++;
+  }
+
+  updateDataMap() {
+    this.position.y++;
+
+    const positions = createPosition(this.data, this.position);
+    this.positions = positions;
+
+    positions.forEach((pos) => {
+      this.dataMap[pos.x][pos.y] = 1;
+    });
   }
 
   private updateSegments() {
     const { data, position } = this;
 
-    const rects = createRects(data, position);
+    const newPoint: Point = {
+      x: position.x * Config.BlockSize,
+      y: position.y * Config.BlockSize,
+    };
+
+    const rects = createRects(data, newPoint);
     const newSegments = createRectsSegments(rects);
 
-    this.positions = createPosition(this.data);
-    this.points = createPoints(this.positions, this.position);
+    this.positions = createPosition(this.data, position);
+    this.points = createPoints(this.positions);
     this.segments = newSegments;
   }
 
@@ -97,7 +121,9 @@ class Element extends Updater {
     super.updateTimestamp(timestamp);
 
     if (this.updateStatus) {
-      this.updateData();
+      // this.updateData();
+
+      this.updateDataMap();
     }
   }
 
