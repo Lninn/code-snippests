@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Controls from "./Controls";
-import { createManageGame } from "../game-creator";
+import { gameCreator } from "../game-creator";
 import { Actions } from "../game-creator/type";
 
 function App() {
@@ -11,18 +11,15 @@ function App() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const manage = createManageGame({
+    const player = gameCreator({
       canvas,
-      ctx,
-      register(actions: Actions) {
-        setActions(actions);
-      },
     });
 
-    manage.start();
+    player.getActions(function (actions: Actions) {
+      setActions(actions);
+    });
+
+    player.start();
   }, []);
 
   return (

@@ -13,17 +13,35 @@ function updatePaused() {
   paused = !paused;
 }
 
-function createManageGame({
-  canvas,
-  ctx,
-  register,
-}: {
-  canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  register: (actions: Actions) => void;
-}) {
+function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
+  const ctx: CanvasRenderingContext2D = canvas.getContext(
+    "2d"
+  ) as CanvasRenderingContext2D;
+
   const width = canvas.width;
   const height = canvas.height;
+
+  const actions: Actions = {
+    onPaused() {
+      updatePaused();
+    },
+    move() {
+      currentElement.update();
+    },
+    onTransform() {
+      currentElement.transform();
+    },
+    onPrint() {
+      console.log(currentElement);
+    },
+    onElementUpdate(key: ElementKey) {
+      currentElement.updateKey(key);
+    },
+  };
+
+  function getActions(setActions: (actions: Actions) => void) {
+    setActions(actions);
+  }
 
   function clearRect() {
     ctx.clearRect(0, 0, width, height);
@@ -72,24 +90,6 @@ function createManageGame({
   }
 
   function start() {
-    register({
-      onPaused() {
-        updatePaused();
-      },
-      move() {
-        currentElement.update();
-      },
-      onTransform() {
-        currentElement.transform();
-      },
-      onPrint() {
-        console.log(currentElement);
-      },
-      onElementUpdate(key: ElementKey) {
-        currentElement.updateKey(key);
-      },
-    });
-
     draw();
     frameId = requestAnimationFrame(run);
   }
@@ -101,7 +101,8 @@ function createManageGame({
   return {
     start,
     cancel,
+    getActions,
   };
 }
 
-export { createManageGame };
+export { gameCreator };
