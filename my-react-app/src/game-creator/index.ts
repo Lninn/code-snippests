@@ -58,10 +58,16 @@ class ElementManage {
 
   state: State
 
+  userScore: number = 0
+
   constructor() {
     this.state = createState()
 
     this.currentElement = new Element()
+  }
+
+  updateScore(base: number) {
+    this.userScore += base * 100
   }
 
   canMoveDown() {
@@ -202,6 +208,8 @@ class ElementManage {
         const index = this.state.coordinatesToIndexMap[`${point.x}-${point.y}`]
         this.state.statusMap[index] = 1
       })
+
+      this.updateScore(fullIndexs.length)
     }
   }
 
