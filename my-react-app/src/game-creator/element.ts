@@ -36,7 +36,7 @@ class Updater {
   public updateStatus: boolean = true
   private timeStatus: boolean = true
 
-  maxTimestamp: number = 1000
+  maxTimestamp: number = 650
 
   updateTimestamp(timestamp: number) {
     if (this.timeStatus) {
@@ -52,8 +52,8 @@ class Updater {
   }
 }
 
-function getInitialPostion(): Point {
-  return { x: 3, y: 0 }
+function getInitialPostion(base: number): Point {
+  return { x: 3, y: -base }
 }
 
 class Element extends Updater {
@@ -69,7 +69,7 @@ class Element extends Updater {
   private initial() {
     const key = randomKey()
     this.data = metaSources[key]
-    this.position = getInitialPostion()
+    this.position = getInitialPostion(this.getHeight() / Config.BlockSize)
     this.positions = createPosition(this.data, this.position)
   }
 

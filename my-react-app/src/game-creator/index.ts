@@ -20,6 +20,8 @@ interface State {
   statusMap: Record<number, number>
   indexToCoordinatesMap: Record<number, Point>
   coordinatesToIndexMap: Record<string, number>
+  // 0-9
+  verticalStatus: boolean[]
 }
 
 function createState() {
@@ -46,11 +48,17 @@ function createState() {
     }
   }
 
+  const verticalStatus: State['verticalStatus'] = []
+  for (let i = 0; i < rowSpan; i++) {
+    verticalStatus[i] = false
+  }
+
   return {
     indexNos,
     statusMap,
     indexToCoordinatesMap,
     coordinatesToIndexMap,
+    verticalStatus,
   }
 }
 
@@ -79,13 +87,18 @@ class ElementManage {
         y: point.y + 1,
       }
     })
-    const indexNos = nextPoints.map((pos) => {
-      return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
-    })
+    const indexNos = nextPoints
+      .map((pos) => {
+        return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
+      })
+      .filter((item) => item !== undefined)
 
-    return indexNos.every((index) => {
-      return this.state.statusMap[index] === 0
-    })
+    return (
+      indexNos.length > 0 &&
+      indexNos.every((index) => {
+        return this.state.statusMap[index] === 0
+      })
+    )
   }
 
   canHorizontal(dir: Direction) {
@@ -96,13 +109,18 @@ class ElementManage {
         x: dir === 'left' ? point.x - 1 : point.x + 1,
       }
     })
-    const indexNos = nextPoints.map((pos) => {
-      return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
-    })
+    const indexNos = nextPoints
+      .map((pos) => {
+        return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
+      })
+      .filter((item) => item !== undefined)
 
-    return indexNos.every((index) => {
-      return this.state.statusMap[index] === 0
-    })
+    return (
+      indexNos.length > 0 &&
+      indexNos.every((index) => {
+        return this.state.statusMap[index] === 0
+      })
+    )
   }
 
   beforeMove() {
@@ -142,11 +160,16 @@ class ElementManage {
   }
 
   update(timestamp: number) {
+    if (this.state.verticalStatus.every((status) => status)) {
+      return
+    }
+
     if (this.canMoveDown()) {
       this.beforeMove()
       this.currentElement.update(timestamp)
       this.afterMove()
     } else {
+      this.markRowTag()
       this.updateMapStatus()
 
       this.currentElement = new Element()
@@ -214,6 +237,29 @@ class ElementManage {
     }
   }
 
+  markRowTag() {
+    const indexs = []
+
+    for (const index of this.state.indexNos) {
+      if (this.state.statusMap[+index] === 1) {
+        indexs.push(index)
+      }
+    }
+
+    const tagMap: Record<number, boolean> = {}
+    const points = indexs.forEach((index) => {
+      const point = this.state.indexToCoordinatesMap[+index]
+
+      if (!tagMap[point.y]) {
+        tagMap[point.y] = true
+      }
+    })
+
+    Object.keys(tagMap).forEach((key) => {
+      this.state.verticalStatus[+key] = true
+    })
+  }
+
   draw(ctx: CanvasRenderingContext2D) {
     const state = this.state
 
@@ -226,8 +272,6 @@ class ElementManage {
   }
 }
 
-const elementManage = new ElementManage()
-
 function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
   const ctx: CanvasRenderingContext2D = canvas.getContext(
     '2d',
@@ -235,6 +279,8 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
 
   const width = canvas.width
   const height = canvas.height
+
+  const elementManage = new ElementManage()
 
   function clearRect() {
     ctx.clearRect(0, 0, width, height)
