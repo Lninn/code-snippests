@@ -77,24 +77,20 @@ class ElementManage {
   }
 
   canHorizontal(dir: Direction) {
-    if (dir === 'left') {
-      if (this.currentElement.position.x <= 0) {
-        return false
+    const points = this.currentElement.getEdge(dir)
+    const nextPoints = points.map((point) => {
+      return {
+        ...point,
+        x: dir === 'left' ? point.x - 1 : point.x + 1,
       }
+    })
+    const indexNos = nextPoints.map((pos) => {
+      return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
+    })
 
-      return true
-    } else if (dir === 'right') {
-      if (
-        this.currentElement.position.x + this.currentElement.getWidth() >=
-        Config.BoardWidth / Config.BlockSize
-      ) {
-        return false
-      }
-
-      return true
-    }
-
-    return false
+    return indexNos.every((index) => {
+      return this.state.statusMap[index] === 0
+    })
   }
 
   moveLeft() {
