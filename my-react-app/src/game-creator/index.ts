@@ -8,9 +8,10 @@ import { createPosition, drawPoint } from './render'
  * TODO
  * 1 向下加速效果 √
  * 2 完整的 row 消除 √
- * 3 计算分数
- * 4 修复重复绘制线段问题
+ * 3 计算分数 √
+ * 4 判断游戏结束
  * 5 修复变形问题
+ * 6 修复重复绘制线段问题
  *
  */
 
