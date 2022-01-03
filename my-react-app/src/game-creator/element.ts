@@ -1,6 +1,6 @@
-import { dataTransform, drawSegments, createPosition } from './render'
-import { Source, Point, Segment, ElementKey } from './type'
+import { dataTransform, createPosition } from './render'
 import { Config, metaSources, randomKey } from './constant'
+import { Source, Point } from './type'
 
 class Updater {
   private timeStart: number = 0
@@ -30,7 +30,6 @@ function getInitialPostion(): Point {
 class Element extends Updater {
   position!: Point
   data!: Source
-  private segments!: Segment[]
   positions!: Point[]
   points!: Point[]
 
@@ -41,8 +40,6 @@ class Element extends Updater {
   }
 
   private initial() {
-    this.segments = []
-
     const key = randomKey()
     this.data = metaSources[key]
     this.position = getInitialPostion()
@@ -72,10 +69,6 @@ class Element extends Updater {
     this.positions = createPosition(this.data, this.position)
   }
 
-  private updatePosition() {
-    this.position.y++
-  }
-
   update(timestamp: number) {
     super.updateTimestamp(timestamp)
 
@@ -83,12 +76,6 @@ class Element extends Updater {
       this.position.y += 1
       this.positions = createPosition(this.data, this.position)
     }
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    const { segments } = this
-
-    drawSegments(ctx, segments)
   }
 }
 
