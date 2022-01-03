@@ -6,7 +6,7 @@ import { createPosition, drawPoint } from './render'
 /**
  *
  * TODO
- * 1 向下加速效果
+ * 1 向下加速效果 √
  * 2 完整的 row 消除
  * 3 计算分数
  * 4 修复重复绘制线段问题
@@ -115,6 +115,9 @@ class ElementManage {
     this.beforeMove()
 
     switch (actionType) {
+      case 'bottom':
+        this.currentElement.moveFast()
+        break
       case 'right':
       case 'left':
         if (this.canHorizontal(actionType)) {
@@ -235,6 +238,8 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       elementManage.onAction('left')
     } else if (key === 'x') {
       elementManage.onAction('transform')
+    } else if (key === 's' || key === 'ArrowBottom') {
+      elementManage.onAction('bottom')
     }
   })
 

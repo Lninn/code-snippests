@@ -36,6 +36,8 @@ class Updater {
   public updateStatus: boolean = true
   private timeStatus: boolean = true
 
+  maxTimestamp: number = 1000
+
   updateTimestamp(timestamp: number) {
     if (this.timeStatus) {
       this.timeStart = timestamp
@@ -43,7 +45,7 @@ class Updater {
     }
 
     this.timeProcess = timestamp - this.timeStart
-    this.updateStatus = this.timeProcess >= 1000
+    this.updateStatus = this.timeProcess >= this.maxTimestamp
     if (this.updateStatus) {
       this.timeStatus = true
     }
@@ -90,6 +92,10 @@ class Element extends Updater {
 
   getWidth() {
     return Math.max(...this.data.map((dataItem) => dataItem.length))
+  }
+
+  moveFast() {
+    this.maxTimestamp = 25
   }
 
   onAction(actionType: ElementAction) {
