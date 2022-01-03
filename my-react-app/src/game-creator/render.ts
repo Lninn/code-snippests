@@ -1,22 +1,22 @@
-import { Source, Point, Segment, Rect } from "./type";
-import { Config, Direction } from "./constant";
-import { Element } from "./element";
+import { Source, Point, Segment, Rect } from './type'
+import { Config, Direction } from './constant'
+import { Element } from './element'
 
 function dataTransform(data: Source) {
-  const rowSpan = data.length;
-  const colSpan = Math.max(...data.map((dataItem) => dataItem.length));
+  const rowSpan = data.length
+  const colSpan = Math.max(...data.map((dataItem) => dataItem.length))
 
   const newData: Source = [
     ...(Array.from({ length: colSpan }).map(() => []) as Source),
-  ];
+  ]
 
   for (let i = 0; i < rowSpan; i++) {
     for (let j = 0; j < colSpan; j++) {
-      newData[j][i] = data[i][j];
+      newData[j][i] = data[i][j]
     }
   }
 
-  return newData;
+  return newData
 }
 
 function createRect({ x, y }: Point): Rect {
@@ -25,75 +25,75 @@ function createRect({ x, y }: Point): Rect {
     y,
     w: Config.BlockSize,
     h: Config.BlockSize,
-  };
+  }
 }
 
 function isValidData(data: number) {
-  return data === 1;
+  return data === 1
 }
 
 function createRects(data: Source, targetPoint?: Point) {
   if (!targetPoint) {
-    targetPoint = { x: 0, y: 0 };
+    targetPoint = { x: 0, y: 0 }
   }
 
-  const rects: Rect[] = [];
+  const rects: Rect[] = []
 
   let x = targetPoint.x,
-    y = targetPoint.y;
+    y = targetPoint.y
   for (const dataItem of data) {
     if (Array.isArray(dataItem)) {
-      x = targetPoint.x;
+      x = targetPoint.x
 
       for (const subDataItem of dataItem) {
-        const rect = createRect({ x, y });
+        const rect = createRect({ x, y })
 
         if (isValidData(subDataItem)) {
-          rects.push(rect);
+          rects.push(rect)
         }
 
-        x = x + Config.BlockSize;
+        x = x + Config.BlockSize
       }
     }
 
-    y = y + Config.BlockSize;
+    y = y + Config.BlockSize
   }
 
-  return rects;
+  return rects
 }
 
 function createPosition(data: Source, position: Point) {
-  const points: Point[] = [];
+  const points: Point[] = []
 
   data.forEach((dataList: number[], y: number) => {
     dataList.forEach((dataItem, x: number) => {
-      const point = { x: x + position.x, y: y + position.y };
+      const point = { x: x + position.x, y: y + position.y }
 
       if (isValidData(dataItem)) {
-        points.push(point);
+        points.push(point)
       }
-    });
-  });
+    })
+  })
 
-  return points;
+  return points
 }
 
 function createPoints(unitPoints: Point[]) {
   return unitPoints.map((unitPoint) => {
-    const x = unitPoint.x * Config.BlockSize;
-    const y = unitPoint.y * Config.BlockSize;
+    const x = unitPoint.x * Config.BlockSize
+    const y = unitPoint.y * Config.BlockSize
 
     return {
       x,
       y,
-    };
-  });
+    }
+  })
 }
 
 function createSegments(rect: Rect) {
-  const segments: Segment[] = [];
+  const segments: Segment[] = []
 
-  const { x, y, w, h } = rect;
+  const { x, y, w, h } = rect
 
   // 上右下左
   const rectPoints: Point[] = [
@@ -113,121 +113,126 @@ function createSegments(rect: Rect) {
       x,
       y: y + h,
     },
-  ];
+  ]
 
   let start: Point,
     end: Point,
-    i = 0;
+    i = 0
   for (; i < rectPoints.length; i++) {
-    start = rectPoints[i];
-    end = rectPoints[i + 1];
+    start = rectPoints[i]
+    end = rectPoints[i + 1]
 
-    if (!end) end = rectPoints[0];
+    if (!end) end = rectPoints[0]
 
     segments.push({
       start,
       end,
-    });
+    })
   }
 
-  return segments;
+  return segments
 }
 
 function filterSegments(segments: Segment[]) {
   function createMark(segment: Segment) {
-    const { start, end } = segment;
+    const { start, end } = segment
 
-    const s1 = [start.x, start.y].join(">");
-    const s2 = [end.x, end.y].join(">");
+    const s1 = [start.x, start.y].join('>')
+    const s2 = [end.x, end.y].join('>')
 
-    return [[s1, s2].join(","), [s2, s1].join(",")];
+    return [[s1, s2].join(','), [s2, s1].join(',')]
   }
 
-  const cache: string[] = [];
-  const filterList: Segment[] = [];
+  const cache: string[] = []
+  const filterList: Segment[] = []
 
   segments.forEach((segment) => {
-    const [s1, s2] = createMark(segment);
+    const [s1, s2] = createMark(segment)
 
     if (!cache.includes(s1)) {
       if (!cache.includes(s2)) {
-        filterList.push(segment);
+        filterList.push(segment)
 
-        cache.push(s1);
+        cache.push(s1)
       }
     }
-  });
+  })
 
-  return filterList;
+  return filterList
 }
 
 function createRectsSegments(rects: Rect[]) {
-  const rectSegments: Segment[] = [];
+  const rectSegments: Segment[] = []
 
   for (const rect of rects) {
-    const segments = createSegments(rect);
+    const segments = createSegments(rect)
 
-    rectSegments.push(...segments);
+    rectSegments.push(...segments)
   }
 
-  return filterSegments(rectSegments);
+  return filterSegments(rectSegments)
 }
 
 function drawSegment(ctx: CanvasRenderingContext2D, { start, end }: Segment) {
-  ctx.beginPath();
-  ctx.moveTo(start.x, start.y);
-  ctx.lineTo(end.x, end.y);
-  ctx.stroke();
-  ctx.closePath();
+  ctx.beginPath()
+  ctx.moveTo(start.x, start.y)
+  ctx.lineTo(end.x, end.y)
+  ctx.stroke()
+  ctx.closePath()
 }
 
 function drawSegments(ctx: CanvasRenderingContext2D, segments: Segment[]) {
   for (const segment of segments) {
-    drawSegment(ctx, segment);
+    drawSegment(ctx, segment)
   }
 }
 
 function getPointsEdge(data: Point[] | Element, dir: Direction) {
-  let points!: Point[];
+  let points!: Point[]
   if (!Array.isArray(data)) {
-    points = data.points;
+    points = data.points
   } else {
-    points = data;
+    points = data
   }
 
-  const edgeMap: Record<number, number> = {};
+  const edgeMap: Record<number, number> = {}
 
-  let compareFn!: (...args: number[]) => number;
-  let defaultVal!: number;
+  let compareFn!: (...args: number[]) => number
+  let defaultVal!: number
 
-  if (dir === "top") {
-    compareFn = Math.min;
-    defaultVal = Config.BoardHeight;
-  } else if (dir === "right") {
-    compareFn = Math.max;
-    defaultVal = Config.BoardWidth;
-  } else if (dir === "bottom") {
-    compareFn = Math.max;
-    defaultVal = 0;
-  } else if (dir === "left") {
-    compareFn = Math.min;
-    defaultVal = 0;
+  if (dir === 'top') {
+    compareFn = Math.min
+    defaultVal = Config.BoardHeight
+  } else if (dir === 'right') {
+    compareFn = Math.max
+    defaultVal = Config.BoardWidth
+  } else if (dir === 'bottom') {
+    compareFn = Math.max
+    defaultVal = 0
+  } else if (dir === 'left') {
+    compareFn = Math.min
+    defaultVal = 0
   }
 
   for (const point of points) {
-    let { x, y } = point;
+    let { x, y } = point
 
-    edgeMap[x] = compareFn(edgeMap[x] ?? defaultVal, y);
+    edgeMap[x] = compareFn(edgeMap[x] ?? defaultVal, y)
   }
 
-  return edgeMap;
+  return edgeMap
 }
 
 function drawPoint(ctx: CanvasRenderingContext2D, point: Point) {
-  ctx.beginPath();
-  ctx.rect(point.x, point.y, Config.BlockSize, Config.BlockSize);
-  ctx.stroke();
-  ctx.closePath();
+  ctx.beginPath()
+  ctx.rect(
+    point.x * Config.BlockSize,
+    point.y * Config.BlockSize,
+    Config.BlockSize,
+    Config.BlockSize,
+  )
+  ctx.stroke()
+  ctx.closePath()
 }
 
 export {
@@ -239,4 +244,4 @@ export {
   drawSegments,
   getPointsEdge,
   drawPoint,
-};
+}

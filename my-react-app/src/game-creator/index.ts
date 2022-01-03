@@ -1,195 +1,232 @@
-import { ElementKey, Actions, Point } from "./type";
-import { Element } from "./element";
-import { Config } from "./constant";
-import { drawPoint, getPointsEdge } from "./render";
+import { ElementKey, Actions, Point } from './type'
+import { Element } from './element'
+import { Config, Direction } from './constant'
+import { drawPoint } from './render'
 
-type Cell = 0 | 1;
-type Column = Cell[];
-type Row = Column[];
-export type DataMap = Row;
-function createMap() {
-  const map: DataMap = [];
+interface State {
+  indexNos: string[]
+  statusMap: Record<number, number>
+  indexToCoordinatesMap: Record<number, Point>
+  coordinatesToIndexMap: Record<string, number>
+}
 
-  const rowCount = Config.BoardWidth / Config.BlockSize;
-  const colCount = Config.BoardHeight / Config.BlockSize;
+function createState() {
+  const colSpan = Config.BoardHeight / Config.BlockSize
+  const rowSpan = Config.BoardWidth / Config.BlockSize
 
-  for (let i = 0; i < rowCount; i++) {
-    const column: Column = [];
-    for (let j = 0; j < colCount; j++) {
-      const cell: Cell = 0;
+  const indexNos: string[] = []
+  const statusMap: State['statusMap'] = {}
+  const indexToCoordinatesMap: State['indexToCoordinatesMap'] = {}
+  const coordinatesToIndexMap: State['coordinatesToIndexMap'] = {}
 
-      column[j] = cell;
+  let no = 0
+  for (let i = 0; i < colSpan; i++) {
+    for (let j = 0; j < rowSpan; j++) {
+      statusMap[no] = 0
+      indexToCoordinatesMap[no] = {
+        x: j,
+        y: i,
+      }
+      coordinatesToIndexMap[`${j}-${i}`] = no
+      indexNos.push(no + '')
+
+      no += 1
     }
-
-    map[i] = column;
   }
 
-  return map;
+  return {
+    indexNos,
+    statusMap,
+    indexToCoordinatesMap,
+    coordinatesToIndexMap,
+  }
 }
 
 class ElementManage {
-  currentElement: Element;
+  currentElement: Element
 
-  cachePoints: Point[] = [];
-
-  dataMap!: DataMap;
+  state: State
 
   constructor() {
-    this.dataMap = createMap();
+    this.state = createState()
 
-    this.currentElement = new Element(this.dataMap);
+    this.currentElement = new Element()
   }
 
-  canMove() {
-    const elementEdge = getPointsEdge(this.currentElement.points, "bottom");
-    const boardEdge = getPointsEdge(this.cachePoints, "top");
+  transform() {
+    this.beforeMove()
+    this.currentElement.transform()
+    this.afterMove()
+  }
 
-    const keys = Object.keys(elementEdge);
-    for (const key of keys) {
-      const elementVal = (elementEdge[+key] ?? 0) + Config.BlockSize;
-      const boardVal = boardEdge[+key] ?? Config.BoardHeight;
+  canMoveDown() {
+    const gap = this.currentElement.getHeight() / Config.BlockSize
+    return (
+      this.currentElement.position.y + gap <
+      Config.BoardHeight / Config.BlockSize
+    )
+  }
 
-      if (elementVal + Config.BlockSize > boardVal) {
-        return false;
+  canHorizton(dir: Direction) {
+    if (dir === 'left') {
+      if (this.currentElement.position.x <= 0) {
+        return false
       }
+
+      return true
+    } else if (dir === 'right') {
+      if (
+        this.currentElement.position.x + this.currentElement.getWidth() >=
+        Config.BoardWidth / Config.BlockSize
+      ) {
+        return false
+      }
+
+      return true
     }
 
-    return true;
+    return false
   }
 
   moveLeft() {
-    this.currentElement.moveLeft();
+    if (!this.canHorizton('left')) {
+      return
+    }
+
+    this.beforeMove()
+    this.currentElement.moveLeft()
+    this.afterMove()
   }
 
   moveRight() {
-    this.currentElement.moveRight();
+    if (!this.canHorizton('right')) {
+      return
+    }
+
+    this.beforeMove()
+    this.currentElement.moveRight()
+    this.afterMove()
+  }
+
+  beforeMove() {
+    this.currentElement.positions.forEach((pos) => {
+      const index = this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
+      this.state.statusMap[index] = 0
+    })
+  }
+
+  afterMove() {
+    this.currentElement.positions.forEach((pos) => {
+      const index = this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
+      this.state.statusMap[index] = 1
+    })
   }
 
   update(timestamp: number) {
-    if (this.canMove()) {
-      this.currentElement.update(timestamp);
+    if (this.canMoveDown()) {
+      this.beforeMove()
+      this.currentElement.update(timestamp)
+      this.afterMove()
     } else {
-      this.cachePoints.push(...this.currentElement.points);
-
-      this.updateDataMap();
-
-      this.currentElement = new Element(this.dataMap);
-    }
-  }
-
-  updateDataMap() {
-    const { positions } = this.currentElement;
-    positions.forEach((pos) => {
-      this.dataMap[pos.x][pos.y] = 1;
-    });
-  }
-
-  drawDataMap(ctx: CanvasRenderingContext2D) {
-    for (let i = 0; i < this.dataMap.length; i++) {
-      for (let j = 0; j < this.dataMap[i].length; j++) {
-        const point = { x: j * Config.BlockSize, y: i * Config.BlockSize };
-
-        if (this.dataMap[j][i] === 1) {
-          drawPoint(ctx, point);
-        }
-      }
+      this.currentElement = new Element()
     }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    // this.currentElement.draw(ctx);
+    const state = this.state
 
-    this.drawDataMap(ctx);
-
-    // for (const point of this.cachePoints) {
-    //   drawPoint(ctx, point);
-    // }
+    state.indexNos.forEach((index) => {
+      if (state.statusMap[+index] === 1) {
+        const point = this.state.indexToCoordinatesMap[+index]
+        drawPoint(ctx, point)
+      }
+    })
   }
 }
 
-const elementManage = new ElementManage();
+const elementManage = new ElementManage()
 
 function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
   const ctx: CanvasRenderingContext2D = canvas.getContext(
-    "2d"
-  ) as CanvasRenderingContext2D;
+    '2d',
+  ) as CanvasRenderingContext2D
 
-  const width = canvas.width;
-  const height = canvas.height;
+  const width = canvas.width
+  const height = canvas.height
 
   function clearRect() {
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, height)
   }
 
-  let frameId: number;
-  let isPaused = false;
+  let frameId: number
+  let isPaused = false
   function run(timestamp: number) {
-    loop(timestamp);
+    loop(timestamp)
 
-    frameId = requestAnimationFrame(run);
+    frameId = requestAnimationFrame(run)
   }
 
   function loop(timestamp: number) {
-    clearRect();
+    clearRect()
 
-    update(timestamp);
+    update(timestamp)
 
-    draw();
+    draw()
   }
 
   function update(timestamp: number) {
     if (!isPaused) {
-      elementManage.update(timestamp);
+      elementManage.update(timestamp)
     }
   }
 
   function draw() {
-    elementManage.draw(ctx);
+    elementManage.draw(ctx)
   }
 
   function start() {
-    draw();
-    frameId = requestAnimationFrame(run);
+    draw()
+    frameId = requestAnimationFrame(run)
   }
 
   function cancel() {
-    cancelAnimationFrame(frameId);
+    cancelAnimationFrame(frameId)
   }
 
   const actions: Actions = {
     onPaused() {
-      isPaused = !isPaused;
+      isPaused = !isPaused
     },
-    move() {
-      elementManage.currentElement.updateData();
-    },
+    move() {},
     onTransform() {
-      elementManage.currentElement.transform();
+      elementManage.currentElement.transform()
     },
     onPrint() {
-      console.log(elementManage);
+      console.log(elementManage)
     },
-  };
-
-  function getActions(setActions: (actions: Actions) => void) {
-    setActions(actions);
   }
 
-  document.addEventListener("keyup", (e) => {
-    const key = e.key;
+  function getActions(setActions: (actions: Actions) => void) {
+    setActions(actions)
+  }
 
-    if (key === "ArrowRight" || key === "d") {
-      elementManage.moveRight();
-    } else if (key === "ArrowLeft" || key === "a") {
-      elementManage.moveLeft();
+  document.addEventListener('keyup', (e) => {
+    const key = e.key
+
+    if (key === 'ArrowRight' || key === 'd') {
+      elementManage.moveRight()
+    } else if (key === 'ArrowLeft' || key === 'a') {
+      elementManage.moveLeft()
+    } else if (key === 'x') {
+      elementManage.transform()
     }
-  });
+  })
 
   return {
     start,
     cancel,
     getActions,
-  };
+  }
 }
 
-export { gameCreator };
+export { gameCreator }
