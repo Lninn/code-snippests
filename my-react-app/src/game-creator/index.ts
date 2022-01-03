@@ -1,4 +1,4 @@
-import { Actions, Direction, Point } from './type'
+import { Actions, Direction, ElementAction, Point } from './type'
 import { Element } from './element'
 import { Config } from './constant'
 import { createPosition, drawPoint } from './render'
@@ -53,12 +53,6 @@ class ElementManage {
     this.currentElement = new Element()
   }
 
-  transform() {
-    this.beforeMove()
-    this.currentElement.onAction('transform')
-    this.afterMove()
-  }
-
   canMoveDown() {
     const bottomPoints = this.currentElement.getEdge('bottom')
     const nextPoints = bottomPoints.map((point) => {
@@ -93,26 +87,6 @@ class ElementManage {
     })
   }
 
-  moveLeft() {
-    if (!this.canHorizontal('left')) {
-      return
-    }
-
-    this.beforeMove()
-    this.currentElement.onAction('left')
-    this.afterMove()
-  }
-
-  moveRight() {
-    if (!this.canHorizontal('right')) {
-      return
-    }
-
-    this.beforeMove()
-    this.currentElement.onAction('right')
-    this.afterMove()
-  }
-
   beforeMove() {
     this.currentElement.positions.forEach((pos) => {
       const index = this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
@@ -125,6 +99,25 @@ class ElementManage {
       const index = this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
       this.state.statusMap[index] = 1
     })
+  }
+
+  onAction(actionType: ElementAction) {
+    this.beforeMove()
+
+    switch (actionType) {
+      case 'right':
+      case 'left':
+        if (this.canHorizontal(actionType)) {
+          this.currentElement.onAction(actionType)
+        }
+        break
+
+      case 'transform':
+        this.currentElement.onAction('transform')
+        break
+    }
+
+    this.afterMove()
   }
 
   update(timestamp: number) {
@@ -227,11 +220,11 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     const key = e.key
 
     if (key === 'ArrowRight' || key === 'd') {
-      elementManage.moveRight()
+      elementManage.onAction('right')
     } else if (key === 'ArrowLeft' || key === 'a') {
-      elementManage.moveLeft()
+      elementManage.onAction('left')
     } else if (key === 'x') {
-      elementManage.transform()
+      elementManage.onAction('transform')
     }
   })
 
