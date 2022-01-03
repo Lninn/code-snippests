@@ -7,9 +7,10 @@ import { createPosition, drawPoint } from './render'
  *
  * TODO
  * 1 向下加速效果 √
- * 2 完整的 row 消除
+ * 2 完整的 row 消除 √
  * 3 计算分数
  * 4 修复重复绘制线段问题
+ * 5 修复变形问题
  *
  */
 
@@ -139,7 +140,68 @@ class ElementManage {
       this.currentElement.update(timestamp)
       this.afterMove()
     } else {
+      this.updateMapStatus()
+
       this.currentElement = new Element()
+    }
+  }
+
+  updateMapStatus() {
+    const statusedPoints: Point[] = []
+    const statusedIndexs: number[] = []
+
+    let start = this.state.indexNos.length - 1
+    let end = 0
+    for (; start >= end; start--) {
+      if (this.state.statusMap[start] === 1) {
+        statusedPoints.push(this.state.indexToCoordinatesMap[start])
+        statusedIndexs.push(start)
+      }
+    }
+
+    const countMap: Record<number, number> = {}
+    for (const point of statusedPoints) {
+      if (countMap[point.y] === undefined) {
+        countMap[point.y] = 1
+      } else {
+        countMap[point.y] = countMap[point.y] + 1
+      }
+    }
+
+    const boardCount = Config.BoardWidth / Config.BlockSize
+    const fullIndexs: string[] = []
+    const unFullRowKeys: string[] = []
+
+    Object.keys(countMap).forEach((countKey) => {
+      if (countMap[+countKey] === boardCount) {
+        fullIndexs.push(countKey)
+      } else {
+        unFullRowKeys.push(countKey)
+      }
+    })
+
+    for (const index of fullIndexs) {
+      this.state.statusMap[+index] = 0
+    }
+
+    if (fullIndexs.length) {
+      statusedIndexs.forEach((index) => {
+        this.state.statusMap[index] = 0
+      })
+
+      const newPoints = statusedPoints
+        .filter((point) => {
+          return unFullRowKeys.includes(point.y + '')
+        })
+        .map((point) => ({
+          ...point,
+          y: point.y + fullIndexs.length,
+        }))
+
+      newPoints.forEach((point) => {
+        const index = this.state.coordinatesToIndexMap[`${point.x}-${point.y}`]
+        this.state.statusMap[index] = 1
+      })
     }
   }
 
