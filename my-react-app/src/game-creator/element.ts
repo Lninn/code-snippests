@@ -1,6 +1,6 @@
 import { dataTransform, createPosition } from './render'
-import { Config, Direction, metaSources, randomKey } from './constant'
-import { Source, Point } from './type'
+import { Config, metaSources, randomKey } from './constant'
+import { Source, Point, Direction, ElementAction } from './type'
 
 export function getEdgePoints(
   positions: Point[],
@@ -92,18 +92,22 @@ class Element extends Updater {
     return Math.max(...this.data.map((dataItem) => dataItem.length))
   }
 
-  transform() {
-    this.data = dataTransform(this.data)
-    this.positions = createPosition(this.data, this.position)
-  }
+  onAction(actionType: ElementAction) {
+    switch (actionType) {
+      case 'right':
+        this.position.x++
+        break
+      case 'bottom':
+        this.position.y += 1
+        break
+      case 'left':
+        this.position.x--
+        break
+      case 'transform':
+        this.data = dataTransform(this.data)
+        break
+    }
 
-  moveLeft() {
-    this.position.x--
-    this.positions = createPosition(this.data, this.position)
-  }
-
-  moveRight() {
-    this.position.x++
     this.positions = createPosition(this.data, this.position)
   }
 
@@ -111,8 +115,7 @@ class Element extends Updater {
     super.updateTimestamp(timestamp)
 
     if (this.updateStatus) {
-      this.position.y += 1
-      this.positions = createPosition(this.data, this.position)
+      this.onAction('bottom')
     }
   }
 }

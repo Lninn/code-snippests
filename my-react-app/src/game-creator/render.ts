@@ -1,6 +1,5 @@
 import { Source, Point, Segment, Rect } from './type'
-import { Config, Direction } from './constant'
-import { Element } from './element'
+import { Config } from './constant'
 
 function dataTransform(data: Source) {
   const rowSpan = data.length
@@ -187,42 +186,6 @@ function drawSegments(ctx: CanvasRenderingContext2D, segments: Segment[]) {
   }
 }
 
-function getPointsEdge(data: Point[] | Element, dir: Direction) {
-  let points!: Point[]
-  if (!Array.isArray(data)) {
-    points = data.points
-  } else {
-    points = data
-  }
-
-  const edgeMap: Record<number, number> = {}
-
-  let compareFn!: (...args: number[]) => number
-  let defaultVal!: number
-
-  if (dir === 'top') {
-    compareFn = Math.min
-    defaultVal = Config.BoardHeight
-  } else if (dir === 'right') {
-    compareFn = Math.max
-    defaultVal = Config.BoardWidth
-  } else if (dir === 'bottom') {
-    compareFn = Math.max
-    defaultVal = 0
-  } else if (dir === 'left') {
-    compareFn = Math.min
-    defaultVal = 0
-  }
-
-  for (const point of points) {
-    let { x, y } = point
-
-    edgeMap[x] = compareFn(edgeMap[x] ?? defaultVal, y)
-  }
-
-  return edgeMap
-}
-
 function drawPoint(ctx: CanvasRenderingContext2D, point: Point) {
   ctx.beginPath()
   ctx.rect(
@@ -242,6 +205,5 @@ export {
   createPoints,
   createRectsSegments,
   drawSegments,
-  getPointsEdge,
   drawPoint,
 }

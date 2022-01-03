@@ -1,10 +1,10 @@
-import { ElementKey, Point, Source } from "./type";
+import { ElementKey, Point, Source } from './type'
 
 export const Config = {
   BlockSize: 30,
   BoardWidth: 300,
   BoardHeight: 300,
-};
+}
 
 export const metaSources: Record<ElementKey, Source> = {
   T: [
@@ -25,18 +25,16 @@ export const metaSources: Record<ElementKey, Source> = {
     [1, 1],
     [1, 1],
   ],
-};
+}
 
-export const elementKeys = Object.keys(metaSources) as ElementKey[];
+export const elementKeys = Object.keys(metaSources) as ElementKey[]
 
 export function randomIntFromInterval(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
 export function randomKey() {
-  const index = randomIntFromInterval(0, elementKeys.length - 1);
+  const index = randomIntFromInterval(0, elementKeys.length - 1)
 
-  return elementKeys[index];
+  return elementKeys[index]
 }
-
-export type Direction = "top" | "right" | "bottom" | "left";

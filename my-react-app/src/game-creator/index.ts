@@ -1,6 +1,6 @@
-import { ElementKey, Actions, Point } from './type'
-import { Element, getEdgePoints } from './element'
-import { Config, Direction } from './constant'
+import { Actions, Direction, Point } from './type'
+import { Element } from './element'
+import { Config } from './constant'
 import { createPosition, drawPoint } from './render'
 
 interface State {
@@ -9,7 +9,7 @@ interface State {
   indexToCoordinatesMap: Record<number, Point>
   coordinatesToIndexMap: Record<string, number>
 }
-;``
+
 function createState() {
   const colSpan = Config.BoardHeight / Config.BlockSize
   const rowSpan = Config.BoardWidth / Config.BlockSize
@@ -55,7 +55,7 @@ class ElementManage {
 
   transform() {
     this.beforeMove()
-    this.currentElement.transform()
+    this.currentElement.onAction('transform')
     this.afterMove()
   }
 
@@ -99,7 +99,7 @@ class ElementManage {
     }
 
     this.beforeMove()
-    this.currentElement.moveLeft()
+    this.currentElement.onAction('left')
     this.afterMove()
   }
 
@@ -109,7 +109,7 @@ class ElementManage {
     }
 
     this.beforeMove()
-    this.currentElement.moveRight()
+    this.currentElement.onAction('right')
     this.afterMove()
   }
 
@@ -212,7 +212,7 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       elementManage.afterMove()
     },
     onTransform() {
-      elementManage.currentElement.transform()
+      elementManage.currentElement.onAction('transform')
     },
     onPrint() {
       console.log(elementManage)
