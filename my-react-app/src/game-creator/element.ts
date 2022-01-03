@@ -1,6 +1,33 @@
 import { dataTransform, createPosition } from './render'
-import { Config, metaSources, randomKey } from './constant'
+import { Config, Direction, metaSources, randomKey } from './constant'
 import { Source, Point } from './type'
+
+export function getEdgePoints(
+  positions: Point[],
+  compareKey: keyof Point,
+  getterKey: keyof Point,
+  isGetMin = false,
+) {
+  const data: Record<number, Point> = {}
+
+  function withMin(a: number, b: number) {
+    return a <= b
+  }
+  function withMax(a: number, b: number) {
+    return a >= b
+  }
+
+  const compareFn = isGetMin ? withMax : withMin
+
+  positions.forEach((pos) => {
+    const value = pos[compareKey]
+
+    if (!data[value] || compareFn(data[value][getterKey], pos[getterKey]))
+      data[value] = pos
+  })
+
+  return Object.keys(data).map((key) => data[+key])
+}
 
 class Updater {
   private timeStart: number = 0
@@ -31,8 +58,6 @@ class Element extends Updater {
   position!: Point
   data!: Source
   positions!: Point[]
-  points!: Point[]
-
   constructor() {
     super()
 
@@ -44,6 +69,19 @@ class Element extends Updater {
     this.data = metaSources[key]
     this.position = getInitialPostion()
     this.positions = createPosition(this.data, this.position)
+  }
+
+  getEdge(dir: Direction) {
+    switch (dir) {
+      case 'top':
+        return getEdgePoints(this.positions, 'x', 'y', true)
+      case 'right':
+        return getEdgePoints(this.positions, 'y', 'x')
+      case 'bottom':
+        return getEdgePoints(this.positions, 'x', 'y')
+      case 'left':
+        return getEdgePoints(this.positions, 'y', 'x', true)
+    }
   }
 
   getHeight() {

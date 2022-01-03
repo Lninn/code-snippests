@@ -1,7 +1,7 @@
 import { ElementKey, Actions, Point } from './type'
-import { Element } from './element'
+import { Element, getEdgePoints } from './element'
 import { Config, Direction } from './constant'
-import { drawPoint } from './render'
+import { createPosition, drawPoint } from './render'
 
 interface State {
   indexNos: string[]
@@ -9,7 +9,7 @@ interface State {
   indexToCoordinatesMap: Record<number, Point>
   coordinatesToIndexMap: Record<string, number>
 }
-
+;``
 function createState() {
   const colSpan = Config.BoardHeight / Config.BlockSize
   const rowSpan = Config.BoardWidth / Config.BlockSize
@@ -60,14 +60,23 @@ class ElementManage {
   }
 
   canMoveDown() {
-    const gap = this.currentElement.getHeight() / Config.BlockSize
-    return (
-      this.currentElement.position.y + gap <
-      Config.BoardHeight / Config.BlockSize
-    )
+    const bottomPoints = this.currentElement.getEdge('bottom')
+    const nextPoints = bottomPoints.map((point) => {
+      return {
+        ...point,
+        y: point.y + 1,
+      }
+    })
+    const indexNos = nextPoints.map((pos) => {
+      return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
+    })
+
+    return indexNos.every((index) => {
+      return this.state.statusMap[index] === 0
+    })
   }
 
-  canHorizton(dir: Direction) {
+  canHorizontal(dir: Direction) {
     if (dir === 'left') {
       if (this.currentElement.position.x <= 0) {
         return false
@@ -89,7 +98,7 @@ class ElementManage {
   }
 
   moveLeft() {
-    if (!this.canHorizton('left')) {
+    if (!this.canHorizontal('left')) {
       return
     }
 
@@ -99,7 +108,7 @@ class ElementManage {
   }
 
   moveRight() {
-    if (!this.canHorizton('right')) {
+    if (!this.canHorizontal('right')) {
       return
     }
 
@@ -197,7 +206,15 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     onPaused() {
       isPaused = !isPaused
     },
-    move() {},
+    move() {
+      elementManage.beforeMove()
+      elementManage.currentElement.position.y += 1
+      elementManage.currentElement.positions = createPosition(
+        elementManage.currentElement.data,
+        elementManage.currentElement.position,
+      )
+      elementManage.afterMove()
+    },
     onTransform() {
       elementManage.currentElement.transform()
     },
