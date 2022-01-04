@@ -1,6 +1,6 @@
-import { dataTransform, createPosition, calcEdgeForPositions } from './render'
+import { dataTransform, createPosition } from './render'
 import { Config, metaSources, randomKey } from './constant'
-import { Source, Point, Direction, ElementAction } from './type'
+import { Source, Point, ElementAction } from './type'
 
 class Updater {
   private timeStart: number = 0
@@ -44,10 +44,6 @@ class Element extends Updater {
     this.data = metaSources[key]
     this.position = getInitialPostion(this.getHeight() / Config.BlockSize)
     this.positions = createPosition(this.data, this.position)
-  }
-
-  getEdge(dir: Direction) {
-    return calcEdgeForPositions(this.positions, dir)
   }
 
   getHeight() {
