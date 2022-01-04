@@ -79,37 +79,22 @@ class ElementManage {
     this.userScore += base * 100
   }
 
-  canMoveDown() {
-    const bottomPoints = this.currentElement.getEdge('bottom')
+  canMove(dir: Direction) {
+    let nextGen: (p: Point) => Point
 
-    const nextPoints = bottomPoints.map((point) => {
-      return {
-        ...point,
-        y: point.y + 1,
-      }
-    })
-    const indexNos = nextPoints
-      .map((pos) => {
-        return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
-      })
-      .filter((item) => item !== undefined)
-
-    return (
-      indexNos.length > 0 &&
-      indexNos.every((index) => {
-        return this.state.statusMap[index] === 0
-      })
-    )
-  }
-
-  canHorizontal(dir: Direction) {
-    const points = this.currentElement.getEdge(dir)
-    const nextPoints = points.map((point) => {
-      return {
+    if (dir === 'bottom') {
+      nextGen = (point) => ({ ...point, y: point.y + 1 })
+    } else {
+      nextGen = (point) => ({
         ...point,
         x: dir === 'left' ? point.x - 1 : point.x + 1,
-      }
-    })
+      })
+    }
+
+    const points = this.currentElement.getEdge(dir)
+
+    const nextPoints = points.map((point) => nextGen(point))
+
     const indexNos = nextPoints
       .map((pos) => {
         return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
@@ -118,6 +103,7 @@ class ElementManage {
 
     return (
       indexNos.length > 0 &&
+      nextPoints.length === indexNos.length &&
       indexNos.every((index) => {
         return this.state.statusMap[index] === 0
       })
@@ -147,7 +133,7 @@ class ElementManage {
         break
       case 'right':
       case 'left':
-        if (this.canHorizontal(actionType)) {
+        if (this.canMove(actionType)) {
           this.currentElement.onAction(actionType)
         }
         break
@@ -165,7 +151,7 @@ class ElementManage {
       return
     }
 
-    if (this.canMoveDown()) {
+    if (this.canMove('bottom')) {
       this.beforeMove()
       this.currentElement.update(timestamp)
       this.afterMove()
@@ -339,7 +325,7 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       elementManage.currentElement.onAction('transform')
     },
     onPrint() {
-      console.log(elementManage.canHorizontal('left'))
+      console.log(elementManage)
     },
   }
 
