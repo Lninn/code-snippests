@@ -2,33 +2,6 @@ import { dataTransform, createPosition, calcEdgeForPositions } from './render'
 import { Config, metaSources, randomKey } from './constant'
 import { Source, Point, Direction, ElementAction } from './type'
 
-export function getEdgePoints(
-  positions: Point[],
-  compareKey: keyof Point,
-  getterKey: keyof Point,
-  isGetMin = false,
-) {
-  const data: Record<number, Point> = {}
-
-  function withMin(a: number, b: number) {
-    return a <= b
-  }
-  function withMax(a: number, b: number) {
-    return a >= b
-  }
-
-  const compareFn = isGetMin ? withMax : withMin
-
-  positions.forEach((pos) => {
-    const value = pos[compareKey]
-
-    if (!data[value] || compareFn(data[value][getterKey], pos[getterKey]))
-      data[value] = pos
-  })
-
-  return Object.keys(data).map((key) => data[+key])
-}
-
 class Updater {
   private timeStart: number = 0
   private timeProcess: number = 0
