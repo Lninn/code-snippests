@@ -1,21 +1,59 @@
 import { Source, Point, Segment, Rect } from './type'
 import { Config } from './constant'
 
+/**
+ *
+ * 0 1 0
+ * 1 1 1
+ *
+ * 1 0
+ * 1 1
+ * 1 0
+ *
+ * 1 1 1
+ * 0 1 0
+ *
+ * 0 1
+ * 1 1
+ * 0 1
+ *
+ * 行和列直接交互
+ *
+ */
 function dataTransform(data: Source) {
-  const rowSpan = data.length
-  const colSpan = Math.max(...data.map((dataItem) => dataItem.length))
+  let rowSpan = data.length
+  let colSpan = Math.max(...data.map((dataItem) => dataItem.length))
 
-  const newData: Source = [
-    ...(Array.from({ length: colSpan }).map(() => []) as Source),
-  ]
+  let rowIndex = 0,
+    colIndex = 0
 
-  for (let i = 0; i < rowSpan; i++) {
-    for (let j = 0; j < colSpan; j++) {
-      newData[j][i] = data[i][j]
-    }
+  function createTwoDimensionalArrays(rowSpan: number, colSpan: number) {
+    return Array.from({
+      length: rowSpan,
+    }).map(() =>
+      Array.from({
+        length: colSpan,
+      }),
+    )
   }
 
-  return newData
+  const newData = createTwoDimensionalArrays(colSpan, rowSpan)
+
+  while (rowIndex < rowSpan) {
+    colIndex = 0
+
+    while (colIndex < colSpan) {
+      const num = data[rowIndex][colIndex]
+
+      newData[colIndex][rowSpan - 1 - rowIndex] = num
+
+      colIndex++
+    }
+
+    rowIndex++
+  }
+
+  return newData as Source
 }
 
 function createRect({ x, y }: Point): Rect {
