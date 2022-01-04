@@ -1,4 +1,4 @@
-import { dataTransform, createPosition } from './render'
+import { dataTransform, createPosition, calcEdgeForPositions } from './render'
 import { Config, metaSources, randomKey } from './constant'
 import { Source, Point, Direction, ElementAction } from './type'
 
@@ -74,16 +74,7 @@ class Element extends Updater {
   }
 
   getEdge(dir: Direction) {
-    switch (dir) {
-      case 'top':
-        return getEdgePoints(this.positions, 'x', 'y', true)
-      case 'right':
-        return getEdgePoints(this.positions, 'y', 'x')
-      case 'bottom':
-        return getEdgePoints(this.positions, 'x', 'y')
-      case 'left':
-        return getEdgePoints(this.positions, 'y', 'x', true)
-    }
+    return calcEdgeForPositions(this.positions, dir)
   }
 
   getHeight() {

@@ -1,7 +1,7 @@
 import { Actions, Direction, ElementAction, Point } from './type'
 import { Element } from './element'
 import { Config } from './constant'
-import { createPosition, drawPoint } from './render'
+import { createPosition, drawPoint, calcEdgeForPositions } from './render'
 
 /**
  *
@@ -81,6 +81,7 @@ class ElementManage {
 
   canMoveDown() {
     const bottomPoints = this.currentElement.getEdge('bottom')
+
     const nextPoints = bottomPoints.map((point) => {
       return {
         ...point,
@@ -338,7 +339,7 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
       elementManage.currentElement.onAction('transform')
     },
     onPrint() {
-      console.log(elementManage)
+      console.log(elementManage.canHorizontal('left'))
     },
   }
 

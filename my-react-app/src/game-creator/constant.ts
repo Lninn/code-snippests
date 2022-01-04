@@ -1,4 +1,4 @@
-import { ElementKey, Point, Source } from './type'
+import { ElementKey, Source } from './type'
 
 export const Config = {
   BlockSize: 30,

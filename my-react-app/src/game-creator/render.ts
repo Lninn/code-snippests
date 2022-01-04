@@ -1,4 +1,4 @@
-import { Source, Point, Segment, Rect } from './type'
+import { Source, Point, Segment, Rect, Direction } from './type'
 import { Config } from './constant'
 
 /**
@@ -54,6 +54,79 @@ function dataTransform(data: Source) {
   }
 
   return newData as Source
+}
+
+function calcEdgeForPositions(positions: Point[], direction: Direction) {
+  // with left => right
+  const isMax = (left: number, right: number) => {
+    return left >= right
+  }
+
+  const isMin = (left: number, right: number) => {
+    return left <= right
+  }
+
+  const isHorizontal = direction === 'left' || direction === 'right'
+
+  let compareFunc: (a: number, b: number) => boolean,
+    compareKey: keyof Point,
+    fixedKey: keyof Point,
+    fixedKeys: number[],
+    limit: number
+
+  if (isHorizontal) {
+    compareKey = 'x'
+    fixedKey = 'y'
+  } else {
+    compareKey = 'y'
+    fixedKey = 'x'
+  }
+
+  fixedKeys = positions.map((pos) => pos[fixedKey])
+
+  switch (direction) {
+    case 'top':
+      compareFunc = isMin
+      limit = Config.BoardHeight / Config.BlockSize - 1
+      break
+    case 'right':
+      compareFunc = isMax
+      limit = 0
+      break
+    case 'bottom':
+      compareFunc = isMax
+      // TODO
+      limit = -100
+      break
+    case 'left':
+      compareFunc = isMin
+      limit = Config.BoardWidth / Config.BlockSize - 1
+
+      break
+  }
+
+  const markMap: Record<number, Point> = fixedKeys.reduce((target, next) => {
+    return {
+      ...target,
+      [next]: {
+        [compareKey]: limit,
+      },
+    }
+  }, {})
+
+  positions.forEach((pos) => {
+    const key = pos[fixedKey]
+
+    const a = markMap[key]
+
+    const b = pos[compareKey]
+
+    if (compareFunc(b, a[compareKey])) {
+      markMap[key] = pos
+    }
+  })
+
+  return Object.entries(markMap).map((item) => item[1]) as Point[]
 }
 
 function createRect({ x, y }: Point): Rect {
@@ -244,4 +317,5 @@ export {
   createRectsSegments,
   drawSegments,
   drawPoint,
+  calcEdgeForPositions,
 }
