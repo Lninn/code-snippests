@@ -1,7 +1,12 @@
-import { Actions, Direction, ElementAction, Point } from './type'
+import { Actions, Direction, ElementAction, Point, Source } from './type'
 import { Element } from './element'
 import { Config } from './constant'
-import { createPosition, drawPoint, calcEdgeForPositions } from './render'
+import {
+  createPosition,
+  drawPoint,
+  calcEdgeForPositions,
+  dataTransform,
+} from './render'
 
 /**
  *
@@ -79,23 +84,38 @@ class ElementManage {
     this.userScore += base * 100
   }
 
-  canMove(dir: Direction) {
-    let nextGen: (p: Point) => Point
+  canGoNextAction(nextAction: ElementAction) {
+    const { positions, position, data } = this.currentElement
 
-    if (dir === 'bottom') {
-      nextGen = (point) => ({ ...point, y: point.y + 1 })
-    } else {
-      nextGen = (point) => ({
-        ...point,
-        x: dir === 'left' ? point.x - 1 : point.x + 1,
-      })
+    let nextPositions: Point[] = [],
+      nextData: Source,
+      edgePoints: Point[] = []
+    if (nextAction !== 'transform') {
+      edgePoints = calcEdgeForPositions(positions, nextAction)
     }
 
-    const points = this.currentElement.getEdge(dir)
+    switch (nextAction) {
+      case 'right':
+      case 'left':
+        nextPositions = edgePoints.map((pos) => ({
+          ...pos,
+          x: nextAction === 'left' ? pos.x - 1 : pos.x + 1,
+        }))
+        break
+      case 'bottom':
+        nextPositions = edgePoints.map((pos) => ({
+          ...pos,
+          y: pos.y + 1,
+        }))
+        break
 
-    const nextPoints = points.map((point) => nextGen(point))
+      case 'transform':
+        nextData = dataTransform(data)
+        nextPositions = createPosition(nextData, position)
+        break
+    }
 
-    const indexNos = nextPoints
+    const indexNos = nextPositions
       .map((pos) => {
         return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
       })
@@ -103,7 +123,7 @@ class ElementManage {
 
     return (
       indexNos.length > 0 &&
-      nextPoints.length === indexNos.length &&
+      nextPositions.length === indexNos.length &&
       indexNos.every((index) => {
         return this.state.statusMap[index] === 0
       })
@@ -133,13 +153,10 @@ class ElementManage {
         break
       case 'right':
       case 'left':
-        if (this.canMove(actionType)) {
+      case 'transform':
+        if (this.canGoNextAction(actionType)) {
           this.currentElement.onAction(actionType)
         }
-        break
-
-      case 'transform':
-        this.currentElement.onAction('transform')
         break
     }
 
@@ -151,7 +168,7 @@ class ElementManage {
       return
     }
 
-    if (this.canMove('bottom')) {
+    if (this.canGoNextAction('bottom')) {
       this.beforeMove()
       this.currentElement.update(timestamp)
       this.afterMove()
