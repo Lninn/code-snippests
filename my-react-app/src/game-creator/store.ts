@@ -131,26 +131,45 @@ class Store {
     return state
   }
 
-  getCellStatus(points: Point[]) {
-    const { cellStatusMap, pointToNoMap } = this.board
-
-    const cellNos = points.map(
-      (point) => pointToNoMap[this.getKeyByPoint(point)],
-    )
-
-    return cellNos.map((no) => cellStatusMap[no])
-  }
-
   update(timestamp: number) {
     if (this.canGoNextAction('bottom')) {
-      this.beforeMove()
+      this.updateCellsStatusByElement(0)
       this.updateByElement(timestamp)
-      this.afterMove()
+      this.updateCellsStatusByElement(1)
     } else {
       this.updatecellsMap()
 
       this.resetElement()
     }
+  }
+
+  __update(timestamp: number) {
+    this.updateTimestamp(timestamp)
+
+    if (this.core.canRun) {
+      this.updateCellsStatusByElement(0)
+      this.__update_status()
+      this.updateCellsStatusByElement(1)
+    }
+  }
+
+  updateTimestamp(timestamp: number) {
+    const { core } = this
+
+    if (core.ping) {
+      core.start = timestamp
+      core.ping = !core.ping
+    }
+
+    core.process = timestamp - core.start
+    core.canRun = core.process >= core.timestampLimit
+    if (core.canRun) {
+      core.ping = true
+    }
+  }
+
+  __update_status() {
+    // TODO 处理所有的 action
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -177,21 +196,6 @@ class Store {
       this.moveElementDown()
 
       this.updateCellsStatusByElement(1)
-    }
-  }
-
-  updateTimestamp(timestamp: number) {
-    const { core } = this
-
-    if (core.ping) {
-      core.start = timestamp
-      core.ping = !core.ping
-    }
-
-    core.process = timestamp - core.start
-    core.canRun = core.process >= core.timestampLimit
-    if (core.canRun) {
-      core.ping = true
     }
   }
 
@@ -351,7 +355,7 @@ class Store {
   }
 
   dispatch(action: ElementAction) {
-    this.beforeMove()
+    this.updateCellsStatusByElement(0)
 
     switch (action) {
       case 'bottom':
@@ -366,27 +370,7 @@ class Store {
         break
     }
 
-    this.afterMove()
-  }
-
-  beforeMove() {
-    const { board, element } = this
-    const { positions } = element
-    const { cellStatusMap, pointToNoMap } = board
-
-    positions
-      .map((pos) => pointToNoMap[this.getKeyByPoint(pos)])
-      .forEach((cellNo) => (cellStatusMap[cellNo] = 0))
-  }
-
-  afterMove() {
-    const { board, element } = this
-    const { positions } = element
-    const { cellStatusMap, pointToNoMap } = board
-
-    positions
-      .map((pos) => pointToNoMap[this.getKeyByPoint(pos)])
-      .forEach((cellNo) => (cellStatusMap[cellNo] = 1))
+    this.updateCellsStatusByElement(1)
   }
 }
 
