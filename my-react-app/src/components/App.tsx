@@ -26,7 +26,7 @@ function App() {
     <div className="App">
       <Controls actions={actions} />
 
-      <canvas ref={canvasRef} width="300" height="300"></canvas>
+      <canvas ref={canvasRef} width="300" height="600"></canvas>
     </div>
   )
 }

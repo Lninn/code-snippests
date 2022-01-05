@@ -104,7 +104,7 @@ class Store {
 
   resetElement() {
     this.element = this.createElement()
-    this.core.timestampLimit = 1000
+    this.core.timestampLimit = 600
   }
 
   createElement() {
@@ -226,7 +226,6 @@ class Store {
     const markedPoints = markedNos.map((no) => noToPointMap[no])
 
     const colSpan = Config.BoardWidth / Config.BlockSize
-    const rowSpan = Config.BoardHeight / Config.BlockSize
     const countOfVerticalPosMap: Record<number, number> = {}
 
     markedPoints.forEach((point) => {
@@ -265,16 +264,19 @@ class Store {
         .map((point) => pointToNoMap[this.getKeyByPoint(point)])
         .forEach((no) => (cellStatusMap[no] = 0))
 
-      const nextPoints = unErasedPoints.map((point) => {
-        let nextPoint = {
-          ...point,
-          y: point.y + erasedPoints.length,
-        }
+      let nextPoints = unErasedPoints
+      for (const yPos of erasedYPos) {
+        nextPoints = nextPoints.map((point) => {
+          if (point.y < +yPos) {
+            return {
+              ...point,
+              y: point.y + 1,
+            }
+          }
 
-        // if (nextPoint.y > rowSpan) nextPoint = point
-
-        return nextPoint
-      })
+          return point
+        })
+      }
 
       nextPoints
         .map((point) => pointToNoMap[this.getKeyByPoint(point)])
