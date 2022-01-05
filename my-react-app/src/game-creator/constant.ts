@@ -36,5 +36,5 @@ export function randomIntFromInterval(min: number, max: number) {
 export function randomKey() {
   const index = randomIntFromInterval(0, elementKeys.length - 1)
 
-  return elementKeys[index]
+  return elementKeys[2]
 }

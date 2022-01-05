@@ -1,278 +1,23 @@
-import { Actions, Direction, ElementAction, Point, Source } from './type'
-import { Element } from './element'
-import { Config } from './constant'
-import {
-  createPosition,
-  drawPoint,
-  calcEdgeForPositions,
-  dataTransform,
-} from './render'
-
-/**
- *
- * TODO
- * 1 向下加速效果 √
- * 2 完整的 row 消除 √
- * 3 计算分数 √
- * 4 判断游戏结束
- * 5 修复变形问题
- * 6 修复重复绘制线段问题
- *
- */
-
-interface State {
-  indexNos: string[]
-  statusMap: Record<number, number>
-  indexToCoordinatesMap: Record<number, Point>
-  coordinatesToIndexMap: Record<string, number>
-  // 0-9
-  verticalStatus: boolean[]
-}
-
-function createState() {
-  const colSpan = Config.BoardHeight / Config.BlockSize
-  const rowSpan = Config.BoardWidth / Config.BlockSize
-
-  const indexNos: string[] = []
-  const statusMap: State['statusMap'] = {}
-  const indexToCoordinatesMap: State['indexToCoordinatesMap'] = {}
-  const coordinatesToIndexMap: State['coordinatesToIndexMap'] = {}
-
-  let no = 0
-  for (let i = 0; i < colSpan; i++) {
-    for (let j = 0; j < rowSpan; j++) {
-      statusMap[no] = 0
-      indexToCoordinatesMap[no] = {
-        x: j,
-        y: i,
-      }
-      coordinatesToIndexMap[`${j}-${i}`] = no
-      indexNos.push(no + '')
-
-      no += 1
-    }
-  }
-
-  const verticalStatus: State['verticalStatus'] = []
-  for (let i = 0; i < rowSpan; i++) {
-    verticalStatus[i] = false
-  }
-
-  return {
-    indexNos,
-    statusMap,
-    indexToCoordinatesMap,
-    coordinatesToIndexMap,
-    verticalStatus,
-  }
-}
+import { Actions, ElementAction } from './type'
+import { Store } from './store'
 
 class ElementManage {
-  currentElement: Element
-
-  state: State
-
-  userScore: number = 0
+  store: Store
 
   constructor() {
-    this.state = createState()
-
-    this.currentElement = new Element()
+    this.store = new Store()
   }
 
-  updateScore(base: number) {
-    this.userScore += base * 100
-  }
-
-  canGoNextAction(nextAction: ElementAction) {
-    const { positions, position, data } = this.currentElement
-
-    let nextPositions: Point[] = [],
-      nextData: Source,
-      edgePoints: Point[] = []
-    if (nextAction !== 'transform') {
-      edgePoints = calcEdgeForPositions(positions, nextAction)
-    }
-
-    switch (nextAction) {
-      case 'right':
-      case 'left':
-        nextPositions = edgePoints.map((pos) => ({
-          ...pos,
-          x: nextAction === 'left' ? pos.x - 1 : pos.x + 1,
-        }))
-        break
-      case 'bottom':
-        nextPositions = edgePoints.map((pos) => ({
-          ...pos,
-          y: pos.y + 1,
-        }))
-        break
-
-      case 'transform':
-        nextData = dataTransform(data)
-        nextPositions = createPosition(nextData, position)
-        break
-    }
-
-    const indexNos = nextPositions
-      .map((pos) => {
-        return this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
-      })
-      .filter((item) => item !== undefined)
-
-    return (
-      indexNos.length > 0 &&
-      nextPositions.length === indexNos.length &&
-      indexNos.every((index) => {
-        return this.state.statusMap[index] === 0
-      })
-    )
-  }
-
-  beforeMove() {
-    this.currentElement.positions.forEach((pos) => {
-      const index = this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
-      this.state.statusMap[index] = 0
-    })
-  }
-
-  afterMove() {
-    this.currentElement.positions.forEach((pos) => {
-      const index = this.state.coordinatesToIndexMap[`${pos.x}-${pos.y}`]
-      this.state.statusMap[index] = 1
-    })
-  }
-
-  onAction(actionType: ElementAction) {
-    this.beforeMove()
-
-    switch (actionType) {
-      case 'bottom':
-        this.currentElement.moveFast()
-        break
-      case 'right':
-      case 'left':
-      case 'transform':
-        if (this.canGoNextAction(actionType)) {
-          this.currentElement.onAction(actionType)
-        }
-        break
-    }
-
-    this.afterMove()
+  onAction(action: ElementAction) {
+    this.store.onAction(action)
   }
 
   update(timestamp: number) {
-    if (this.state.verticalStatus.every((status) => status)) {
-      return
-    }
-
-    if (this.canGoNextAction('bottom')) {
-      this.beforeMove()
-      this.currentElement.update(timestamp)
-      this.afterMove()
-    } else {
-      this.markRowTag()
-      this.updateMapStatus()
-
-      this.currentElement = new Element()
-    }
-  }
-
-  updateMapStatus() {
-    const statusedPoints: Point[] = []
-    const statusedIndexs: number[] = []
-
-    let start = this.state.indexNos.length - 1
-    let end = 0
-    for (; start >= end; start--) {
-      if (this.state.statusMap[start] === 1) {
-        statusedPoints.push(this.state.indexToCoordinatesMap[start])
-        statusedIndexs.push(start)
-      }
-    }
-
-    const countMap: Record<number, number> = {}
-    for (const point of statusedPoints) {
-      if (countMap[point.y] === undefined) {
-        countMap[point.y] = 1
-      } else {
-        countMap[point.y] = countMap[point.y] + 1
-      }
-    }
-
-    const boardCount = Config.BoardWidth / Config.BlockSize
-    const fullIndexs: string[] = []
-    const unFullRowKeys: string[] = []
-
-    Object.keys(countMap).forEach((countKey) => {
-      if (countMap[+countKey] === boardCount) {
-        fullIndexs.push(countKey)
-      } else {
-        unFullRowKeys.push(countKey)
-      }
-    })
-
-    for (const index of fullIndexs) {
-      this.state.statusMap[+index] = 0
-    }
-
-    if (fullIndexs.length) {
-      statusedIndexs.forEach((index) => {
-        this.state.statusMap[index] = 0
-      })
-
-      const newPoints = statusedPoints
-        .filter((point) => {
-          return unFullRowKeys.includes(point.y + '')
-        })
-        .map((point) => ({
-          ...point,
-          y: point.y + fullIndexs.length,
-        }))
-
-      newPoints.forEach((point) => {
-        const index = this.state.coordinatesToIndexMap[`${point.x}-${point.y}`]
-        this.state.statusMap[index] = 1
-      })
-
-      this.updateScore(fullIndexs.length)
-    }
-  }
-
-  markRowTag() {
-    const indexs = []
-
-    for (const index of this.state.indexNos) {
-      if (this.state.statusMap[+index] === 1) {
-        indexs.push(index)
-      }
-    }
-
-    const tagMap: Record<number, boolean> = {}
-    const points = indexs.forEach((index) => {
-      const point = this.state.indexToCoordinatesMap[+index]
-
-      if (!tagMap[point.y]) {
-        tagMap[point.y] = true
-      }
-    })
-
-    Object.keys(tagMap).forEach((key) => {
-      this.state.verticalStatus[+key] = true
-    })
+    this.store.update(timestamp)
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const state = this.state
-
-    state.indexNos.forEach((index) => {
-      if (state.statusMap[+index] === 1) {
-        const point = this.state.indexToCoordinatesMap[+index]
-        drawPoint(ctx, point)
-      }
-    })
+    this.store.draw(ctx)
   }
 }
 
@@ -329,20 +74,11 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     onPaused() {
       isPaused = !isPaused
     },
-    move() {
-      elementManage.beforeMove()
-      elementManage.currentElement.position.y += 1
-      elementManage.currentElement.positions = createPosition(
-        elementManage.currentElement.data,
-        elementManage.currentElement.position,
-      )
-      elementManage.afterMove()
-    },
-    onTransform() {
-      elementManage.currentElement.onAction('transform')
-    },
+    move() {},
+    onTransform() {},
     onPrint() {
-      console.log(elementManage)
+      const { store } = elementManage
+      console.log(store)
     },
   }
 
