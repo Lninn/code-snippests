@@ -8,8 +8,8 @@ class ElementManage {
     this.store = new Store()
   }
 
-  onAction(action: ElementAction) {
-    this.store.onAction(action)
+  dispatch(action: ElementAction) {
+    this.store.dispatch(action)
   }
 
   update(timestamp: number) {
@@ -90,13 +90,13 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     const key = e.key
 
     if (key === 'ArrowRight' || key === 'd') {
-      elementManage.onAction('right')
+      elementManage.dispatch('right')
     } else if (key === 'ArrowLeft' || key === 'a') {
-      elementManage.onAction('left')
+      elementManage.dispatch('left')
     } else if (key === 'x') {
-      elementManage.onAction('transform')
+      elementManage.dispatch('transform')
     } else if (key === 's' || key === 'ArrowBottom') {
-      elementManage.onAction('bottom')
+      elementManage.dispatch('bottom')
     }
   })
 

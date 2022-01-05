@@ -350,18 +350,18 @@ class Store {
     element.positions = createPosition(element.source, element.position)
   }
 
-  onAction(actionType: ElementAction) {
+  dispatch(action: ElementAction) {
     this.beforeMove()
 
-    switch (actionType) {
+    switch (action) {
       case 'bottom':
         this.moveFast()
         break
       case 'right':
       case 'left':
       case 'transform':
-        if (this.canGoNextAction(actionType)) {
-          this.elementOnAction(actionType)
+        if (this.canGoNextAction(action)) {
+          this.elementOnAction(action)
         }
         break
     }
