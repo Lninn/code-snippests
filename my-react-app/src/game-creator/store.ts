@@ -1,5 +1,4 @@
 import { ElementAction, Point, Source } from './type'
-import { Config, randomKey, metaSources } from './constant'
 import {
   createPosition,
   drawPoint,
@@ -7,42 +6,25 @@ import {
   dataTransform,
 } from './render'
 
+import { Element } from './element'
+import { Core } from './core'
+import { Board } from './board'
+
 type CellStatus = 0 | 1
 
 const isValidCell = (status: CellStatus) => status === 1
 
 class Store {
-  core: {
-    start: number
-    process: number
-    timestampLimit: number
-    canRun: boolean
-    ping: boolean
-  }
+  board: Board
 
-  board: {
-    cellNos: number[]
-    cellStatusMap: Record<number, CellStatus>
-    noToPointMap: Record<number, Point>
-    pointToNoMap: Record<string, number>
-    verticalCellStatus: CellStatus[]
-  }
+  core: Core
 
-  element: {
-    source: Source
-    unitSize: [number, number]
-    position: Point
-    positions: Point[]
-  }
+  element: Element
 
   constructor() {
-    this.core = this.createCoreState()
-    this.board = this.createBoardState()
-    this.element = this.createElement()
-  }
-
-  getKeyByPoint(point: Point) {
-    return `${point.x}-${point.y}`
+    this.core = new Core()
+    this.board = new Board()
+    this.element = new Element()
   }
 
   createCoreState() {
@@ -57,114 +39,30 @@ class Store {
     return state
   }
 
-  createBoardState() {
-    const colSpan = Config.BoardHeight / Config.BlockSize
-    const rowSpan = Config.BoardWidth / Config.BlockSize
-
-    const cellNos = []
-    const cellStatusMap: Record<number, CellStatus> = {}
-    const noToPointMap: Record<number, Point> = {}
-    const pointToNoMap: Record<string, number> = {}
-
-    let cellNo = 0
-    for (let i = 0; i < colSpan; i++) {
-      for (let j = 0; j < rowSpan; j++) {
-        cellStatusMap[cellNo] = 0
-
-        const point = {
-          x: j,
-          y: i,
-        }
-        const key = this.getKeyByPoint(point)
-
-        noToPointMap[cellNo] = point
-        pointToNoMap[key] = cellNo
-
-        cellNos.push(cellNo)
-
-        cellNo += 1
-      }
-    }
-
-    const verticalCellStatus: CellStatus[] = []
-    for (let i = 0; i < rowSpan; i++) {
-      verticalCellStatus[i] = 0 as CellStatus
-    }
-
-    const state = {
-      cellNos,
-      cellStatusMap,
-      noToPointMap,
-      pointToNoMap,
-      verticalCellStatus,
-    }
-
-    return state
-  }
-
   resetElement() {
-    this.element = this.createElement()
+    this.element = new Element()
     this.core.timestampLimit = 600
-  }
-
-  createElement() {
-    const key = randomKey()
-
-    const source = metaSources[key]
-    const width = Math.max(...source.map((dataItem) => dataItem.length))
-    const height = source.length
-
-    const position = {
-      x: 3,
-      y: -height,
-    }
-
-    const positions = createPosition(source, position)
-
-    const state = {
-      source,
-      unitSize: [width, height] as [number, number],
-      position,
-      positions,
-    }
-
-    return state
   }
 
   update(timestamp: number) {
     if (this.canGoNextAction('bottom')) {
-      this.updateCellsStatusByElement(0)
+      this.board.updateCellsStatusByElement(this.element, 0)
       this.updateByElement(timestamp)
-      this.updateCellsStatusByElement(1)
+      this.board.updateCellsStatusByElement(this.element, 1)
     } else {
-      this.updatecellsMap()
+      this.board.update()
 
       this.resetElement()
     }
   }
 
   __update(timestamp: number) {
-    this.updateTimestamp(timestamp)
+    this.core.update(timestamp)
 
     if (this.core.canRun) {
-      this.updateCellsStatusByElement(0)
+      this.board.updateCellsStatusByElement(this.element, 0)
       this.__update_status()
-      this.updateCellsStatusByElement(1)
-    }
-  }
-
-  updateTimestamp(timestamp: number) {
-    const { core } = this
-
-    if (core.ping) {
-      core.start = timestamp
-      core.ping = !core.ping
-    }
-
-    core.process = timestamp - core.start
-    core.canRun = core.process >= core.timestampLimit
-    if (core.canRun) {
-      core.ping = true
+      this.board.updateCellsStatusByElement(this.element, 1)
     }
   }
 
@@ -186,105 +84,14 @@ class Store {
   }
 
   updateByElement(timestamp: number) {
-    const { core } = this
+    this.core.update(timestamp)
 
-    this.updateTimestamp(timestamp)
+    if (this.core.canRun) {
+      this.board.updateCellsStatusByElement(this.element, 0)
 
-    if (core.canRun) {
-      this.updateCellsStatusByElement(0)
+      this.element.elementOnAction('bottom')
 
-      this.moveElementDown()
-
-      this.updateCellsStatusByElement(1)
-    }
-  }
-
-  moveFast() {
-    this.core.timestampLimit = 25
-  }
-
-  moveElementDown() {
-    const { element } = this
-
-    element.position.y += 1
-    element.positions = createPosition(element.source, element.position)
-  }
-
-  updateCellsStatusByElement(status: CellStatus) {
-    const { board, element } = this
-
-    const { cellStatusMap, pointToNoMap } = board
-    const { positions } = element
-
-    const cellNos = positions.map(
-      (point) => pointToNoMap[this.getKeyByPoint(point)],
-    )
-    cellNos.forEach((no) => (cellStatusMap[no] = status))
-  }
-
-  updatecellsMap() {
-    const { board } = this
-    const { cellNos, cellStatusMap, noToPointMap, pointToNoMap } = board
-
-    const markedNos = cellNos.filter((no) => isValidCell(cellStatusMap[no]))
-    const markedPoints = markedNos.map((no) => noToPointMap[no])
-
-    const colSpan = Config.BoardWidth / Config.BlockSize
-    const countOfVerticalPosMap: Record<number, number> = {}
-
-    markedPoints.forEach((point) => {
-      const { y } = point
-
-      if (!countOfVerticalPosMap[y]) {
-        countOfVerticalPosMap[y] = 1
-      } else {
-        countOfVerticalPosMap[y] += 1
-      }
-    })
-
-    const erasedYPos = Object.keys(countOfVerticalPosMap).filter(
-      (yPos) => countOfVerticalPosMap[+yPos] === colSpan,
-    )
-
-    if (erasedYPos.length) {
-      const erasedPoints: Point[] = []
-      const unErasedPoints: Point[] = []
-
-      markedPoints.forEach((point) => {
-        const { y } = point
-
-        if (erasedYPos.includes(y + '')) {
-          erasedPoints.push(point)
-        } else {
-          unErasedPoints.push(point)
-        }
-
-        // erased all points
-        const no = pointToNoMap[this.getKeyByPoint(point)]
-        cellStatusMap[no] = 0
-      })
-
-      erasedPoints
-        .map((point) => pointToNoMap[this.getKeyByPoint(point)])
-        .forEach((no) => (cellStatusMap[no] = 0))
-
-      let nextPoints = unErasedPoints
-      for (const yPos of erasedYPos) {
-        nextPoints = nextPoints.map((point) => {
-          if (point.y < +yPos) {
-            return {
-              ...point,
-              y: point.y + 1,
-            }
-          }
-
-          return point
-        })
-      }
-
-      nextPoints
-        .map((point) => pointToNoMap[this.getKeyByPoint(point)])
-        .forEach((no) => (cellStatusMap[no] = 1))
+      this.board.updateCellsStatusByElement(this.element, 1)
     }
   }
 
@@ -323,7 +130,7 @@ class Store {
 
     const cellNos = nextPositions
       .map((pos) => {
-        return pointToNoMap[this.getKeyByPoint(pos)]
+        return pointToNoMap[this.board.getKeyByPoint(pos)]
       })
       .filter((cellNo) => cellNo !== undefined)
 
@@ -336,41 +143,23 @@ class Store {
     )
   }
 
-  elementOnAction(actionType: ElementAction) {
-    const { element } = this
-
-    switch (actionType) {
-      case 'right':
-        element.position.x++
-        break
-      case 'left':
-        element.position.x--
-        break
-      case 'transform':
-        element.source = dataTransform(element.source)
-        break
-    }
-
-    element.positions = createPosition(element.source, element.position)
-  }
-
   dispatch(action: ElementAction) {
-    this.updateCellsStatusByElement(0)
+    this.board.updateCellsStatusByElement(this.element, 0)
 
     switch (action) {
       case 'bottom':
-        this.moveFast()
+        this.core.moveFast()
         break
       case 'right':
       case 'left':
       case 'transform':
         if (this.canGoNextAction(action)) {
-          this.elementOnAction(action)
+          this.element.elementOnAction(action)
         }
         break
     }
 
-    this.updateCellsStatusByElement(1)
+    this.board.updateCellsStatusByElement(this.element, 1)
   }
 }
 
