@@ -1,25 +1,5 @@
-import { Actions, ElementAction } from './type'
+import { Actions, ElementAction, Point } from './type'
 import { Store } from './store'
-
-class ElementManage {
-  store: Store
-
-  constructor() {
-    this.store = new Store()
-  }
-
-  dispatch(action: ElementAction) {
-    this.store.dispatch(action)
-  }
-
-  update(timestamp: number) {
-    this.store.update(timestamp)
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    this.store.draw(ctx)
-  }
-}
 
 function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
   const ctx: CanvasRenderingContext2D = canvas.getContext(
@@ -29,10 +9,17 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
   const width = canvas.width
   const height = canvas.height
 
-  const elementManage = new ElementManage()
+  const store = new Store()
 
   function clearRect() {
     ctx.clearRect(0, 0, width, height)
+  }
+
+  function getCanvasPoint(e: MouseEvent) {
+    return {
+      x: e.pageX - canvas.offsetLeft,
+      y: e.pageY - canvas.offsetTop,
+    }
   }
 
   let frameId: number
@@ -53,12 +40,12 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
 
   function update(timestamp: number) {
     if (!isPaused) {
-      elementManage.update(timestamp)
+      store.update(timestamp)
     }
   }
 
   function draw() {
-    elementManage.draw(ctx)
+    store.draw(ctx)
   }
 
   function start() {
@@ -77,7 +64,6 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     move() {},
     onTransform() {},
     onPrint() {
-      const { store } = elementManage
       console.log(store)
     },
   }
@@ -90,14 +76,34 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     const key = e.key
 
     if (key === 'ArrowRight' || key === 'd') {
-      elementManage.dispatch('right')
+      store.dispatch('right')
     } else if (key === 'ArrowLeft' || key === 'a') {
-      elementManage.dispatch('left')
+      store.dispatch('left')
     } else if (key === 'x') {
-      elementManage.dispatch('transform')
+      store.dispatch('transform')
     } else if (key === 's' || key === 'ArrowBottom') {
-      elementManage.dispatch('bottom')
+      store.dispatch('bottom')
     }
+  })
+
+  let hasClick = false,
+    downPos: Point = { x: 0, y: 0 }
+  document.addEventListener('mousedown', (e) => {
+    hasClick = true
+    downPos = getCanvasPoint(e)
+
+    console.log(store)
+  })
+
+  document.addEventListener('mousemove', (e) => {
+    if (hasClick) {
+      downPos = getCanvasPoint(e)
+      console.log('move')
+    }
+  })
+
+  document.addEventListener('mouseup', (e) => {
+    hasClick = false
   })
 
   return {
