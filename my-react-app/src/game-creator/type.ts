@@ -20,6 +20,7 @@ export type Source = number[][]
 export type ElementKey = 'T' | 'L' | 'I' | 'S' | 'Z' | 'O'
 
 export type Actions = {
+  onStart?: () => void
   onPaused: () => void
   move: () => void
   onTransform: () => void
