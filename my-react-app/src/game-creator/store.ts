@@ -22,9 +22,9 @@ class Store {
   element: Element
 
   constructor() {
-    this.core = new Core()
-    this.board = new Board()
     this.element = new Element()
+    this.board = new Board()
+    this.core = new Core()
   }
 
   createCoreState() {

@@ -17,7 +17,7 @@ class Element {
 
     const position = {
       x: Math.floor(Config.BoardWidth / Config.BlockSize / 2),
-      y: -height,
+      y: height,
     }
     const positions = createPosition(source, position)
 

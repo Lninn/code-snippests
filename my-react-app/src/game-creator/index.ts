@@ -48,8 +48,8 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     store.draw(ctx)
   }
 
+  draw()
   function start() {
-    draw()
     frameId = requestAnimationFrame(run)
   }
 
