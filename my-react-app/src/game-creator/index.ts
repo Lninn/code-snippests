@@ -86,26 +86,6 @@ function gameCreator({ canvas }: { canvas: HTMLCanvasElement }) {
     }
   })
 
-  let hasClick = false,
-    downPos: Point = { x: 0, y: 0 }
-  document.addEventListener('mousedown', (e) => {
-    hasClick = true
-    downPos = getCanvasPoint(e)
-
-    console.log(store)
-  })
-
-  document.addEventListener('mousemove', (e) => {
-    if (hasClick) {
-      downPos = getCanvasPoint(e)
-      console.log('move')
-    }
-  })
-
-  document.addEventListener('mouseup', (e) => {
-    hasClick = false
-  })
-
   return {
     start,
     cancel,

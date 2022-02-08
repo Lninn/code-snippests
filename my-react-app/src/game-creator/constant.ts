@@ -3,7 +3,7 @@ import { ElementKey, Source } from './type'
 export const Config = {
   BlockSize: 30,
   BoardWidth: 300,
-  BoardHeight: 300,
+  BoardHeight: 600,
 }
 
 export const metaSources: Record<ElementKey, Source> = {
