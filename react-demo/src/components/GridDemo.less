@@ -1,4 +1,9 @@
 .GridDemo {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 1fr;
+  grid-template-columns: 1fr 1fr;
+
+  // https://css-tricks.com/preventing-a-grid-blowout/
+  &-left {
+    min-width: 0;
+  }
 }
