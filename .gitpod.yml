@@ -1,7 +1,0 @@
-# The Docker image to run your workspace in. Defaults to gitpod/workspace-full
-image:
-  file: .gitpod.Dockerfile
-
-tasks:
-  - command: >
-        echo "alias sicp='rlwrap mit-scheme'" > ~/.bash_aliases && source ~/.bash_aliases
