@@ -1,0 +1,31 @@
+.Demo {
+  width: 500px;
+}
+
+.Item {
+  height: 200px;
+  background-color: aquamarine;
+
+  font-size: 30px;
+  color: #000;
+
+  display: flex;
+  justify-content: center;
+  place-items: center;
+}
+
+.Item + .Item {
+  margin-top: 30px;
+}
+
+.List {
+  margin-top: 30px;
+  height: 300px;
+  overflow: scroll;
+  background-color: indianred;
+}
+
+.Blank {
+  height: 200px;
+  background-color: bisque;
+}
