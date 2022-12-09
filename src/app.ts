@@ -145,23 +145,13 @@ function foo() {
 
   const canvas = ctx.canvas
   canvas.addEventListener('mousedown', (evt) => {
-    const { clientX, clientY } = evt
-
-    const point: Point = {
-      x: clientX,
-      y: clientY,
-    }
+    const point = getMousePoint(evt)
 
     isPress = true
     handleClick(point)
   })
   canvas.addEventListener('mousemove', (evt) => {
-    const { clientX, clientY } = evt
-
-    const point: Point = {
-      x: clientX,
-      y: clientY,
-    }
+    const point = getMousePoint(evt)
 
     mouseMovePoint.x = point.x
     mouseMovePoint.y = point.y
@@ -169,16 +159,14 @@ function foo() {
   canvas.addEventListener('mouseup', (evt) => {
     isPress = false
 
-    const {
-      clientX,
-      clientY,
-    } = evt
+    const point = getMousePoint(evt)
 
     const element = player.activeElement
     if (element) {
       player.activeElement = null
-      mouseDownPoint.x = clientX
-      mouseDownPoint.y = clientY
+
+      mouseDownPoint.x = point.x
+      mouseDownPoint.y = point.y
     }
   })
 
@@ -233,6 +221,17 @@ const drawBg = (ctx: CanvasRenderingContext2D) => {
   ctx.fillStyle = '#e5e5e5'
   ctx.rect(0, 0, width, height)
   ctx.fill()
+}
+
+const getMousePoint = (evt: MouseEvent) => {
+  const { clientX, clientY } = evt
+
+  const point: Point = {
+    x: clientX,
+    y: clientY,
+  }
+
+  return point
 }
 
 const getContext = () => {
