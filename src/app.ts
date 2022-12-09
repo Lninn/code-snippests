@@ -36,35 +36,6 @@ class Timer {
   draw() {}
 }
 
-class Player {
-  elements: Element[] = []
-
-  add(e: Element) { this.elements.push(e) }
-
-  findElementByPoint(point: Point) {
-    const elements = this.elements
-
-    // 如果按照正常的顺序渲染，这里在查找时从后往前的方式更符合直觉
-    // 因为按照点击事件从上往下的顺序，尽量从上面的元素开始对比
-
-    let start = elements.length - 1
-    for(; start >= 0; start--) {
-      const element = elements[start]
-      if (isPointInElement(point, element)) {
-        return element
-      }
-    }
-
-    return null
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    for (const element of this.elements) {
-      element.draw(ctx)
-    }
-  }
-}
-
 const enum Status {
   None = 'none',
   Create = 'create',
@@ -147,7 +118,8 @@ function foo() {
   
   const sys = new Sys()
   const timer = new Timer()
-  const player = new Player()
+
+  const elements: Element[] = []
 
   const getNewElement = (point: Point): Element => {
 
@@ -162,7 +134,6 @@ function foo() {
   }
 
   const pointerCheck = () => {
-    const elements = player.elements
 
     let cursor: CSSStyleDeclaration['cursor'] = ''
     for (const element of elements) {
@@ -181,7 +152,7 @@ function foo() {
   canvas.addEventListener('mousedown', (evt) => {
     const point = getMousePoint(evt)
 
-    let element = player.findElementByPoint(point)
+    let element = findElementByPoint(elements, point)
     if (element) {
       downPoint.x = point.x - element.x
       downPoint.y = point.y - element.y
@@ -199,7 +170,7 @@ function foo() {
     sys.setElement(element)
     sys.setStatus(Status.Create)
 
-    player.add(element)
+    elements.push(element)
   })
   canvas.addEventListener('mousemove', (evt) => {
     const point = getMousePoint(evt)
@@ -247,9 +218,27 @@ function foo() {
     clear()
 
     drawBg(ctx)
-    player.draw(ctx)
+
+    for (const element of elements) {
+      element.draw(ctx)
+    }
   }
 
+}
+
+const findElementByPoint = (elements: Element[], point: Point) => {
+  // 如果按照正常的顺序渲染，这里在查找时从后往前的方式更符合直觉
+  // 因为按照点击事件从上往下的顺序，尽量从上面的元素开始对比
+
+  let start = elements.length - 1
+  for(; start >= 0; start--) {
+    const element = elements[start]
+    if (isPointInElement(point, element)) {
+      return element
+    }
+  }
+
+  return null
 }
 
 const isPointInElement = (point: Point, e: Element) => {
