@@ -131,20 +131,16 @@ class Sys {
   }
 }
 
+const INIT_POINT: Point = { x: 0, y: 0 }
+
 function foo() {
   const ctx = getContext()
   if (!ctx) return
 
+  const downPoint: Point = { ...INIT_POINT }
+  const movePoint: Point = { ...INIT_POINT }
+  
   const sys = new Sys()
-
-  const mouseMovePoint: Point = {
-    x: 0,
-    y: 0,
-  }
-  const mouseDownPoint: Point = {
-    x: 0,
-    y: 0,
-  }
 
   const timer = new Timer()
   const player = new Player()
@@ -160,35 +156,12 @@ function foo() {
     return rect
   }
 
-  const handleClick = (point: Point) => {
-
-    let element = player.findElementByPoint(point)
-    if (element) {
-      mouseDownPoint.x = point.x - element.attrs.x
-      mouseDownPoint.y = point.y - element.attrs.y
-      sys.setStatus(Status.Move)
-      sys.setElement(element)
-      return
-    }
-
-    element = getNewElement(point)
-
-    // 新增应该更新 mousedownPoint
-    mouseDownPoint.x = point.x
-    mouseDownPoint.y = point.y
-
-    sys.setElement(element)
-    sys.setStatus(Status.Create)
-
-    player.add(element)
-  }
-
   const pointerCheck = () => {
     const elements = player.elements
 
     let cursor: CSSStyleDeclaration['cursor'] = ''
     for (const element of elements) {
-      if (isPointInRect(mouseMovePoint, element)) {
+      if (isPointInRect(movePoint, element)) {
         cursor = 'pointer'
       }
     }
@@ -203,13 +176,31 @@ function foo() {
   canvas.addEventListener('mousedown', (evt) => {
     const point = getMousePoint(evt)
 
-    handleClick(point)
+    let element = player.findElementByPoint(point)
+    if (element) {
+      downPoint.x = point.x - element.attrs.x
+      downPoint.y = point.y - element.attrs.y
+      sys.setStatus(Status.Move)
+      sys.setElement(element)
+      return
+    }
+
+    element = getNewElement(point)
+
+    // 新增应该更新 mousedownPoint
+    downPoint.x = point.x
+    downPoint.y = point.y
+
+    sys.setElement(element)
+    sys.setStatus(Status.Create)
+
+    player.add(element)
   })
   canvas.addEventListener('mousemove', (evt) => {
     const point = getMousePoint(evt)
 
-    mouseMovePoint.x = point.x
-    mouseMovePoint.y = point.y
+    movePoint.x = point.x
+    movePoint.y = point.y
   })
   canvas.addEventListener('mouseup', (evt) => {
 
@@ -243,8 +234,8 @@ function foo() {
     if (element) {
       sys.setElement(null)
 
-      mouseDownPoint.x = point.x
-      mouseDownPoint.y = point.y
+      downPoint.x = point.x
+      downPoint.y = point.y
     }
   })
 
@@ -263,8 +254,8 @@ function foo() {
     if (sys.isCreate()) {
 
       if (element) {
-        const width = mouseMovePoint.x - mouseDownPoint.x
-        const height = mouseMovePoint.y - mouseDownPoint.y
+        const width = movePoint.x - downPoint.x
+        const height = movePoint.y - downPoint.y
 
         element.attrs.width = width
         element.attrs.height = height
@@ -275,8 +266,8 @@ function foo() {
 
     if (sys.isMoving()) {
       if (element) {
-        const offsetX = mouseMovePoint.x - mouseDownPoint.x
-        const offsetY = mouseMovePoint.y - mouseDownPoint.y
+        const offsetX = movePoint.x - downPoint.x
+        const offsetY = movePoint.y - downPoint.y
 
         element.attrs.x = offsetX
         element.attrs.y = offsetY
