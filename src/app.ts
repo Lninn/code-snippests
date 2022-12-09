@@ -106,6 +106,54 @@ class Sys {
     this.element = element
   }
 
+  updateElement(downPoint: Point, movePoint: Point) {
+    const { element } = this
+    if (this.isCreate()) {
+
+      if (element) {
+        const width = movePoint.x - downPoint.x
+        const height = movePoint.y - downPoint.y
+
+        element.attrs.width = width
+        element.attrs.height = height
+      }
+
+      return
+    }
+
+    if (this.isMoving()) {
+      if (element) {
+        const offsetX = movePoint.x - downPoint.x
+        const offsetY = movePoint.y - downPoint.y
+
+        element.attrs.x = offsetX
+        element.attrs.y = offsetY
+      }
+    }
+  }
+
+  parseElementSize() {
+    const { element } = this
+
+    if (element) {
+      // 当前的 element 的宽度和高度转换成正数
+
+      const xAxis = element.attrs.width < 0
+      const yAxis = element.attrs.height < 0
+
+      if (xAxis) {
+        element.attrs.width = Math.abs(element.attrs.width)
+        element.attrs.x -= element.attrs.width
+      }
+
+      if (yAxis) {
+        element.attrs.height = Math.abs(element.attrs.height)
+        element.attrs.y -= element.attrs.height
+      }
+
+    }
+  }
+
   getElement() {
     return this.element
   }
@@ -205,25 +253,7 @@ function foo() {
   canvas.addEventListener('mouseup', (evt) => {
 
     if (sys.isCreate()) {
-      const element = sys.getElement()
-      if (element) {
-        // 当前的 element 的宽度和高度转换成正数
-
-        const xAxis = element.attrs.width < 0
-        const yAxis = element.attrs.height < 0
-
-        if (xAxis) {
-          element.attrs.width = Math.abs(element.attrs.width)
-          element.attrs.x -= element.attrs.width
-        }
-
-        if (yAxis) {
-          element.attrs.height = Math.abs(element.attrs.height)
-          element.attrs.y -= element.attrs.height
-        }
-
-      }
-
+      sys.parseElementSize()
     }
 
     sys.setStatus(Status.None)
@@ -249,30 +279,7 @@ function foo() {
   }
 
   timer.update = () => {
-
-    const element = sys.getElement()
-    if (sys.isCreate()) {
-
-      if (element) {
-        const width = movePoint.x - downPoint.x
-        const height = movePoint.y - downPoint.y
-
-        element.attrs.width = width
-        element.attrs.height = height
-      }
-
-      return
-    }
-
-    if (sys.isMoving()) {
-      if (element) {
-        const offsetX = movePoint.x - downPoint.x
-        const offsetY = movePoint.y - downPoint.y
-
-        element.attrs.x = offsetX
-        element.attrs.y = offsetY
-      }
-    }
+    sys.updateElement(downPoint, movePoint)
 
     if (sys.isNormal()) {
       pointerCheck()
