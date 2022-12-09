@@ -1,44 +1,19 @@
+import {
+  Element,
+  Rect,
+  Circle,
+  Point,
+} from './element'
+import { getDistance } from './utils'
+
 const ID = 'canvas'
 
 // TODO
 // 1 侧边栏，现实当前的全局状态和画布内状态，激活元素，坐标等等
 // 2 画布数据本地持久化存储
 // 3 工具覆层，提供可以创建的图形，文字等等
+// 4 实现一个可主动触发的动画管理，而不是一开始就启动一个完整的 timer
 
-interface Point {
-  x: number
-  y: number
-}
-
-class Rect {
-  attrs: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
-
-  constructor(attrs: Rect['attrs']) {
-    this.attrs = attrs
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    const { x, y, width, height } = this.attrs
-
-    ctx.beginPath()
-    ctx.rect(x, y, width, height)
-    ctx.closePath()
-    
-    // ctx.strokeStyle = '#000'
-    // ctx.stroke()
-
-    ctx.fillStyle = '#ccc'
-    ctx.fill()
-  }
-}
-
-// TODO
-// 实现一个可主动触发的动画管理，而不是一开始就启动一个完整的 timer
 class Timer {
   constructor() {
     this.start()
@@ -62,11 +37,9 @@ class Timer {
 }
 
 class Player {
-  elements: Rect[] = []
+  elements: Element[] = []
 
-  add(rect: Rect) {
-    this.elements.push(rect)
-  }
+  add(e: Element) { this.elements.push(e) }
 
   findElementByPoint(point: Point) {
     const elements = this.elements
@@ -77,7 +50,7 @@ class Player {
     let start = elements.length - 1
     for(; start >= 0; start--) {
       const element = elements[start]
-      if (isPointInRect(point, element)) {
+      if (isPointInElement(point, element)) {
         return element
       }
     }
@@ -100,9 +73,9 @@ const enum Status {
 
 class Sys {
   private status: Status = Status.None
-  private element: Rect | null = null
+  private element: Element | null = null
 
-  setElement(element: Rect | null) {
+  setElement(element: Element | null) {
     this.element = element
   }
 
@@ -111,11 +84,7 @@ class Sys {
     if (this.isCreate()) {
 
       if (element) {
-        const width = movePoint.x - downPoint.x
-        const height = movePoint.y - downPoint.y
-
-        element.attrs.width = width
-        element.attrs.height = height
+        element.updateSize(downPoint, movePoint)
       }
 
       return
@@ -126,31 +95,19 @@ class Sys {
         const offsetX = movePoint.x - downPoint.x
         const offsetY = movePoint.y - downPoint.y
 
-        element.attrs.x = offsetX
-        element.attrs.y = offsetY
+        const point: Point = {
+          x: offsetX,
+          y: offsetY,
+        }
+        element.updatePoint(point)
       }
     }
   }
 
   parseElementSize() {
     const { element } = this
-
     if (element) {
-      // 当前的 element 的宽度和高度转换成正数
-
-      const xAxis = element.attrs.width < 0
-      const yAxis = element.attrs.height < 0
-
-      if (xAxis) {
-        element.attrs.width = Math.abs(element.attrs.width)
-        element.attrs.x -= element.attrs.width
-      }
-
-      if (yAxis) {
-        element.attrs.height = Math.abs(element.attrs.height)
-        element.attrs.y -= element.attrs.height
-      }
-
+      element.parseElementSize()
     }
   }
 
@@ -189,17 +146,17 @@ function foo() {
   const movePoint: Point = { ...INIT_POINT }
   
   const sys = new Sys()
-
   const timer = new Timer()
   const player = new Player()
 
-  const getNewElement = (point: Point): Rect => {
-    const rect = new Rect({
-      x: point.x,
-      y: point.y,
-      width: 0,
-      height: 0,
-    })
+  const getNewElement = (point: Point): Element => {
+
+    const rect: Rect = new Rect(
+      point.x,
+      point.y,
+      0,
+      0,
+    )
 
     return rect
   }
@@ -209,7 +166,7 @@ function foo() {
 
     let cursor: CSSStyleDeclaration['cursor'] = ''
     for (const element of elements) {
-      if (isPointInRect(movePoint, element)) {
+      if (isPointInElement(movePoint, element)) {
         cursor = 'pointer'
       }
     }
@@ -226,8 +183,8 @@ function foo() {
 
     let element = player.findElementByPoint(point)
     if (element) {
-      downPoint.x = point.x - element.attrs.x
-      downPoint.y = point.y - element.attrs.y
+      downPoint.x = point.x - element.x
+      downPoint.y = point.y - element.y
       sys.setStatus(Status.Move)
       sys.setElement(element)
       return
@@ -292,7 +249,28 @@ function foo() {
     drawBg(ctx)
     player.draw(ctx)
   }
- 
+
+}
+
+const isPointInElement = (point: Point, e: Element) => {
+  if (e.isCircle()) {
+    return isPointInCircle(point, e as Circle)
+  } else {
+    return isPointInRect(point, e as Rect)
+  }
+}
+
+const isPointInCircle = (
+  point: Point,
+  circle: Circle,
+) => {
+  const center: Point = {
+    x: circle.x,
+    y: circle.y,
+  }
+  const d = getDistance(point, center)
+
+  return d <= circle.radius * 2
 }
 
 const isPointInRect = (
@@ -300,8 +278,8 @@ const isPointInRect = (
   rect: Rect,
 ) => {
   return (
-    point.x >= rect.attrs.x && point.x <= rect.attrs.x + rect.attrs.width &&
-    point.y >= rect.attrs.y && point.y <= rect.attrs.y + rect.attrs.height
+    point.x >= rect.x && point.x <= rect.x + rect.width &&
+    point.y >= rect.y && point.y <= rect.y + rect.height
   )
 }
 

@@ -1,0 +1,145 @@
+import { getDistance } from "./utils"
+
+export interface Point {
+  x: number
+  y: number
+}
+
+type ElementShape = 'circle' | 'rect'
+
+export class Element {
+  shape: ElementShape
+  x: number
+  y: number
+
+  constructor(shape: ElementShape, x: number, y: number) {
+    this.shape = shape
+    this.x = x
+    this.y = y
+  }
+
+  isCircle() {
+    return this.shape === 'circle'
+  }
+
+  isRect() {
+    return this.shape === 'rect'
+  }
+
+  parseElementSize() {
+    throw new Error('need implement')
+  }
+
+  updatePoint(point: Point) {
+    throw new Error('need implement')
+  }
+
+  updateSize(downPoint: Point, movePoint: Point) {
+    throw new Error('need implement')
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    throw new Error('need implement')
+  }
+}
+
+export class Circle extends Element {
+  radius: number
+
+  constructor(x: number, y: number, radius: number) {
+    super('circle', x, y)
+    this.radius = radius
+  }
+
+  parseElementSize() {
+    //
+  }
+
+  updatePoint(point: Point) {
+    this.x = point.x
+    this.y = point.y
+  }
+
+  updateSize(downPoint: Point, movePoint: Point) {
+    const d = getDistance(downPoint, movePoint)
+
+    this.radius = d / 2
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    const { x, y, radius } = this
+
+    ctx.beginPath()
+    ctx.arc(
+      x,
+      y,
+      radius,
+      0,
+      Math.PI * 2,
+      false,
+    )
+    ctx.closePath()
+    
+    // ctx.strokeStyle = '#000'
+    // ctx.stroke()
+
+    ctx.fillStyle = '#ccc'
+    ctx.fill()
+  }
+}
+
+export class Rect extends Element {
+  width: number
+  height: number
+
+  constructor(x: number, y: number, width: number, height: number) {
+    super('rect', x, y)
+    this.width = width
+    this.height = height
+  }
+
+  parseElementSize() {
+    // 当前的 element 的宽度和高度转换成正数
+
+    const xAxis = this.width < 0
+    const yAxis = this.height < 0
+
+    if (xAxis) {
+      this.width = Math.abs(this.width)
+      this.x -= this.width
+    }
+
+    if (yAxis) {
+      this.height = Math.abs(this.height)
+      this.y -= this.height
+    }
+  }
+
+  updatePoint(point: Point) {
+    this.x = point.x
+    this.y = point.y
+  }
+
+  updateSize(downPoint: Point, movePoint: Point) {
+    const width = movePoint.x - downPoint.x
+    const height = movePoint.y - downPoint.y
+
+    this.width = width
+    this.height = height
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    const { x, y, width, height } = this
+
+    ctx.beginPath()
+    ctx.rect(x, y, width, height)
+    ctx.closePath()
+    
+    // ctx.strokeStyle = '#000'
+    // ctx.stroke()
+
+    ctx.fillStyle = '#ccc'
+    ctx.fill()
+  }
+}
+
