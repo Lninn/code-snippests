@@ -29,8 +29,8 @@ class Rect {
     ctx.rect(x, y, width, height)
     ctx.closePath()
     
-    ctx.strokeStyle = '#000'
-    ctx.stroke()
+    // ctx.strokeStyle = '#000'
+    // ctx.stroke()
 
     ctx.fillStyle = '#ccc'
     ctx.fill()
@@ -92,12 +92,51 @@ class Player {
   }
 }
 
+const enum Status {
+  None = 'none',
+  Create = 'create',
+  Move = 'move',
+}
+
+class Sys {
+  private status: Status = Status.None
+  private element: Rect | null = null
+
+  setElement(element: Rect | null) {
+    this.element = element
+  }
+
+  getElement() {
+    return this.element
+  }
+
+  getStatus() {
+    return this.status
+  }
+
+  setStatus(status: Status) {
+    this.status = status
+  }
+
+  isCreate() {
+    return this.status === Status.Create
+  }
+
+  isNormal() {
+    return this.status === Status.None
+  }
+
+  isMoving() {
+    return this.status === Status.Move
+  }
+}
+
 function foo() {
   const ctx = getContext()
   if (!ctx) return
 
-  let isPress = false
-  let activeElement: Rect | null = null
+  const sys = new Sys()
+
   const mouseMovePoint: Point = {
     x: 0,
     y: 0,
@@ -110,25 +149,38 @@ function foo() {
   const timer = new Timer()
   const player = new Player()
 
+  const getNewElement = (point: Point): Rect => {
+    const rect = new Rect({
+      x: point.x,
+      y: point.y,
+      width: 0,
+      height: 0,
+    })
+
+    return rect
+  }
+
   const handleClick = (point: Point) => {
 
-    const element = player.findElementByPoint(point)
+    let element = player.findElementByPoint(point)
     if (element) {
-      activeElement = element
-
       mouseDownPoint.x = point.x - element.attrs.x
       mouseDownPoint.y = point.y - element.attrs.y
+      sys.setStatus(Status.Move)
+      sys.setElement(element)
       return
     }
 
-    const rect = new Rect({
-      x: point.x - 50,
-      y: point.y - 50,
-      width: 100,
-      height: 100,
-    })
+    element = getNewElement(point)
 
-    player.add(rect)
+    // 新增应该更新 mousedownPoint
+    mouseDownPoint.x = point.x
+    mouseDownPoint.y = point.y
+
+    sys.setElement(element)
+    sys.setStatus(Status.Create)
+
+    player.add(element)
   }
 
   const pointerCheck = () => {
@@ -151,7 +203,6 @@ function foo() {
   canvas.addEventListener('mousedown', (evt) => {
     const point = getMousePoint(evt)
 
-    isPress = true
     handleClick(point)
   })
   canvas.addEventListener('mousemove', (evt) => {
@@ -161,12 +212,36 @@ function foo() {
     mouseMovePoint.y = point.y
   })
   canvas.addEventListener('mouseup', (evt) => {
-    isPress = false
+
+    if (sys.isCreate()) {
+      const element = sys.getElement()
+      if (element) {
+        // 当前的 element 的宽度和高度转换成正数
+
+        const xAxis = element.attrs.width < 0
+        const yAxis = element.attrs.height < 0
+
+        if (xAxis) {
+          element.attrs.width = Math.abs(element.attrs.width)
+          element.attrs.x -= element.attrs.width
+        }
+
+        if (yAxis) {
+          element.attrs.height = Math.abs(element.attrs.height)
+          element.attrs.y -= element.attrs.height
+        }
+
+      }
+
+    }
+
+    sys.setStatus(Status.None)
 
     const point = getMousePoint(evt)
 
-    if (activeElement) {
-      activeElement = null
+    const element = sys.getElement()
+    if (element) {
+      sys.setElement(null)
 
       mouseDownPoint.x = point.x
       mouseDownPoint.y = point.y
@@ -183,15 +258,32 @@ function foo() {
   }
 
   timer.update = () => {
-    if (isPress) {
-      if (activeElement) {
+
+    const element = sys.getElement()
+    if (sys.isCreate()) {
+
+      if (element) {
+        const width = mouseMovePoint.x - mouseDownPoint.x
+        const height = mouseMovePoint.y - mouseDownPoint.y
+
+        element.attrs.width = width
+        element.attrs.height = height
+      }
+
+      return
+    }
+
+    if (sys.isMoving()) {
+      if (element) {
         const offsetX = mouseMovePoint.x - mouseDownPoint.x
         const offsetY = mouseMovePoint.y - mouseDownPoint.y
 
-        activeElement.attrs.x = offsetX
-        activeElement.attrs.y = offsetY
+        element.attrs.x = offsetX
+        element.attrs.y = offsetY
       }
-    } else {
+    }
+
+    if (sys.isNormal()) {
       pointerCheck()
     }
   }
