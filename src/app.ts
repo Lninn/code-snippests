@@ -63,16 +63,20 @@ class Timer {
 
 class Player {
   elements: Rect[] = []
-  activeElement: Rect | null = null
 
   add(rect: Rect) {
     this.elements.push(rect)
   }
 
-  getActiveElement(point: Point) {
+  findElementByPoint(point: Point) {
     const elements = this.elements
 
-    for (const element of elements) {
+    // 如果按照正常的顺序渲染，这里在查找时从后往前的方式更符合直觉
+    // 因为按照点击事件从上往下的顺序，尽量从上面的元素开始对比
+
+    let start = elements.length - 1
+    for(; start >= 0; start--) {
+      const element = elements[start]
       if (isPointInRect(point, element)) {
         return element
       }
@@ -93,7 +97,7 @@ function foo() {
   if (!ctx) return
 
   let isPress = false
-
+  let activeElement: Rect | null = null
   const mouseMovePoint: Point = {
     x: 0,
     y: 0,
@@ -108,12 +112,12 @@ function foo() {
 
   const handleClick = (point: Point) => {
 
-    const activeElement = player.getActiveElement(point)
-    if (activeElement) {
-      player.activeElement = activeElement
+    const element = player.findElementByPoint(point)
+    if (element) {
+      activeElement = element
 
-      mouseDownPoint.x = point.x - activeElement.attrs.x
-      mouseDownPoint.y = point.y - activeElement.attrs.y
+      mouseDownPoint.x = point.x - element.attrs.x
+      mouseDownPoint.y = point.y - element.attrs.y
       return
     }
 
@@ -161,9 +165,8 @@ function foo() {
 
     const point = getMousePoint(evt)
 
-    const element = player.activeElement
-    if (element) {
-      player.activeElement = null
+    if (activeElement) {
+      activeElement = null
 
       mouseDownPoint.x = point.x
       mouseDownPoint.y = point.y
@@ -180,15 +183,13 @@ function foo() {
   }
 
   timer.update = () => {
-    const element = player.activeElement
-
     if (isPress) {
-      if (element) {
+      if (activeElement) {
         const offsetX = mouseMovePoint.x - mouseDownPoint.x
         const offsetY = mouseMovePoint.y - mouseDownPoint.y
 
-        element.attrs.x = offsetX
-        element.attrs.y = offsetY
+        activeElement.attrs.x = offsetX
+        activeElement.attrs.y = offsetY
       }
     } else {
       pointerCheck()
