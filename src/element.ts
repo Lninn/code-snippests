@@ -7,6 +7,26 @@ export interface Point {
 
 type ElementShape = 'circle' | 'rect'
 
+export class Line {
+  start: Point
+  end: Point
+
+  constructor(start: Point, end: Point) {
+    this.start = start
+    this.end = end
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath()
+    ctx.moveTo(this.start.x, this.start.y)
+    ctx.lineTo(this.end.x, this.end.y)
+    ctx.closePath()
+
+    ctx.strokeStyle = 'black'
+    ctx.stroke()
+  }
+}
+
 export class Element {
   shape: ElementShape
   x: number

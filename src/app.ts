@@ -4,6 +4,7 @@ import {
   Circle,
   Point,
 } from './element'
+import { Grid } from './grid'
 import { getDistance } from './utils'
 
 const ID = 'canvas'
@@ -118,6 +119,7 @@ function foo() {
   
   const sys = new Sys()
   const timer = new Timer()
+  const grid = new Grid(ctx, 15, 15)
 
   const elements: Element[] = []
 
@@ -218,6 +220,7 @@ function foo() {
     clear()
 
     drawBg(ctx)
+    grid.draw(ctx)
 
     for (const element of elements) {
       element.draw(ctx)
