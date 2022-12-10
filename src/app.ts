@@ -222,6 +222,8 @@ function foo() {
     drawBg(ctx)
     grid.draw(ctx)
 
+    drawGuideLine(ctx, movePoint)
+
     for (const element of elements) {
       element.draw(ctx)
     }
@@ -273,6 +275,43 @@ const isPointInRect = (
     point.x >= rect.x && point.x <= rect.x + rect.width &&
     point.y >= rect.y && point.y <= rect.y + rect.height
   )
+}
+
+const drawGuideLine = (ctx: CanvasRenderingContext2D, point: Point) => {
+  const {
+    canvas: {
+      width,
+      height,
+    }
+  } = ctx
+
+  ctx.beginPath()
+  ctx.moveTo(
+    0,
+    point.y,
+  )
+  ctx.lineTo(
+    width,
+    point.y,
+  )
+  ctx.closePath()
+  
+  ctx.strokeStyle = 'blue'
+  ctx.stroke()
+
+  ctx.beginPath()
+  ctx.moveTo(
+    point.x,
+    0,
+  )
+  ctx.lineTo(
+    point.x,
+    height,
+  )
+  ctx.closePath()
+
+  ctx.strokeStyle = 'blue'
+  ctx.stroke()
 }
 
 const drawBg = (ctx: CanvasRenderingContext2D) => {
