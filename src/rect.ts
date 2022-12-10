@@ -34,6 +34,21 @@ export class Rect extends Element {
 
     this.width = width
     this.height = height
+
+    // this.transform()
+  }
+
+  createBox(ctx: CanvasRenderingContext2D) {
+    const gap = 10
+
+    ctx.beginPath()
+    ctx.rect(
+      this.x - gap,
+      this.y - gap,
+      this.width + gap * 2,
+      this.height + gap * 2,
+    )
+    ctx.closePath()
   }
 
   createPath(ctx: CanvasRenderingContext2D) {

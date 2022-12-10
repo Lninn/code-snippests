@@ -21,6 +21,19 @@ export class Circle extends Element {
     this.radius = d
   }
 
+  createBox(ctx: CanvasRenderingContext2D) {
+    const gap = 10
+
+    ctx.beginPath()
+    ctx.rect(
+      this.x - gap,
+      this.y - gap,
+      this.radius * 2 - gap * 2,
+      this.radius * 2 - gap * 2,
+    )
+    ctx.closePath()
+  }
+
   createPath(ctx: CanvasRenderingContext2D) {
     const { x, y, radius } = this
 

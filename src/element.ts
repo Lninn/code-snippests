@@ -31,6 +31,7 @@ export class Element {
     return this.shape === 'rect'
   }
 
+  createBox(_ctx: CanvasRenderingContext2D) {}
   createPath(_ctx: CanvasRenderingContext2D) {}
 
   updateSize(_downPoint: Point, _movePoint: Point) {}
@@ -42,5 +43,9 @@ export class Element {
 
     ctx.fillStyle = this.fillStyle
     ctx.fill()
+
+    this.createBox(ctx)
+    ctx.strokeStyle = 'red'
+    ctx.stroke()
   }
 }

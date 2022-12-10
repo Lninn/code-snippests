@@ -111,10 +111,6 @@ function main() {
   })
   canvas.addEventListener('mouseup', (evt) => {
 
-    if (sys.isCreate()) {
-      sys.transform()
-    }
-
     sys.setStatus(Status.None)
 
     const point = getMousePoint(evt)

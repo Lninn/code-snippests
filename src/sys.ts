@@ -1,6 +1,5 @@
 import { Element } from "./element"
 import { Point } from "./point"
-import { Rect } from "./rect"
 
 export const enum Status {
   None = 'none',
@@ -38,13 +37,6 @@ export class Sys {
         }
         element.move(point)
       }
-    }
-  }
-
-  transform() {
-    const { element } = this
-    if (element && element.isRect()) {
-      (element as Rect).transform()
     }
   }
 
