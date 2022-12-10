@@ -1,5 +1,6 @@
 import { Element } from "./element"
 import { Point } from "./point"
+import { Rect } from "./rect"
 
 export const enum Status {
   None = 'none',
@@ -35,15 +36,15 @@ export class Sys {
           x: offsetX,
           y: offsetY,
         }
-        element.updatePoint(point)
+        element.move(point)
       }
     }
   }
 
-  parseElementSize() {
+  transform() {
     const { element } = this
-    if (element) {
-      element.parseElementSize()
+    if (element && element.isRect()) {
+      (element as Rect).transform()
     }
   }
 

@@ -2,6 +2,7 @@ import { Point } from "./point"
 import { ElementShape } from "./ui"
 import { getRandomColor } from "./utils"
 
+
 export class Element {
   shape: ElementShape
   x: number
@@ -17,6 +18,11 @@ export class Element {
     this.fillStyle = getRandomColor()
   }
 
+  move(point: Point) {
+    this.x = point.x
+    this.y = point.y
+  }
+
   isCircle() {
     return this.shape === 'circle'
   }
@@ -25,19 +31,16 @@ export class Element {
     return this.shape === 'rect'
   }
 
-  parseElementSize() {
-    throw new Error('need implement')
-  }
+  createPath(_ctx: CanvasRenderingContext2D) {}
 
-  updatePoint(point: Point) {
-    throw new Error('need implement')
-  }
-
-  updateSize(downPoint: Point, movePoint: Point) {
-    throw new Error('need implement')
-  }
+  updateSize(_downPoint: Point, _movePoint: Point) {}
 
   draw(ctx: CanvasRenderingContext2D) {
-    throw new Error('need implement')
+    ctx.beginPath()
+    this.createPath(ctx)
+    ctx.closePath()
+
+    ctx.fillStyle = this.fillStyle
+    ctx.fill()
   }
 }

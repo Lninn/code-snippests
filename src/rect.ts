@@ -11,7 +11,7 @@ export class Rect extends Element {
     this.height = height
   }
 
-  parseElementSize() {
+  transform() {
     // 当前的 element 的宽度和高度转换成正数
 
     const xAxis = this.width < 0
@@ -28,11 +28,6 @@ export class Rect extends Element {
     }
   }
 
-  updatePoint(point: Point) {
-    this.x = point.x
-    this.y = point.y
-  }
-
   updateSize(downPoint: Point, movePoint: Point) {
     const width = movePoint.x - downPoint.x
     const height = movePoint.y - downPoint.y
@@ -41,17 +36,10 @@ export class Rect extends Element {
     this.height = height
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  createPath(ctx: CanvasRenderingContext2D) {
     const { x, y, width, height } = this
 
-    ctx.beginPath()
     ctx.rect(x, y, width, height)
-    ctx.closePath()
-   
-    // ctx.strokeStyle = '#000'
-    // ctx.stroke()
-
-    ctx.fillStyle = this.fillStyle
-    ctx.fill()
   }
+  
 }

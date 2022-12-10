@@ -10,11 +10,7 @@ export class Circle extends Element {
     this.radius = radius
   }
 
-  parseElementSize() {
-    //
-  }
-
-  updatePoint(point: Point) {
+  move(point: Point) {
     this.x = point.x
     this.y = point.y
   }
@@ -25,7 +21,7 @@ export class Circle extends Element {
     this.radius = d
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  createPath(ctx: CanvasRenderingContext2D) {
     const { x, y, radius } = this
 
     ctx.beginPath()
@@ -38,11 +34,5 @@ export class Circle extends Element {
       false,
     )
     ctx.closePath()
-    
-    // ctx.strokeStyle = '#000'
-    // ctx.stroke()
-
-    ctx.fillStyle = this.fillStyle
-    ctx.fill()
   }
 }
