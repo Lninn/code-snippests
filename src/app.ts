@@ -6,7 +6,15 @@ import {
   UI,
 } from './element'
 import { Grid } from './grid'
-import { getById, getDistance } from './utils'
+import { Status, Sys } from './sys'
+import { Timer } from './timer'
+import {
+  drawBg,
+  drawGuideLine,
+  getById,
+  getMousePoint,
+  isPointInElement,
+} from './utils'
 
 const ID = 'canvas'
 
@@ -16,102 +24,10 @@ const ID = 'canvas'
 // 3 工具覆层，提供可以创建的图形，文字等等
 // 4 实现一个可主动触发的动画管理，而不是一开始就启动一个完整的 timer
 
-class Timer {
-  constructor() {
-    this.start()
-  }
-
-  start() {
-    const self = this
-    const loop = () => {
-      self.update()
-      self.draw()
-
-      requestAnimationFrame(loop)
-    }
-
-    loop()
-  }
-
-  update() {}
-
-  draw() {}
-}
-
-const enum Status {
-  None = 'none',
-  Create = 'create',
-  Move = 'move',
-}
-
-class Sys {
-  private status: Status = Status.None
-  private element: Element | null = null
-
-  setElement(element: Element | null) {
-    this.element = element
-  }
-
-  updateElement(downPoint: Point, movePoint: Point) {
-    const { element } = this
-    if (this.isCreate()) {
-
-      if (element) {
-        element.updateSize(downPoint, movePoint)
-      }
-
-      return
-    }
-
-    if (this.isMoving()) {
-      if (element) {
-        const offsetX = movePoint.x - downPoint.x
-        const offsetY = movePoint.y - downPoint.y
-
-        const point: Point = {
-          x: offsetX,
-          y: offsetY,
-        }
-        element.updatePoint(point)
-      }
-    }
-  }
-
-  parseElementSize() {
-    const { element } = this
-    if (element) {
-      element.parseElementSize()
-    }
-  }
-
-  getElement() {
-    return this.element
-  }
-
-  getStatus() {
-    return this.status
-  }
-
-  setStatus(status: Status) {
-    this.status = status
-  }
-
-  isCreate() {
-    return this.status === Status.Create
-  }
-
-  isNormal() {
-    return this.status === Status.None
-  }
-
-  isMoving() {
-    return this.status === Status.Move
-  }
-}
 
 const INIT_POINT: Point = { x: 0, y: 0 }
 
-function foo() {
+function main() {
   const ctx = getContext()
   if (!ctx) return
 
@@ -259,103 +175,15 @@ const findElementByPoint = (elements: Element[], point: Point) => {
   return null
 }
 
-const isPointInElement = (point: Point, e: Element) => {
-  if (e.isCircle()) {
-    return isPointInCircle(point, e as Circle)
-  } else {
-    return isPointInRect(point, e as Rect)
-  }
-}
-
-const isPointInCircle = (
-  point: Point,
-  circle: Circle,
-) => {
-  const center: Point = {
-    x: circle.x,
-    y: circle.y,
-  }
-  const d = getDistance(point, center)
-
-  return d <= circle.radius
-}
-
-const isPointInRect = (
-  point: Point,
-  rect: Rect,
-) => {
-  return (
-    point.x >= rect.x && point.x <= rect.x + rect.width &&
-    point.y >= rect.y && point.y <= rect.y + rect.height
-  )
-}
-
-const drawGuideLine = (ctx: CanvasRenderingContext2D, point: Point) => {
-  const {
-    canvas: {
-      width,
-      height,
-    }
-  } = ctx
-
-  ctx.beginPath()
-  ctx.moveTo(
-    0,
-    point.y,
-  )
-  ctx.lineTo(
-    width,
-    point.y,
-  )
-  ctx.closePath()
-  
-  ctx.strokeStyle = 'blue'
-  ctx.stroke()
-
-  ctx.beginPath()
-  ctx.moveTo(
-    point.x,
-    0,
-  )
-  ctx.lineTo(
-    point.x,
-    height,
-  )
-  ctx.closePath()
-
-  ctx.strokeStyle = 'blue'
-  ctx.stroke()
-}
-
-const drawBg = (ctx: CanvasRenderingContext2D) => {
-  const canvas = ctx.canvas
-  const { width, height } = canvas
-
-  ctx.fillStyle = '#e5e5e5'
-  ctx.rect(0, 0, width, height)
-  ctx.fill()
-}
-
-const getMousePoint = (evt: MouseEvent) => {
-  const { clientX, clientY } = evt
-
-  const point: Point = {
-    x: clientX,
-    y: clientY,
-  }
-
-  return point
-}
-
 const getContext = () => {
   const canvas = getById<HTMLCanvasElement>(ID)
   if (!canvas) return
 
-  // const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
-  // const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+  const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+  const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
 
-  const vw = 500
-  const vh = 500
+  // const vw = 500
+  // const vh = 500
 
   canvas.style.width = vw + 'px'
   canvas.style.height = vh + 'px'
@@ -368,6 +196,4 @@ const getContext = () => {
   return ctx
 }
 
-
-
-export default foo
+export default main
