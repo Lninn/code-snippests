@@ -1,10 +1,6 @@
+import { Point } from "./point"
 import { ElementShape } from "./ui"
 import { getRandomColor } from "./utils"
-
-export interface Point {
-  x: number
-  y: number
-}
 
 export class Element {
   shape: ElementShape

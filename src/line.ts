@@ -1,4 +1,4 @@
-import { Point } from "./element"
+import { Point } from "./point"
 import { getRandomColor } from "./utils"
 
 export class Line {

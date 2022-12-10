@@ -1,4 +1,5 @@
-import { Element, Point } from "./element"
+import { Element } from "./element"
+import { Point } from "./point"
 
 export const enum Status {
   None = 'none',

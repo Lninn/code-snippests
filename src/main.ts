@@ -1,10 +1,7 @@
 import './style.css'
 import './toolbar.css'
 
-import {
-  Element,
-  Point,
-} from './element'
+import { Element } from './element'
 import { Grid } from './grid'
 import { Status, Sys } from './sys'
 import { Timer } from './timer'
@@ -18,6 +15,7 @@ import {
 import { Rect } from './rect'
 import { Circle } from './circle'
 import { UI } from './ui'
+import { Point } from './point'
 
 const ID = 'canvas'
 

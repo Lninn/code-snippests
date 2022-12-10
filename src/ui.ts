@@ -3,7 +3,6 @@ import { createElement, getById } from "./utils"
 export type ElementShape = 'circle' | 'rect'
 const DEFAULT_SHAPE: ElementShape = 'circle' 
 
-
 export interface UIElement {
   label: string
   shape: ElementShape

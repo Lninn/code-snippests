@@ -1,4 +1,5 @@
-import { Element, Point } from "./element"
+import { Element } from "./element"
+import { Point } from "./point"
 import { getDistance } from "./utils"
 
 export class Circle extends Element {
