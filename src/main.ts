@@ -3,10 +3,7 @@ import './toolbar.css'
 
 import {
   Element,
-  Rect,
-  Circle,
   Point,
-  UI,
 } from './element'
 import { Grid } from './grid'
 import { Status, Sys } from './sys'
@@ -18,6 +15,9 @@ import {
   getMousePoint,
   isPointInElement,
 } from './utils'
+import { Rect } from './rect'
+import { Circle } from './circle'
+import { UI } from './ui'
 
 const ID = 'canvas'
 

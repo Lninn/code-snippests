@@ -1,4 +1,5 @@
-import { Line, Point } from "./element"
+import { Point } from "./element"
+import { Line } from "./line"
 
 export class Grid {
   width: number
