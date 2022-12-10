@@ -1,21 +1,21 @@
 import './style.css'
 import './toolbar.css'
 
-import { Element } from './element'
-import { Grid } from './grid'
-import { Status, Sys } from './sys'
-import { Timer } from './timer'
+import { Element } from './core/element'
+import { Grid } from './core/grid'
+import { Status, Sys } from './core/sys'
+import { Timer } from './core/timer'
 import {
   drawBg,
   drawGuideLine,
   getById,
   getMousePoint,
   isPointInElement,
-} from './utils'
-import { Rect } from './rect'
-import { Circle } from './circle'
-import { UI } from './ui'
-import { Point } from './point'
+} from './core/utils'
+import { Rect } from './core/rect'
+import { Circle } from './core/circle'
+import { UI } from './core/ui'
+import { Point } from './core/point'
 
 const ID = 'canvas'
 
