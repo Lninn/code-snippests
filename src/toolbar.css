@@ -1,0 +1,27 @@
+.toolbar {
+  position: fixed;
+  bottom: 24px;
+
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toolbar-list {
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar-item {
+  padding: 6px;
+
+  color: aliceblue;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #f2465f;
+
+  opacity: .5;
+}
+
+.toolbar-item.active {
+  opacity: 1;
+}

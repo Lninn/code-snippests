@@ -1,4 +1,4 @@
-import { getDistance } from "./utils"
+import { createElement, getById, getDistance, getRandomColor } from "./utils"
 
 export interface Point {
   x: number
@@ -6,14 +6,82 @@ export interface Point {
 }
 
 type ElementShape = 'circle' | 'rect'
+const DEFAULT_SHAPE: ElementShape = 'circle' 
+
+
+interface UIElement {
+  label: string
+  shape: ElementShape
+}
+
+export class UI {
+
+  shape: ElementShape
+
+  elements: Array<UIElement> = [
+    {
+      label: 'Circle',
+      shape: 'circle',
+    },
+    {
+      label: 'Rect',
+      shape: 'rect',
+    }
+  ]
+
+  constructor() {
+    this.shape = DEFAULT_SHAPE
+
+    this.render()
+  }
+
+  handleItemClick(e: UIElement) {
+    this.shape = e.shape
+
+    this.render()
+  }
+
+  createElement(e: UIElement) {
+    const element = createElement('div')
+
+    element.classList.add('toolbar-item')
+    if (e.shape === this.shape) {
+      element.classList.add('active')
+    }
+
+    element.textContent = e.label
+
+    element.onclick = () => {
+      this.handleItemClick(e)
+    }
+
+    return element
+  }
+
+  render() {
+    const list = getById('toolbarList')
+
+    // 添加之前先清空
+    list.innerHTML = ''
+
+    for (const e of this.elements) {
+      const element = this.createElement(e)
+      list.appendChild(element)
+    }
+  }
+}
 
 export class Line {
   start: Point
   end: Point
 
+  fillStyle: string
+
   constructor(start: Point, end: Point) {
     this.start = start
     this.end = end
+
+    this.fillStyle = getRandomColor()
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -22,7 +90,7 @@ export class Line {
     ctx.lineTo(this.end.x, this.end.y)
     ctx.closePath()
 
-    ctx.strokeStyle = 'black'
+    ctx.strokeStyle = this.fillStyle
     ctx.stroke()
   }
 }
@@ -31,11 +99,15 @@ export class Element {
   shape: ElementShape
   x: number
   y: number
+  
+  fillStyle: string
 
   constructor(shape: ElementShape, x: number, y: number) {
     this.shape = shape
     this.x = x
     this.y = y
+
+    this.fillStyle = getRandomColor()
   }
 
   isCircle() {
@@ -83,7 +155,7 @@ export class Circle extends Element {
   updateSize(downPoint: Point, movePoint: Point) {
     const d = getDistance(downPoint, movePoint)
 
-    this.radius = d / 2
+    this.radius = d
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -103,7 +175,7 @@ export class Circle extends Element {
     // ctx.strokeStyle = '#000'
     // ctx.stroke()
 
-    ctx.fillStyle = '#ccc'
+    ctx.fillStyle = this.fillStyle
     ctx.fill()
   }
 }
@@ -154,11 +226,11 @@ export class Rect extends Element {
     ctx.beginPath()
     ctx.rect(x, y, width, height)
     ctx.closePath()
-    
+   
     // ctx.strokeStyle = '#000'
     // ctx.stroke()
 
-    ctx.fillStyle = '#ccc'
+    ctx.fillStyle = this.fillStyle
     ctx.fill()
   }
 }

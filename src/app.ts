@@ -3,9 +3,10 @@ import {
   Rect,
   Circle,
   Point,
+  UI,
 } from './element'
 import { Grid } from './grid'
-import { getDistance } from './utils'
+import { getById, getDistance } from './utils'
 
 const ID = 'canvas'
 
@@ -117,22 +118,34 @@ function foo() {
   const downPoint: Point = { ...INIT_POINT }
   const movePoint: Point = { ...INIT_POINT }
   
+  const ui = new UI()
   const sys = new Sys()
   const timer = new Timer()
-  const grid = new Grid(ctx, 15, 15)
+  const grid = new Grid(ctx, 10, 10)
 
   const elements: Element[] = []
 
   const getNewElement = (point: Point): Element => {
 
-    const rect: Rect = new Rect(
-      point.x,
-      point.y,
-      0,
-      0,
-    )
+    if (ui.shape === 'circle') {
+      const circle = new Circle(
+        point.x,
+        point.y,
+        0,
+      )
 
-    return rect
+      return circle
+    } else {
+      const rect: Rect = new Rect(
+        point.x,
+        point.y,
+        0,
+        0,
+      )
+  
+      return rect
+    }
+    
   }
 
   const pointerCheck = () => {
@@ -264,7 +277,7 @@ const isPointInCircle = (
   }
   const d = getDistance(point, center)
 
-  return d <= circle.radius * 2
+  return d <= circle.radius
 }
 
 const isPointInRect = (
@@ -338,8 +351,11 @@ const getContext = () => {
   const canvas = getById<HTMLCanvasElement>(ID)
   if (!canvas) return
 
-  const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
-  const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+  // const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+  // const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+
+  const vw = 500
+  const vh = 500
 
   canvas.style.width = vw + 'px'
   canvas.style.height = vh + 'px'
@@ -352,6 +368,6 @@ const getContext = () => {
   return ctx
 }
 
-const getById = <T = HTMLDivElement>(id: string) => document.getElementById(id) as T
+
 
 export default foo
