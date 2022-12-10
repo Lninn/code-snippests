@@ -143,6 +143,7 @@ function main() {
     for (const e of elements) {
       e.update()
     }
+
   }
 
   timer.draw = () => {
@@ -156,6 +157,7 @@ function main() {
     for (const element of elements) {
       element.draw(ctx)
     }
+
   }
 
 }
