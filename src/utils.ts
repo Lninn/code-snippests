@@ -1,4 +1,7 @@
-import { Element, Circle, Point, Rect } from "./element"
+import { Circle } from "./circle"
+import { Element } from "./element"
+import { Point } from "./point"
+import { Rect } from "./rect"
 
 export const getDistance = (p1: Point, p2: Point) => {
   return Math.hypot(p1.x - p2.x, p1.y - p2.y)

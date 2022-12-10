@@ -139,6 +139,10 @@ function main() {
     if (sys.isNormal()) {
       pointerCheck()
     }
+
+    for (const e of elements) {
+      e.update()
+    }
   }
 
   timer.draw = () => {

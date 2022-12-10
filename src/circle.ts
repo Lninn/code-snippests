@@ -26,10 +26,10 @@ export class Circle extends Element {
 
     ctx.beginPath()
     ctx.rect(
-      this.x - gap,
-      this.y - gap,
-      this.radius * 2 - gap * 2,
-      this.radius * 2 - gap * 2,
+      this.x - this.radius - gap,
+      this.y - this.radius - gap,
+      this.radius * 2 + gap * 2,
+      this.radius * 2 + gap * 2,
     )
     ctx.closePath()
   }

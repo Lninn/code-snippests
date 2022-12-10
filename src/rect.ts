@@ -11,31 +11,24 @@ export class Rect extends Element {
     this.height = height
   }
 
-  transform() {
-    // 当前的 element 的宽度和高度转换成正数
+  updateSize(downPoint: Point, movePoint: Point) {
 
-    const xAxis = this.width < 0
-    const yAxis = this.height < 0
-
+    const width = movePoint.x - downPoint.x
+    const xAxis = width < 0
+    
     if (xAxis) {
-      this.width = Math.abs(this.width)
-      this.x -= this.width
+      this.x = movePoint.x
     }
+    this.width = Math.abs(width)
+    
+    const height = movePoint.y - downPoint.y
+    const yAxis = height < 0
 
     if (yAxis) {
-      this.height = Math.abs(this.height)
-      this.y -= this.height
+      this.y = movePoint.y
     }
-  }
+    this.height = Math.abs(height)
 
-  updateSize(downPoint: Point, movePoint: Point) {
-    const width = movePoint.x - downPoint.x
-    const height = movePoint.y - downPoint.y
-
-    this.width = width
-    this.height = height
-
-    // this.transform()
   }
 
   createBox(ctx: CanvasRenderingContext2D) {

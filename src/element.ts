@@ -9,6 +9,7 @@ export class Element {
   y: number
   
   fillStyle: string
+  offset: number = 0
 
   constructor(shape: ElementShape, x: number, y: number) {
     this.shape = shape
@@ -16,6 +17,13 @@ export class Element {
     this.y = y
 
     this.fillStyle = getRandomColor()
+  }
+
+  update() {
+    this.offset++
+    if (this.offset > 16) {
+      this.offset = 0
+    }
   }
 
   move(point: Point) {
@@ -44,8 +52,13 @@ export class Element {
     ctx.fillStyle = this.fillStyle
     ctx.fill()
 
+    ctx.save()
     this.createBox(ctx)
+    ctx.lineWidth = 3
+    ctx.setLineDash([4, 2]);
+    ctx.lineDashOffset = -this.offset;
     ctx.strokeStyle = 'red'
     ctx.stroke()
+    ctx.restore()
   }
 }
