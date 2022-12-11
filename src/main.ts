@@ -15,6 +15,7 @@ import { Rect } from './core/rect'
 import { Circle } from './core/circle'
 import { UI } from './core/ui'
 import { Point } from './core/point'
+import { Path } from './core/path'
 
 const ID = 'canvas'
 
@@ -44,31 +45,6 @@ const isMoving = (status: Status) => {
 
 const INIT_POINT: Point = { x: 0, y: 0 }
 
-const drawPath = (
-  ctx: CanvasRenderingContext2D,
-  points: Point[],
-) => {
-  ctx.beginPath()
-
-  ctx.lineWidth = 5
-  ctx.lineCap = 'round'
-  ctx.strokeStyle = '#c0392b'
-
-  for (let i = 0; i < points.length; i++) {
-    if (i === 0) {
-      const first = points[i]
-      ctx.moveTo(first.x, first.y)
-    } else {
-      const current = points[i]
-      ctx.lineTo(current.x, current.y)
-    }
-
-    i++
-  }
-
-  ctx.stroke()
-}
-
 function main() {
   const ctx = getContext()
   if (!ctx) return
@@ -79,8 +55,6 @@ function main() {
   let activeStatus: Status = Status.None
   let activeElement: Element | null = null
 
-  const points: Point[] = []
-  
   const ui = new UI()
   const timer = new Timer()
   const grid = new Grid(ctx, 10, 10)
@@ -88,6 +62,11 @@ function main() {
   const elements: Element[] = []
 
   const getNewElement = (point: Point): Element => {
+
+    if (ui.shape === 'path') {
+      const path = new Path(point)
+      return path
+    }
 
     if (ui.shape === 'circle') {
       const circle = new Circle(
@@ -127,12 +106,23 @@ function main() {
 
   const handleMouseDown = (evt: MouseEvent) => {
     const point = getMousePoint(evt)
-    let element = findElementByPoint(elements, point)
+   
+    // created
+    if (ui.shape !== 'auto') {
+      const element = getNewElement(point)
 
-    if (ui.shape === 'auto') {
+      // 新增应该更新 mousedownPoint
+      downPoint.x = point.x
+      downPoint.y = point.y
+  
+      activeStatus = Status.Create
+      activeElement = element
+
+      elements.push(element)
       return
     }
 
+    let element = findElementByPoint(elements, point)
     if (element) {
       downPoint.x = point.x - element.x
       downPoint.y = point.y - element.y
@@ -143,17 +133,7 @@ function main() {
       element.isSelect = true
       return
     }
-
-    element = getNewElement(point)
-
-    // 新增应该更新 mousedownPoint
-    downPoint.x = point.x
-    downPoint.y = point.y
-
-    activeStatus = Status.Create
-    activeElement = element
-
-    elements.push(element)
+   
   }
   const handleMouseMove = (evt: MouseEvent) => {
     const point = getMousePoint(evt)
@@ -161,7 +141,11 @@ function main() {
     movePoint.x = point.x
     movePoint.y = point.y
 
-    points.push(point)
+    if (ui.shape === 'path') {
+      if (activeElement) {
+        (activeElement as Path).append(point)
+      }
+    }
   }
   const handleMouseUp = (evt: MouseEvent) => {
 
@@ -229,8 +213,6 @@ function main() {
     drawGuideLine(ctx, movePoint)
     drawBg(ctx)
     grid.draw(ctx)
-
-    drawPath(ctx, points)
 
     for (const element of elements) {
       element.draw(ctx)

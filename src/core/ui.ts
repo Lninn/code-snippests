@@ -1,6 +1,6 @@
 import { createElement, getById } from "./utils"
 
-export type ElementShape = 'auto' | 'circle' | 'rect'
+export type ElementShape = 'auto' | 'circle' | 'rect' | 'path'
 const DEFAULT_SHAPE: ElementShape = 'auto' 
 
 const ELEMENTS: Array<UIElement> = [
@@ -15,6 +15,10 @@ const ELEMENTS: Array<UIElement> = [
   {
     label: 'Rect',
     shape: 'rect',
+  },
+  {
+    label: 'Path',
+    shape: 'path',
   },
 ]
 
