@@ -27,12 +27,39 @@ const ID = 'canvas'
 
 const INIT_POINT: Point = { x: 0, y: 0 }
 
+const drawPath = (
+  ctx: CanvasRenderingContext2D,
+  points: Point[],
+) => {
+  ctx.beginPath()
+
+  ctx.lineWidth = 5
+  ctx.lineCap = 'round'
+  ctx.strokeStyle = '#c0392b'
+
+  for (let i = 0; i < points.length; i++) {
+    if (i === 0) {
+      const first = points[i]
+      ctx.moveTo(first.x, first.y)
+    } else {
+      const current = points[i]
+      ctx.lineTo(current.x, current.y)
+    }
+
+    i++
+  }
+
+  ctx.stroke()
+}
+
 function main() {
   const ctx = getContext()
   if (!ctx) return
 
   const downPoint: Point = { ...INIT_POINT }
   const movePoint: Point = { ...INIT_POINT }
+
+  const points: Point[] = []
   
   const ui = new UI()
   const sys = new Sys()
@@ -81,6 +108,12 @@ function main() {
 
   const canvas = ctx.canvas
   canvas.addEventListener('mousedown', (evt) => {
+
+    if (ui.shape === 'auto') {
+      
+      return
+    }
+
     const point = getMousePoint(evt)
 
     let element = findElementByPoint(elements, point)
@@ -108,6 +141,8 @@ function main() {
 
     movePoint.x = point.x
     movePoint.y = point.y
+
+    points.push(point)
   })
   canvas.addEventListener('mouseup', (evt) => {
 
@@ -148,16 +183,15 @@ function main() {
 
   timer.draw = () => {
     clear()
-
+    drawGuideLine(ctx, movePoint)
     drawBg(ctx)
     grid.draw(ctx)
 
-    drawGuideLine(ctx, movePoint)
+    drawPath(ctx, points)
 
     for (const element of elements) {
       element.draw(ctx)
     }
-
   }
 
 }

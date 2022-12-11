@@ -1,7 +1,22 @@
 import { createElement, getById } from "./utils"
 
-export type ElementShape = 'circle' | 'rect'
-const DEFAULT_SHAPE: ElementShape = 'circle' 
+export type ElementShape = 'auto' | 'circle' | 'rect'
+const DEFAULT_SHAPE: ElementShape = 'auto' 
+
+const ELEMENTS: Array<UIElement> = [
+  {
+    label: 'Auto',
+    shape: 'auto',
+  },
+  {
+    label: 'Circle',
+    shape: 'circle',
+  },
+  {
+    label: 'Rect',
+    shape: 'rect',
+  },
+]
 
 export interface UIElement {
   label: string
@@ -12,16 +27,7 @@ export class UI {
 
   shape: ElementShape
 
-  elements: Array<UIElement> = [
-    {
-      label: 'Circle',
-      shape: 'circle',
-    },
-    {
-      label: 'Rect',
-      shape: 'rect',
-    }
-  ]
+  elements: Array<UIElement> = ELEMENTS
 
   constructor() {
     this.shape = DEFAULT_SHAPE
