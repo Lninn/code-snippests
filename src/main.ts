@@ -66,6 +66,59 @@ function main() {
     console.log(ui, elements, activeElement);
   }
 
+  const clear = () => {
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    )
+  }
+
+  timer.update = () => {
+    if (isCreate(activeStatus)) {
+
+      if (activeElement) {
+        activeElement.updateSize(downPoint, movePoint)
+      }
+
+      return
+    }
+
+    if (isMoving(activeStatus)) {
+      if (activeElement) {
+        const offsetX = movePoint.x - downPoint.x
+        const offsetY = movePoint.y - downPoint.y
+
+        const point: Point = {
+          x: offsetX,
+          y: offsetY,
+        }
+        activeElement.move(point)
+      }
+    }
+
+    if (isNormal(activeStatus)) {
+      pointerCheck()
+    }
+
+    for (const e of elements) {
+      e.update()
+    }
+
+  }
+
+  timer.draw = () => {
+    clear()
+    drawGuideLine(ctx, movePoint)
+    drawBg(ctx)
+    // grid.draw(ctx)
+
+    for (const element of elements) {
+      element.draw(ctx)
+    }
+  }
+
   const getNewElement = (point: Point): Element => {
 
     if (ui.shape === 'text') {
@@ -187,59 +240,6 @@ function main() {
   canvas.addEventListener('mousemove', handleMouseMove)
   canvas.addEventListener('mouseup', handleMouseUp)
   window.addEventListener('keydown', handleKeyDown)
-
-  const clear = () => {
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-    )
-  }
-
-  timer.update = () => {
-    if (isCreate(activeStatus)) {
-
-      if (activeElement) {
-        activeElement.updateSize(downPoint, movePoint)
-      }
-
-      return
-    }
-
-    if (isMoving(activeStatus)) {
-      if (activeElement) {
-        const offsetX = movePoint.x - downPoint.x
-        const offsetY = movePoint.y - downPoint.y
-
-        const point: Point = {
-          x: offsetX,
-          y: offsetY,
-        }
-        activeElement.move(point)
-      }
-    }
-
-    if (isNormal(activeStatus)) {
-      pointerCheck()
-    }
-
-    for (const e of elements) {
-      e.update()
-    }
-
-  }
-
-  timer.draw = () => {
-    clear()
-    drawGuideLine(ctx, movePoint)
-    drawBg(ctx)
-    // grid.draw(ctx)
-
-    for (const element of elements) {
-      element.draw(ctx)
-    }
-  }
 
 }
 
