@@ -17,6 +17,7 @@ import { UI } from './core/ui'
 import { Point } from './core/point'
 import { Path } from './core/path'
 import { Text } from './core/text'
+import { CHART_SCALE } from './config'
 
 const ID = 'canvas'
 
@@ -273,8 +274,8 @@ const getContext = () => {
   canvas.style.width = vw + 'px'
   canvas.style.height = vh + 'px'
 
-  canvas.width = vw
-  canvas.height = vh
+  canvas.width = vw * CHART_SCALE
+  canvas.height = vh * CHART_SCALE
 
   const ctx = canvas.getContext('2d')
 

@@ -31,17 +31,20 @@ export class Rect extends Element {
 
   }
 
-  createBox(ctx: CanvasRenderingContext2D) {
-    const gap = 10
+  getCenter(): Point {
+    return {
+      x: (this.x + this.width / 2),
+      y: (this.y + this.height / 2),
+    }
+  }
 
-    ctx.beginPath()
-    ctx.rect(
-      this.x - gap,
-      this.y - gap,
-      this.width + gap * 2,
-      this.height + gap * 2,
-    )
-    ctx.closePath()
+  getRect() {
+    return {
+      left: this.x,
+      right: this.x + this.width,
+      top: this.y,
+      bottom: this.y + this.height,
+    }
   }
 
   createPath(ctx: CanvasRenderingContext2D) {
