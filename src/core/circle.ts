@@ -1,6 +1,10 @@
 import { Element } from "./element"
 import { Point } from "./point"
+import { Rect } from "./rect"
 import { getDistance } from "./utils"
+
+
+type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>
 
 export class Circle extends Element {
   radius: number
@@ -23,17 +27,14 @@ export class Circle extends Element {
 
   drawRect(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
+    box: RectProps
   ) {
     ctx.beginPath()
     ctx.rect(
-      x,
-      y,
-      w,
-      h,
+      box.x,
+      box.y,
+      box.width,
+      box.height,
     )
     ctx.closePath()
 
@@ -42,86 +43,81 @@ export class Circle extends Element {
   }
 
   createBox(ctx: CanvasRenderingContext2D) {
-    const boxSize = 30
+    const gap = 5
+    const rectSize = gap * 2
 
     const t = this.y - this.radius
     const r = this.x + this.radius
     const b = this.y + this.radius
     const l = this.x - this.radius
 
-    this.drawRect(
-      ctx,
-      l - boxSize,
-      t - boxSize - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
-    this.drawRect(
-      ctx,
-      r - boxSize,
-      t - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
-    this.drawRect(
-      ctx,
-      r - boxSize,
-      b - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
-    this.drawRect(
-      ctx,
-      l - boxSize,
-      b - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
+    const boxList: RectProps[] = [
+      {
+        x: l - rectSize,
+        y: t - rectSize,
+        width: rectSize,
+        height: rectSize,
+      },
+      {
+        x: this.x - gap,
+        y: t - rectSize,
+        width: rectSize,
+        height: rectSize,
+      },
+      {
+        x: r,
+        y: t - rectSize,
+        width: rectSize,
+        height: rectSize,
+      },
+      {
+        x: r,
+        y: this.y - gap,
+        width: rectSize,
+        height: rectSize,
+      },
+      {
+        x: r,
+        y: b,
+        width: rectSize,
+        height: rectSize,
+      },
+      {
+        x: this.x - gap,
+        y: b,
+        width: rectSize,
+        height: rectSize,
+      },
+      {
+        x: l - rectSize,
+        y: b,
+        width: rectSize,
+        height: rectSize,
+      },
+      {
+        x: l - rectSize,
+        y: this.y - gap,
+        width: rectSize,
+        height: rectSize,
+      }
+    ]
 
-    this.drawRect(
-      ctx,
-      this.x - boxSize,
-      t - boxSize - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
-
-    this.drawRect(
-      ctx,
-      r - boxSize,
-      this.y - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
-
-    this.drawRect(
-      ctx,
-      this.x - boxSize,
-      b - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
-
-    this.drawRect(
-      ctx,
-      l - boxSize,
-      this.y - boxSize,
-      boxSize * 2,
-      boxSize * 2,
-    )
+    for (const box of boxList) {
+      this.drawRect(ctx, box)
+    }
 
     ctx.beginPath()
-    ctx.moveTo(l + boxSize, t - boxSize)
-    ctx.lineTo(r - boxSize, t - boxSize)
+    ctx.moveTo(l, t - gap)
+    ctx.lineTo(r, t - gap)
 
-    ctx.moveTo(r, t + boxSize)
-    ctx.lineTo(r, b - boxSize)
+    ctx.moveTo(r + gap, t)
+    ctx.lineTo(r + gap, b)
 
-    ctx.moveTo(l + boxSize, b)
-    ctx.lineTo(r - boxSize, b)
+    ctx.moveTo(l, b + gap)
+    ctx.lineTo(r, b + gap)
 
-    ctx.moveTo(l, t + boxSize)
-    ctx.lineTo(l, b - boxSize)
+    ctx.moveTo(l - gap, t)
+    ctx.lineTo(l - gap, b)
 
     ctx.closePath()
   }
