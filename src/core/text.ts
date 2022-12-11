@@ -1,6 +1,6 @@
 import { Element } from './element'
 import { Point } from './point'
-import { getRandomColor } from './utils';
+import { getRandomColor } from '../utils';
 
 export class Text extends Element {
   fillStyle: string

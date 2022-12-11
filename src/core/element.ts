@@ -2,7 +2,7 @@ import { RectProps } from "./circle"
 import { Line } from "./line"
 import { Point } from "./point"
 import { ElementShape } from "./ui"
-import { getRandomColor } from "./utils"
+import { getRandomColor } from "../utils"
 
 
 export interface CornerProps {

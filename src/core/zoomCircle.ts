@@ -1,4 +1,4 @@
-import { getRandomColor, getRandomIntInclusive } from "./utils"
+import { getRandomColor, getRandomIntInclusive } from "../utils"
 
 export class Foo {
   x: number = 0

@@ -1,4 +1,4 @@
-import { createElement, getById } from "./utils"
+import { createElement, getById } from "../utils"
 
 export type ElementShape = 'auto' | 'circle' | 'rect' | 'path' | 'text'
 const DEFAULT_SHAPE: ElementShape = 'circle'

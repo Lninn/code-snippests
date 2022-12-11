@@ -1,7 +1,7 @@
 import { Element } from "./element"
 import { Point } from "./point"
 import { Rect } from "./rect"
-import { getDistance } from "./utils"
+import { getDistance } from "../utils"
 
 
 export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>

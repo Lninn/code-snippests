@@ -10,7 +10,7 @@ import {
   getById,
   getMousePoint,
   isPointInElement,
-} from './core/utils'
+} from './utils'
 import { Rect } from './core/rect'
 import { Circle } from './core/circle'
 import { UI } from './core/ui'

@@ -1,7 +1,8 @@
-import { Circle } from "./circle"
-import { Element } from "./element"
-import { Point } from "./point"
-import { Rect } from "./rect"
+import { CHART_SCALE } from "./config"
+import { Circle } from "./core/circle"
+import { Element } from "./core/element"
+import { Point } from "./core/point"
+import { Rect } from "./core/rect"
 
 export const getDistance = (p1: Point, p2: Point) => {
   return Math.hypot(p1.x - p2.x, p1.y - p2.y)
@@ -111,8 +112,8 @@ export const getMousePoint = (evt: MouseEvent) => {
   const { clientX, clientY } = evt
 
   const point: Point = {
-    x: clientX,
-    y: clientY,
+    x: clientX * CHART_SCALE,
+    y: clientY * CHART_SCALE,
   }
 
   return point
