@@ -3,7 +3,6 @@ import './toolbar.css'
 
 import { Element } from './core/element'
 import { Grid } from './core/grid'
-import { Status, Sys } from './core/sys'
 import { Timer } from './core/timer'
 import {
   drawBg,
@@ -24,6 +23,24 @@ const ID = 'canvas'
 // 2 画布数据本地持久化存储
 // 3 工具覆层，提供可以创建的图形，文字等等
 // 4 实现一个可主动触发的动画管理，而不是一开始就启动一个完整的 timer
+
+export const enum Status {
+  None = 'none',
+  Create = 'create',
+  Move = 'move',
+}
+
+const isCreate = (status: Status) => {
+  return status === Status.Create
+}
+
+const isNormal = (status: Status) => {
+  return status === Status.None
+}
+
+const isMoving = (status: Status) => {
+  return status === Status.Move
+}
 
 const INIT_POINT: Point = { x: 0, y: 0 }
 
@@ -59,10 +76,12 @@ function main() {
   const downPoint: Point = { ...INIT_POINT }
   const movePoint: Point = { ...INIT_POINT }
 
+  let activeStatus: Status = Status.None
+  let activeElement: Element | null = null
+
   const points: Point[] = []
   
   const ui = new UI()
-  const sys = new Sys()
   const timer = new Timer()
   const grid = new Grid(ctx, 10, 10)
 
@@ -106,22 +125,22 @@ function main() {
     return false
   }
 
-  const canvas = ctx.canvas
-  canvas.addEventListener('mousedown', (evt) => {
+  const handleMouseDown = (evt: MouseEvent) => {
+    const point = getMousePoint(evt)
+    let element = findElementByPoint(elements, point)
 
     if (ui.shape === 'auto') {
-      
       return
     }
 
-    const point = getMousePoint(evt)
-
-    let element = findElementByPoint(elements, point)
     if (element) {
       downPoint.x = point.x - element.x
       downPoint.y = point.y - element.y
-      sys.setStatus(Status.Move)
-      sys.setElement(element)
+      
+      activeStatus = Status.Move
+      activeElement = element
+
+      element.isSelect = true
       return
     }
 
@@ -131,33 +150,37 @@ function main() {
     downPoint.x = point.x
     downPoint.y = point.y
 
-    sys.setElement(element)
-    sys.setStatus(Status.Create)
+    activeStatus = Status.Create
+    activeElement = element
 
     elements.push(element)
-  })
-  canvas.addEventListener('mousemove', (evt) => {
+  }
+  const handleMouseMove = (evt: MouseEvent) => {
     const point = getMousePoint(evt)
 
     movePoint.x = point.x
     movePoint.y = point.y
 
     points.push(point)
-  })
-  canvas.addEventListener('mouseup', (evt) => {
+  }
+  const handleMouseUp = (evt: MouseEvent) => {
 
-    sys.setStatus(Status.None)
+    activeStatus = Status.None
 
     const point = getMousePoint(evt)
 
-    const element = sys.getElement()
-    if (element) {
-      sys.setElement(null)
+    if (activeElement) {
+      activeElement = null
 
       downPoint.x = point.x
       downPoint.y = point.y
     }
-  })
+  }
+
+  const canvas = ctx.canvas
+  canvas.addEventListener('mousedown', handleMouseDown)
+  canvas.addEventListener('mousemove', handleMouseMove)
+  canvas.addEventListener('mouseup', handleMouseUp)
 
   const clear = () => {
     ctx.clearRect(
@@ -169,9 +192,29 @@ function main() {
   }
 
   timer.update = () => {
-    sys.updateElement(downPoint, movePoint)
+    if (isCreate(activeStatus)) {
 
-    if (sys.isNormal()) {
+      if (activeElement) {
+        activeElement.updateSize(downPoint, movePoint)
+      }
+
+      return
+    }
+
+    if (isMoving(activeStatus)) {
+      if (activeElement) {
+        const offsetX = movePoint.x - downPoint.x
+        const offsetY = movePoint.y - downPoint.y
+
+        const point: Point = {
+          x: offsetX,
+          y: offsetY,
+        }
+        activeElement.move(point)
+      }
+    }
+
+    if (isNormal(activeStatus)) {
       pointerCheck()
     }
 

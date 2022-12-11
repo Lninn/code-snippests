@@ -11,6 +11,8 @@ export class Element {
   fillStyle: string
   offset: number = 0
 
+  isSelect: boolean = false
+
   constructor(shape: ElementShape, x: number, y: number) {
     this.shape = shape
     this.x = x
@@ -51,6 +53,10 @@ export class Element {
 
     ctx.fillStyle = this.fillStyle
     ctx.fill()
+
+    if (!this.isSelect) {
+      return
+    }
 
     ctx.save()
     this.createBox(ctx)
