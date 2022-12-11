@@ -16,6 +16,7 @@ import { Circle } from './core/circle'
 import { UI } from './core/ui'
 import { Point } from './core/point'
 import { Path } from './core/path'
+import { Text } from './core/text'
 
 const ID = 'canvas'
 
@@ -61,7 +62,15 @@ function main() {
 
   const elements: Element[] = []
 
+  window.debug = () => {
+    console.log(ui, elements, activeElement);
+  }
+
   const getNewElement = (point: Point): Element => {
+
+    if (ui.shape === 'text') {
+      return new Text(point)
+    }
 
     if (ui.shape === 'path') {
       const path = new Path(point)
@@ -154,7 +163,7 @@ function main() {
     const point = getMousePoint(evt)
 
     if (activeElement) {
-      activeElement = null
+      // activeElement = null
 
       downPoint.x = point.x
       downPoint.y = point.y
@@ -162,6 +171,13 @@ function main() {
   }
   const handleKeyDown = (evt: KeyboardEvent) => {
     const { key } = evt
+
+    if (ui.shape === 'text') {
+      if (activeElement) {
+        (activeElement as Text).append(key)
+      }
+      return
+    }
 
     ui.handleKeyDown(key)
   }

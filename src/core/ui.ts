@@ -1,7 +1,7 @@
 import { createElement, getById } from "./utils"
 
-export type ElementShape = 'auto' | 'circle' | 'rect' | 'path'
-const DEFAULT_SHAPE: ElementShape = 'auto' 
+export type ElementShape = 'auto' | 'circle' | 'rect' | 'path' | 'text'
+const DEFAULT_SHAPE: ElementShape = 'text' 
 
 export interface UIElement {
   label: string
@@ -29,6 +29,11 @@ const ELEMENTS: Array<UIElement> = [
     label: 'Path',
     shape: 'path',
     keyNo: '4',
+  },
+  {
+    label: 'Text',
+    shape: 'text',
+    keyNo: '5',
   },
 ]
 
