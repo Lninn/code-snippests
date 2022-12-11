@@ -1,17 +1,16 @@
 import { Point } from "./point"
-import { getRandomColor } from "./utils"
 
 export class Line {
   start: Point
   end: Point
 
-  fillStyle: string
+  strokeStyle: string
 
-  constructor(start: Point, end: Point) {
+  constructor(start: Point, end: Point, strokeStyle: string) {
     this.start = start
     this.end = end
 
-    this.fillStyle = getRandomColor()
+    this.strokeStyle = strokeStyle
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -20,7 +19,7 @@ export class Line {
     ctx.lineTo(this.end.x, this.end.y)
     ctx.closePath()
 
-    ctx.strokeStyle = this.fillStyle
+    ctx.strokeStyle = this.strokeStyle
     ctx.stroke()
   }
 }

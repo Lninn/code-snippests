@@ -1,3 +1,7 @@
+import {
+  GRID_LINE_WIDTH,
+  GRID_STROKE_COLOR,
+} from "../config"
 import { Line } from "./line"
 import { Point } from "./point"
 
@@ -7,7 +11,7 @@ export class Grid {
   rowSpan: number
   colSpan: number
 
-  lineWidth: number = 1
+  lineWidth: number = GRID_LINE_WIDTH
 
   gridX: Line[] = []
   gridY: Line[] = []
@@ -50,7 +54,7 @@ export class Grid {
         y: this.height,
       }
 
-      const line = new Line(start, end)
+      const line = new Line(start, end, GRID_STROKE_COLOR)
       grid.push(line)
     }
 
@@ -78,7 +82,7 @@ export class Grid {
         y: colSize * i + gap,
       }
 
-      const line = new Line(start, end)
+      const line = new Line(start, end, GRID_STROKE_COLOR)
       grid.push(line)
     }
 
