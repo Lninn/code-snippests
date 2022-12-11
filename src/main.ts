@@ -160,11 +160,17 @@ function main() {
       downPoint.y = point.y
     }
   }
+  const handleKeyDown = (evt: KeyboardEvent) => {
+    const { key } = evt
+
+    ui.handleKeyDown(key)
+  }
 
   const canvas = ctx.canvas
   canvas.addEventListener('mousedown', handleMouseDown)
   canvas.addEventListener('mousemove', handleMouseMove)
   canvas.addEventListener('mouseup', handleMouseUp)
+  window.addEventListener('keydown', handleKeyDown)
 
   const clear = () => {
     ctx.clearRect(

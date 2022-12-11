@@ -3,29 +3,34 @@ import { createElement, getById } from "./utils"
 export type ElementShape = 'auto' | 'circle' | 'rect' | 'path'
 const DEFAULT_SHAPE: ElementShape = 'auto' 
 
+export interface UIElement {
+  label: string
+  shape: ElementShape
+  keyNo: string
+}
+
 const ELEMENTS: Array<UIElement> = [
   {
     label: 'Auto',
     shape: 'auto',
+    keyNo: '1',
   },
   {
     label: 'Circle',
     shape: 'circle',
+    keyNo: '2',
   },
   {
     label: 'Rect',
     shape: 'rect',
+    keyNo: '3',
   },
   {
     label: 'Path',
     shape: 'path',
+    keyNo: '4',
   },
 ]
-
-export interface UIElement {
-  label: string
-  shape: ElementShape
-}
 
 export class UI {
 
@@ -41,6 +46,18 @@ export class UI {
 
   handleItemClick(e: UIElement) {
     this.shape = e.shape
+
+    this.render()
+  }
+
+  handleKeyDown(key: string) {
+    const ui = this.elements.find(
+      e => e.keyNo === key
+    )
+
+    if (ui) {
+      this.shape = ui.shape
+    }
 
     this.render()
   }

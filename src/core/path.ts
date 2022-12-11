@@ -1,6 +1,7 @@
 import { Point } from "./point"
 import { Element } from './element'
 
+
 export class Path extends Element {
   points: Point[] = []
 
@@ -17,7 +18,7 @@ export class Path extends Element {
 
     ctx.beginPath()
 
-    ctx.lineWidth = 5
+    ctx.lineWidth = 10
     ctx.lineCap = 'round'
     ctx.strokeStyle = '#c0392b'
   

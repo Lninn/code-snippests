@@ -33,6 +33,10 @@ export class Element {
     this.y = point.y
   }
 
+  isPath() {
+    return this.shape === 'path'
+  }
+
   isCircle() {
     return this.shape === 'circle'
   }
