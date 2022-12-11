@@ -55,8 +55,8 @@ export class Element {
     this.createPath(ctx)
     ctx.closePath()
 
-    ctx.fillStyle = this.fillStyle
-    ctx.fill()
+    ctx.strokeStyle = this.fillStyle
+    ctx.stroke()
 
     if (!this.isSelect) {
       return
@@ -64,7 +64,7 @@ export class Element {
 
     ctx.save()
     this.createBox(ctx)
-    ctx.lineWidth = 3
+    ctx.lineWidth = 1
     ctx.setLineDash([4, 2]);
     ctx.lineDashOffset = -this.offset;
     ctx.strokeStyle = 'red'

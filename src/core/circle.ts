@@ -21,16 +21,108 @@ export class Circle extends Element {
     this.radius = d
   }
 
-  createBox(ctx: CanvasRenderingContext2D) {
-    const gap = 10
-
+  drawRect(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+  ) {
     ctx.beginPath()
     ctx.rect(
-      this.x - this.radius - gap,
-      this.y - this.radius - gap,
-      this.radius * 2 + gap * 2,
-      this.radius * 2 + gap * 2,
+      x,
+      y,
+      w,
+      h,
     )
+    ctx.closePath()
+
+    ctx.strokeStyle = this.fillStyle
+    ctx.stroke()
+  }
+
+  createBox(ctx: CanvasRenderingContext2D) {
+    const boxSize = 30
+
+    const t = this.y - this.radius
+    const r = this.x + this.radius
+    const b = this.y + this.radius
+    const l = this.x - this.radius
+
+    this.drawRect(
+      ctx,
+      l - boxSize,
+      t - boxSize - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+    this.drawRect(
+      ctx,
+      r - boxSize,
+      t - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+    this.drawRect(
+      ctx,
+      r - boxSize,
+      b - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+    this.drawRect(
+      ctx,
+      l - boxSize,
+      b - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+
+    this.drawRect(
+      ctx,
+      this.x - boxSize,
+      t - boxSize - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+
+    this.drawRect(
+      ctx,
+      r - boxSize,
+      this.y - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+
+    this.drawRect(
+      ctx,
+      this.x - boxSize,
+      b - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+
+    this.drawRect(
+      ctx,
+      l - boxSize,
+      this.y - boxSize,
+      boxSize * 2,
+      boxSize * 2,
+    )
+
+    ctx.beginPath()
+    ctx.moveTo(l + boxSize, t - boxSize)
+    ctx.lineTo(r - boxSize, t - boxSize)
+
+    ctx.moveTo(r, t + boxSize)
+    ctx.lineTo(r, b - boxSize)
+
+    ctx.moveTo(l + boxSize, b)
+    ctx.lineTo(r - boxSize, b)
+
+    ctx.moveTo(l, t + boxSize)
+    ctx.lineTo(l, b - boxSize)
+
     ctx.closePath()
   }
 

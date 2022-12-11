@@ -234,7 +234,7 @@ function main() {
     clear()
     drawGuideLine(ctx, movePoint)
     drawBg(ctx)
-    grid.draw(ctx)
+    // grid.draw(ctx)
 
     for (const element of elements) {
       element.draw(ctx)
