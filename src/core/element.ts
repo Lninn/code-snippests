@@ -1,4 +1,5 @@
 import { ELEMENT_BOX_SIZE } from "../config"
+import { isPointInRect } from "../utils"
 import { Line } from "./line"
 import { Point } from "./point"
 import { Rect } from "./rect"
@@ -26,6 +27,9 @@ export class Element {
   fillStyle: string
   offset: number = 0
 
+  segmentList: Segment[] | null = null
+  pathList: RectProps[] | null = null
+
   constructor(
     shape: ElementShape,
     x: number,
@@ -44,6 +48,8 @@ export class Element {
     if (this.offset > 16) {
       this.offset = 0
     }
+
+    this.updateRectShape()
   }
 
   move(point: Point) {
@@ -79,9 +85,23 @@ export class Element {
     }
   }
 
+  isPointInResizeBox(point: Point) {
+    if (!this.pathList) {
+      return false
+    }
+
+    for (const rect of this.pathList) {
+      if (isPointInRect(point, rect as Rect)) {
+        return true
+      }
+    }
+
+    return false
+  }
+
   createPath(_ctx: CanvasRenderingContext2D) {}
 
-  createRect() {
+  updateRectShape() {
 
     const gap = ELEMENT_BOX_SIZE
     const rectSize = gap * 2
@@ -166,10 +186,8 @@ export class Element {
       segmentList.push(next)
     }
 
-    return {
-      pathList,
-      segmentList,
-    }
+    this.pathList = pathList
+    this.segmentList = segmentList
   }
 
   drawLineList(
@@ -211,17 +229,16 @@ export class Element {
 
     ctx.save()
 
-    const {
-      pathList,
-      segmentList,
-    } = this.createRect()
-
-    for (const box of pathList) {
-      this.drawRect(ctx, box)
+    if (this.pathList) {
+      for (const box of this.pathList) {
+        this.drawRect(ctx, box)
+      }
     }
 
-    this.drawLineList(ctx, segmentList)
-
+    if (this.segmentList) {
+      this.drawLineList(ctx, this.segmentList)
+    }
+    
     ctx.lineWidth = 1
     ctx.setLineDash([4, 2]);
     ctx.lineDashOffset = -this.offset;

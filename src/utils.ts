@@ -98,7 +98,7 @@ const isPointInCircle = (
   return d <= circle.radius
 }
 
-const isPointInRect = (
+export const isPointInRect = (
   point: Point,
   rect: Rect,
 ) => {

@@ -160,14 +160,17 @@ function main() {
   
       return rect
     }
-    
+
   }
 
   const pointerCheck = () => {
 
     let cursor: CSSStyleDeclaration['cursor'] = ''
     for (const element of elements) {
-      if (isPointInElement(movePoint, element)) {
+      if (element.isPointInResizeBox(movePoint)) {
+        // TODO 按照位置指定 pointer
+        cursor = 'ew-resize'
+      } else if (isPointInElement(movePoint, element)) {
         cursor = 'pointer'
       }
     }
@@ -195,6 +198,8 @@ function main() {
       elements.push(element)
       return
     }
+
+    clearElementsStatus(elements)
 
     let element = findElementByPoint(elements, point)
     if (element) {
@@ -253,6 +258,14 @@ function main() {
   canvas.addEventListener('mouseup', handleMouseUp)
   window.addEventListener('keydown', handleKeyDown)
 
+}
+
+const clearElementsStatus = (elements: Element[]) => {
+  for (const e of elements) {
+    if (e.isSelect) {
+      e.isSelect = false
+    }
+  }
 }
 
 const findElementByPoint = (elements: Element[], point: Point) => {
