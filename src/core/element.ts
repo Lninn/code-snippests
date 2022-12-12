@@ -6,6 +6,8 @@ import { ElementShape } from "./ui"
 
 export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>
 
+export type Segment = [Point, Point]
+
 export interface CornerProps {
   top: number
   right: number
@@ -101,11 +103,7 @@ export class Element {
         height: rectSize,
       },
     ];
-    pathList = [
-      left - rectSize,
-      center.x - gap,
-      right,
-    ].reduce(
+    pathList = [left - rectSize, center.x - gap, right].reduce(
       (accu, x: number) => {
         return [
           ...accu,
@@ -135,20 +133,53 @@ export class Element {
       },
     ]
 
+    const width = right - left
+    const interval = width / 2 - gap
+
+    const segmentList: Segment[] = []
+    for (let i = 0; i < lineList.length; i++) {
+      const {
+        start,
+        end,
+      } = lineList[i]
+
+      const createCenterSegment = () => {
+        if (i % 2 === 0) {
+          const c1: Point = { x: start.x + interval, y: start.y }
+          const c2: Point = { x: end.x - interval, y: start.y }
+
+          return [c1, c2]
+        } else {
+          const c1: Point = { x: start.x, y: start.y + interval }
+          const c2: Point = { x: start.x, y: end.y - interval }
+
+          return [c1, c2]
+        }
+      }
+
+      const [c1, c2] = createCenterSegment()
+
+      const prev: Segment = [start, c1]
+      const next: Segment = [c2, end]
+
+      segmentList.push(prev)
+      segmentList.push(next)
+    }
+
     return {
       pathList,
-      lineList,
+      segmentList,
     }
   }
 
   drawLineList(
     ctx: CanvasRenderingContext2D,
-    lineList: Pick<Line, 'start' | 'end'>[],
+    lineList: Segment[],
   ) {
     ctx.beginPath()
 
     for (const line of lineList) {
-      const { start, end } = line
+      const [start, end] = line
 
       ctx.moveTo(start.x, start.y)
       ctx.lineTo(end.x, end.y)
@@ -182,14 +213,14 @@ export class Element {
 
     const {
       pathList,
-      lineList,
+      segmentList,
     } = this.createRect()
 
     for (const box of pathList) {
       this.drawRect(ctx, box)
     }
 
-    this.drawLineList(ctx, lineList)
+    this.drawLineList(ctx, segmentList)
 
     ctx.lineWidth = 1
     ctx.setLineDash([4, 2]);
