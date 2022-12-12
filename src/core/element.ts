@@ -153,9 +153,6 @@ export class Element {
       },
     ]
 
-    const width = right - left
-    const interval = width / 2 - gap
-
     const segmentList: Segment[] = []
     for (let i = 0; i < lineList.length; i++) {
       const {
@@ -165,11 +162,15 @@ export class Element {
 
       const createCenterSegment = () => {
         if (i % 2 === 0) {
+          const width = right - left
+          const interval = width / 2 - gap
           const c1: Point = { x: start.x + interval, y: start.y }
           const c2: Point = { x: end.x - interval, y: start.y }
 
           return [c1, c2]
         } else {
+          const height = bottom - top
+          const interval = height / 2 - gap
           const c1: Point = { x: start.x, y: start.y + interval }
           const c2: Point = { x: start.x, y: end.y - interval }
 
