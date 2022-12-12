@@ -9,6 +9,24 @@ export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>
 
 export type Segment = [Point, Point]
 
+const enum Placement {
+  TopLeft,
+  Top,
+  TopRight,
+
+  RightTop,
+  Right,
+  RightBottom,
+
+  BottomRight,
+  Bottom,
+  BottomLeft,
+
+  LeftTop,
+  Left,
+  LeftBottom,
+}
+
 export interface CornerProps {
   top: number
   right: number
@@ -29,6 +47,8 @@ export class Element {
 
   segmentList: Segment[] | null = null
   pathList: RectProps[] | null = null
+
+  placement: Placement | null = null
 
   constructor(
     shape: ElementShape,
