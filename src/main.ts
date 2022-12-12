@@ -71,7 +71,7 @@ function main() {
   const elements: Element[] = []
 
   window.debug = () => {
-    console.log(ui);
+    console.log(elements);
   }
 
   const clear = () => {

@@ -1,31 +1,10 @@
-import { ELEMENT_BOX_SIZE } from "../config"
 import { isPointInRect } from "../utils"
-import { Line } from "./line"
+import { createRectList, createSegmentList, Placement, Segment } from "./placement"
 import { Point } from "./point"
 import { Rect } from "./rect"
 import { ElementShape } from "./ui"
 
-export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>
-
-export type Segment = [Point, Point]
-
-const enum Placement {
-  TopLeft,
-  Top,
-  TopRight,
-
-  RightTop,
-  Right,
-  RightBottom,
-
-  BottomRight,
-  Bottom,
-  BottomLeft,
-
-  LeftTop,
-  Left,
-  LeftBottom,
-}
+export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'> & { placement: Placement }
 
 export interface CornerProps {
   top: number
@@ -123,92 +102,15 @@ export class Element {
 
   updateRectShape() {
 
-    const gap = ELEMENT_BOX_SIZE
-    const rectSize = gap * 2
+    const rect = this.getRect();
 
-    const center = this.getCenter()
-    const { top, right, bottom, left } = this.getRect();
-    
-    let pathList: RectProps[] = [
-      {
-        x: left - rectSize,
-        y: center.y - gap,
-        width: rectSize,
-        height: rectSize,
-      },
-      {
-        x: right,
-        y: center.y - gap,
-        width: rectSize,
-        height: rectSize,
-      },
-    ];
-    pathList = [left - rectSize, center.x - gap, right].reduce(
-      (accu, x: number) => {
-        return [
-          ...accu,
-          { x, y: top -rectSize, width: rectSize, height: rectSize } as RectProps,
-          { x, y: bottom, width: rectSize, height: rectSize } as RectProps,
-        ]
-      },
-      pathList,
+    this.pathList = createRectList(
+      this.getCenter(),
+      rect,
     )
-
-    const lineList: Pick<Line, 'start' | 'end'>[] = [
-      {
-        start: { x: left, y: top - gap },
-        end: { x: right, y: top - gap },
-      },
-      {
-        start: { x: right + gap, y: top },
-        end: { x: right + gap, y: bottom },
-      },
-      {
-        start: { x: left, y: bottom + gap },
-        end: { x: right, y: bottom + gap },
-      },
-      {
-        start: { x: left - gap, y: top },
-        end: { x: left - gap, y: bottom },
-      },
-    ]
-
-    const segmentList: Segment[] = []
-    for (let i = 0; i < lineList.length; i++) {
-      const {
-        start,
-        end,
-      } = lineList[i]
-
-      const createCenterSegment = () => {
-        if (i % 2 === 0) {
-          const width = right - left
-          const interval = width / 2 - gap
-          const c1: Point = { x: start.x + interval, y: start.y }
-          const c2: Point = { x: end.x - interval, y: start.y }
-
-          return [c1, c2]
-        } else {
-          const height = bottom - top
-          const interval = height / 2 - gap
-          const c1: Point = { x: start.x, y: start.y + interval }
-          const c2: Point = { x: start.x, y: end.y - interval }
-
-          return [c1, c2]
-        }
-      }
-
-      const [c1, c2] = createCenterSegment()
-
-      const prev: Segment = [start, c1]
-      const next: Segment = [c2, end]
-
-      segmentList.push(prev)
-      segmentList.push(next)
-    }
-
-    this.pathList = pathList
-    this.segmentList = segmentList
+    this.segmentList = createSegmentList(
+      rect
+    )
   }
 
   drawLineList(
