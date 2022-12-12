@@ -1,3 +1,4 @@
+import { GRID_VISIBLE } from "../config"
 import { Line } from "./line"
 import { Point } from "./point"
 
@@ -89,6 +90,10 @@ export class Grid {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    if (!GRID_VISIBLE) {
+      return
+    }
+
     for (const line of [...this.gridX, ...this.gridY]) {
       ctx.lineWidth = this.lineWidth
       

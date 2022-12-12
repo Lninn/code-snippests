@@ -1,15 +1,16 @@
 import { Element } from "./element"
 import { Point } from "./point"
-import { Rect } from "./rect"
 import { getDistance } from "../utils"
-
-
-export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>
 
 export class Circle extends Element {
   radius: number
 
-  constructor(x: number, y: number, radius: number, fillStyle: string) {
+  constructor(
+    x: number,
+    y: number,
+    radius: number,
+    fillStyle: string
+  ) {
     super('circle', x, y, fillStyle)
     this.radius = radius
   }

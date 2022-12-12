@@ -1,8 +1,10 @@
-import { RectProps } from "./circle"
+import { ELEMENT_BOX_SIZE } from "../config"
 import { Line } from "./line"
 import { Point } from "./point"
+import { Rect } from "./rect"
 import { ElementShape } from "./ui"
 
+export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>
 
 export interface CornerProps {
   top: number
@@ -13,15 +15,21 @@ export interface CornerProps {
 
 export class Element {
   shape: ElementShape
+
   x: number
   y: number
+
+  isSelect: boolean = false
 
   fillStyle: string
   offset: number = 0
 
-  isSelect: boolean = false
-
-  constructor(shape: ElementShape, x: number, y: number, fillStyle: string) {
+  constructor(
+    shape: ElementShape,
+    x: number,
+    y: number,
+    fillStyle: string
+  ) {
     this.shape = shape
     this.x = x
     this.y = y
@@ -71,85 +79,59 @@ export class Element {
 
   createPath(_ctx: CanvasRenderingContext2D) {}
 
-  createRect(
-    t: number,
-    r: number,
-    b: number,
-    l: number,
-  ) {
+  createRect() {
 
-    const { x, y } = this.getCenter()
-
-    const gap = 5
+    const gap = ELEMENT_BOX_SIZE
     const rectSize = gap * 2
 
-    const pathList: RectProps[] = [
+    const center = this.getCenter()
+    const { top, right, bottom, left } = this.getRect();
+    
+    let pathList: RectProps[] = [
       {
-        x: l - rectSize,
-        y: t - rectSize,
+        x: left - rectSize,
+        y: center.y - gap,
         width: rectSize,
         height: rectSize,
       },
       {
-        x: x - gap,
-        y: t - rectSize,
+        x: right,
+        y: center.y - gap,
         width: rectSize,
         height: rectSize,
       },
-      {
-        x: r,
-        y: t - rectSize,
-        width: rectSize,
-        height: rectSize,
+    ];
+    pathList = [
+      left - rectSize,
+      center.x - gap,
+      right,
+    ].reduce(
+      (accu, x: number) => {
+        return [
+          ...accu,
+          { x, y: top -rectSize, width: rectSize, height: rectSize } as RectProps,
+          { x, y: bottom, width: rectSize, height: rectSize } as RectProps,
+        ]
       },
-      {
-        x: r,
-        y: y - gap,
-        width: rectSize,
-        height: rectSize,
-      },
-      {
-        x: r,
-        y: b,
-        width: rectSize,
-        height: rectSize,
-      },
-      {
-        x: x - gap,
-        y: b,
-        width: rectSize,
-        height: rectSize,
-      },
-      {
-        x: l - rectSize,
-        y: b,
-        width: rectSize,
-        height: rectSize,
-      },
-      {
-        x: l - rectSize,
-        y: y - gap,
-        width: rectSize,
-        height: rectSize,
-      }
-    ]
+      pathList,
+    )
 
     const lineList: Pick<Line, 'start' | 'end'>[] = [
       {
-        start: { x: l, y: t - gap },
-        end: { x: r, y: t - gap },
+        start: { x: left, y: top - gap },
+        end: { x: right, y: top - gap },
       },
       {
-        start: { x: r + gap, y: t },
-        end: { x: r + gap, y: b },
+        start: { x: right + gap, y: top },
+        end: { x: right + gap, y: bottom },
       },
       {
-        start: { x: l, y: b + gap },
-        end: { x: r, y: b + gap },
+        start: { x: left, y: bottom + gap },
+        end: { x: right, y: bottom + gap },
       },
       {
-        start: { x: l - gap, y: t },
-        end: { x: l - gap, y: b },
+        start: { x: left - gap, y: top },
+        end: { x: left - gap, y: bottom },
       },
     ]
 
@@ -198,16 +180,10 @@ export class Element {
 
     ctx.save()
 
-    const rect = this.getRect()
     const {
       pathList,
       lineList,
-    } = this.createRect(
-      rect.top,
-      rect.right,
-      rect.bottom,
-      rect.left,
-    )
+    } = this.createRect()
 
     for (const box of pathList) {
       this.drawRect(ctx, box)
