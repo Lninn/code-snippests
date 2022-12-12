@@ -17,10 +17,8 @@ import { UI } from './core/ui'
 import { Point } from './core/point'
 import { Path } from './core/path'
 import { Text } from './core/text'
-import { CHART_SCALE } from './config'
+import { CANVAS_ID, CHART_SCALE } from './config'
 import { Theme } from './core/theme'
-
-const ID = 'canvas'
 
 // TODO
 // 1 侧边栏，现实当前的全局状态和画布内状态，激活元素，坐标等等
@@ -74,16 +72,7 @@ function main() {
     console.log(elements);
   }
 
-  const clear = () => {
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-    )
-  }
-
-  timer.update = () => {
+  const onUpdate = () => {
     if (isCreate(activeStatus)) {
 
       if (activeElement) {
@@ -115,9 +104,8 @@ function main() {
     }
 
   }
-
-  timer.draw = () => {
-    clear()
+  const onDraw = () => {
+    clearCanvas(ctx)
 
     drawBg(ctx)
     grid.draw(ctx)
@@ -128,6 +116,9 @@ function main() {
 
     drawGuideLine(ctx, movePoint)
   }
+
+  timer.update = onUpdate
+  timer.draw = onDraw
 
   const getNewElement = (point: Point): Element => {
 
@@ -283,8 +274,19 @@ const findElementByPoint = (elements: Element[], point: Point) => {
   return null
 }
 
+const clearCanvas = (ctx: CanvasRenderingContext2D) => {
+  const { canvas } = ctx
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+  )
+}
+
 const getContext = () => {
-  const canvas = getById<HTMLCanvasElement>(ID)
+  const canvas = getById<HTMLCanvasElement>(CANVAS_ID)
   if (!canvas) return
 
   const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
