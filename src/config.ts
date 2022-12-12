@@ -1,9 +1,1 @@
-import { getRandomColor } from "./utils";
-
-export const ELEMENT_STROKE_COLOR = getRandomColor()
-export const ELEMENT_LINE_WIDTH = 30
-
-export const GRID_STROKE_COLOR = getRandomColor()
-export const GRID_LINE_WIDTH = 1
-
-export const CHART_SCALE = 3
+export const CHART_SCALE = 1

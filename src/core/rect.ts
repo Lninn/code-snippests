@@ -5,8 +5,8 @@ export class Rect extends Element {
   width: number
   height: number
 
-  constructor(x: number, y: number, width: number, height: number) {
-    super('rect', x, y)
+  constructor(x: number, y: number, width: number, height: number, fillStyle: string) {
+    super('rect', x, y, fillStyle)
     this.width = width
     this.height = height
   }

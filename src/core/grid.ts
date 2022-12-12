@@ -1,7 +1,3 @@
-import {
-  GRID_LINE_WIDTH,
-  GRID_STROKE_COLOR,
-} from "../config"
 import { Line } from "./line"
 import { Point } from "./point"
 
@@ -11,12 +7,13 @@ export class Grid {
   rowSpan: number
   colSpan: number
 
-  lineWidth: number = GRID_LINE_WIDTH
+  lineWidth: number = 1
+  strokeStyle: string
 
   gridX: Line[] = []
   gridY: Line[] = []
 
-  constructor(ctx: CanvasRenderingContext2D, rowSpan: number, colSpan: number) {
+  constructor(ctx: CanvasRenderingContext2D, rowSpan: number, colSpan: number, strokeStyle: string) {
     const {
       canvas: { 
         width,
@@ -28,6 +25,8 @@ export class Grid {
     this.height = height
     this.rowSpan = rowSpan
     this.colSpan = colSpan
+
+    this.strokeStyle = strokeStyle
 
     this.createX()
     this.createY()
@@ -54,7 +53,7 @@ export class Grid {
         y: this.height,
       }
 
-      const line = new Line(start, end, GRID_STROKE_COLOR)
+      const line = new Line(start, end, this.strokeStyle)
       grid.push(line)
     }
 
@@ -82,7 +81,7 @@ export class Grid {
         y: colSize * i + gap,
       }
 
-      const line = new Line(start, end, GRID_STROKE_COLOR)
+      const line = new Line(start, end, this.strokeStyle)
       grid.push(line)
     }
 

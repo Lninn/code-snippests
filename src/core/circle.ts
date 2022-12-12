@@ -9,8 +9,8 @@ export type RectProps = Pick<Rect, 'x' | 'y' | 'width' | 'height'>
 export class Circle extends Element {
   radius: number
 
-  constructor(x: number, y: number, radius: number) {
-    super('circle', x, y)
+  constructor(x: number, y: number, radius: number, fillStyle: string) {
+    super('circle', x, y, fillStyle)
     this.radius = radius
   }
 

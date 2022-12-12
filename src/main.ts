@@ -18,6 +18,7 @@ import { Point } from './core/point'
 import { Path } from './core/path'
 import { Text } from './core/text'
 import { CHART_SCALE } from './config'
+import { Theme } from './core/theme'
 
 const ID = 'canvas'
 
@@ -57,14 +58,20 @@ function main() {
   let activeStatus: Status = Status.None
   let activeElement: Element | null = null
 
-  const ui = new UI()
+  const theme = new Theme()
+  const ui = new UI(theme)
   const timer = new Timer()
-  const grid = new Grid(ctx, 10, 10)
+  const grid = new Grid(
+    ctx,
+    10,
+    10,
+    theme.attrs.secondColor,
+  )
 
   const elements: Element[] = []
 
   window.debug = () => {
-    console.log(ui, elements, activeElement);
+    console.log(ui);
   }
 
   const clear = () => {
@@ -138,6 +145,7 @@ function main() {
         point.x,
         point.y,
         0,
+        theme.attrs.primaryColor,
       )
 
       return circle
@@ -147,6 +155,7 @@ function main() {
         point.y,
         0,
         0,
+        theme.attrs.primaryColor,
       )
   
       return rect

@@ -2,7 +2,6 @@ import { RectProps } from "./circle"
 import { Line } from "./line"
 import { Point } from "./point"
 import { ElementShape } from "./ui"
-import { getRandomColor } from "../utils"
 
 
 export interface CornerProps {
@@ -16,18 +15,18 @@ export class Element {
   shape: ElementShape
   x: number
   y: number
-  
+
   fillStyle: string
   offset: number = 0
 
   isSelect: boolean = false
 
-  constructor(shape: ElementShape, x: number, y: number) {
+  constructor(shape: ElementShape, x: number, y: number, fillStyle: string) {
     this.shape = shape
     this.x = x
     this.y = y
 
-    this.fillStyle = getRandomColor()
+    this.fillStyle = fillStyle
   }
 
   update() {

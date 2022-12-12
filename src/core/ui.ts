@@ -1,6 +1,7 @@
 import { createElement, getById } from "../utils"
+import { Theme } from "./theme"
 
-export type ElementShape = 'auto' | 'circle' | 'rect' | 'path' | 'text'
+export type ElementShape = 'auto' | 'circle' | 'rect' | 'path' | 'text' | 'save'
 const DEFAULT_SHAPE: ElementShape = 'circle'
 
 export interface UIElement {
@@ -35,6 +36,11 @@ const ELEMENTS: Array<UIElement> = [
     shape: 'text',
     keyNo: '5',
   },
+  {
+    label: 'Save',
+    shape: 'save',
+    keyNo: '6',
+  },
 ]
 
 export class UI {
@@ -43,14 +49,21 @@ export class UI {
 
   elements: Array<UIElement> = ELEMENTS
 
-  constructor() {
+  theme: Theme
+
+  constructor(theme: Theme) {
     this.shape = DEFAULT_SHAPE
+    this.theme = theme
 
     this.render()
   }
 
   handleItemClick(e: UIElement) {
     this.shape = e.shape
+
+    if (this.shape === 'save') {
+      this.theme.save()
+    }
 
     this.render()
   }
