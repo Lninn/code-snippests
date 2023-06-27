@@ -16,11 +16,45 @@ class Lexer {
     this.words.set(t.lexeme, t)
   }
 
+  comment() {
+    this.peek = input.read()
+    if (this.peek === '*') {
+      let c = ''
+      do {
+        this.peek = input.read()
+        c += this.peek
+
+        if (/\*\//.test(c)) {
+          this.peek = input.read()
+          break
+        }
+      } while(1)
+    }
+
+    if (this.peek === '/') {
+      do {
+        this.peek = input.read()
+      } while(this.peek !== '\n')
+    }
+    
+    while(this.peek === ' ' || this.peek === '\n') {
+      this.peek = input.read()
+    }
+
+    if (this.peek === '/') {
+      this.comment()
+    }
+  }
+
   public scan(): Token {
     for(;;(this.peek = input.read())) {
       if (this.peek == ' ' || this.peek == '\t') continue
       else if (this.peek === '\n') this.line += 1
       else break
+    }
+
+    if (this.peek === '/') {
+      this.comment()
     }
 
     if (character.isDigit(this.peek)) {

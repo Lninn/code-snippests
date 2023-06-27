@@ -1,7 +1,5 @@
 console.log('hello world')
 
-import './parser'
-
 import { Lexer } from './lexer'
 import input from './input'
 
@@ -16,18 +14,35 @@ function test(inputStr: string) {
 }
 
 function main() {
-  test(`
-    9 -  3  +2
-  `)
+  // test(`
+  //   9 -  3  +2
+  // `)
 
-  console.log('\n')
+  // console.log('\n')
   
   test(`
-  
-    const a = 1
-    let foo =     334
+      //test
+      
+      // 这是一段注释，在代码开头
+    
+      const a = 1
+      let foo =     334
 
-    var result = foo + 123
+      // 这是一段注释，在代码中间
+
+      /* 一段注释   */
+
+
+      var asd = 123 + comment
+
+      /* 一
+        段sad
+        注asd
+        释   */
+
+      /* 一段注释   */
+
+      var result = foo + 123
   `)
 }
 

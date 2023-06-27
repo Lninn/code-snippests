@@ -17,4 +17,10 @@ function isNotEnd() {
   return v !== undefined
 }
 
-export default  { setup, read, isNotEnd }
+function getRestContent() {
+  return info.input.slice(
+    info.idx, info.input.length
+  )
+}
+
+export default  { setup, read, isNotEnd, getRestContent }
