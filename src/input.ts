@@ -12,6 +12,10 @@ function read() {
   return info.input[info.idx++]
 }
 
+function toPreviuos() {
+  info.idx --
+}
+
 function isNotEnd() {
   const v = info.input[info.idx]
   return v !== undefined
@@ -23,4 +27,4 @@ function getRestContent() {
   )
 }
 
-export default  { setup, read, isNotEnd, getRestContent }
+export default  { setup, read, isNotEnd, getRestContent,toPreviuos }

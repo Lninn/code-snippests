@@ -57,6 +57,35 @@ class Lexer {
       this.comment()
     }
 
+    if (this.peek === '>' || this.peek === '<') {
+      const t = this.peek
+      this.peek = input.read()
+      if (this.peek === '=') {
+        this.peek = ' '
+        return new Word(Tag.OP, `${t}=`)
+      } else {
+        input.toPreviuos()
+        this.peek = ' '
+        return new Word(Tag.OP, `${t}`)
+      }
+    }
+
+    if (this.peek === '=') {
+      const t = input.read()
+      if (t === '=') {
+        this.peek = ' '
+        return new Word(Tag.OP, '==')
+      }
+    }
+
+    if (this.peek === '!') {
+      const t = input.read()
+      if (t === '=') {
+        this.peek = ' '
+        return new Word(Tag.OP, '!=')
+      }
+    }
+
     if (character.isDigit(this.peek)) {
       let v = 0
       do {
@@ -91,6 +120,7 @@ const enum Tag {
   ID = 257,
   TRUE = 258,
   FALSE = 259,
+  OP = 260,
 }
 
 class Token {
