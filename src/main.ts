@@ -18,8 +18,8 @@ interface Timer {
 type Key = 't' | 'o' | 'i' | 'l'
 const shapeMap: Record<Key, number[][]> = {
   o: [
-    [1, 1, 1, 1],
-    [1, 1, 1, 1],
+    [1, 1],
+    [1, 1],
   ],
   t: [
     [1, 1, 1],
@@ -36,8 +36,7 @@ const shapeMap: Record<Key, number[][]> = {
 const keys = Object.keys(shapeMap)
 const getShape = () => {
   const i = getRandomInt(0, keys.length - 1)
-  // const key = keys[i] as Key
-  const key: Key = 'o'
+  const key = keys[i] as Key
 
   return shapeMap[key]
 }
@@ -117,7 +116,7 @@ function main() {
 
   const player = new Player(ctx, Math.floor(cols / 2), padding + 4, size)
   const cellList = createGrid(size, rows, cols, padding)
-  mock(cellList)
+  // mock(cellList)
 
   const timer: Timer = {
     previous: 0,
@@ -231,7 +230,7 @@ function update(player: Player, rows: number, size: number, padding: number, cel
     const tagCells = cellList.filter(c => c.status === 1)
     const fullRowNos = getFullRowNos(tagCells, rows, padding, cols)
     if (fullRowNos.length) {
-      app.paused = true
+      // app.paused = true
 
       const waitClearCells = getClearCells(tagCells, fullRowNos)
       doClearCells(cellList, waitClearCells, fullRowNos)
@@ -277,26 +276,23 @@ function doClearCells(cells: Cell[], waitClearCells: Cell[], rowNos: number[]) {
     }
   }
 
-  // TODO
-  // 多行消除后，剩下的 cells 应该下移相同的 分量
-
   waitClearCells.forEach(c => c.status = 0)
-  console.log(downCells)
 
-  // downCells = downCells.map(c => {
-  //   return { ...c, y: c.y + 1 }
-  // })
+  rowNos.forEach(() => {
+    const nextCells = downCells.map(c => {
+      return { ...c, y: c.y + 1 }
+    })
 
-  // const actCells = findCells(
-  //   cells,
-  //   downCells
-  // )
+    const actCells = findCells(
+      cells,
+      nextCells
+    )
 
-  // console.log(actCells)
+    downCells.forEach(c => c.status = 0)
+    actCells.forEach(c => c.status = 1)
 
-  // actCells.forEach(c => c.status = 1)
-  // downCells.forEach(c => c.status = 0)
-
+    downCells = actCells
+  })
 }
 
 function getClearCells (tagCells: Cell[], rowNos: number[]) {
