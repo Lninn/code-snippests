@@ -39,40 +39,41 @@ const getShape = () => {
   return shapeMap[key]
 }
 
-let paused = true
+let paused = false
 
 class Player {
   private ctx: CanvasRenderingContext2D
-  public x: number
-  public y: number
-
-  public shape: number[][] = getShape()
-  public cells: Cell[] = []
+  
+  public x!: number
+  public y!: number
+  public shape!: number[][]
+  public cells!: Cell[]
+ 
   private initValues: {
     x: number,
     y: number,
     size: number
   }
   constructor(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
-    this.ctx = ctx
-    this.x = x
-    this.y = y
-
     this.initValues = {
       x,
       y,
       size
     }
-
-    this.cells = createCells(this.shape, this.x, this.y, size)
+    this.ctx = ctx
+   
+    this.init(x, y, size)
   }
 
   public reset() {
     const { x, y, size } = this.initValues
+    this.init(x, y, size)
+  }
 
-    this.x = x
-    this.y = y
+  private init(x: number, y: number, size: number) {
     this.shape = getShape()
+    this.x = x - Math.floor(this.shape.length / 2)
+    this.y = y
     this.cells = createCells(this.shape, this.x, this.y, size)
   }
 
@@ -116,12 +117,12 @@ function main() {
   const cols = Math.ceil(width / size)
   const padding = 3
 
-  const player = new Player(ctx, Math.floor(cols / 2), padding, size)
+  const player = new Player(ctx, Math.floor(cols / 2), padding - 2, size)
   const cellList = createGrid(size, rows, cols, padding)
 
   const timer: Timer = {
     previous: 0,
-    duration: 100,
+    duration: 800,
   }
 
   function onKeyDown(e: KeyboardEvent) {
