@@ -5,49 +5,89 @@ import { Player } from './player'
 import { Grid } from './grid'
 
 
+class Timer {
+  private ctx: CanvasRenderingContext2D
+  private previous: number
+  private duration: number
+  private mode: 0 | 1 = 0
 
-interface Timer {
-  previous: number
-  duration: number
+  constructor(ctx: CanvasRenderingContext2D) {
+    this.previous = 0
+    this.duration = 600
+
+    this.ctx = ctx
+
+    this.loop = this.loop.bind(this)
+  }
+
+  public loop(timestamp: number) {
+    const diff = timestamp - this.previous
+
+    clear(this.ctx)
+
+    if (diff > this.duration) {
+      this.update()
+
+      this.previous = timestamp
+    }
+
+    this.draw()
+    requestAnimationFrame(this.loop)
+  }
+
+  public flash() {
+    this.duration = 10
+    this.mode = 1
+  }
+
+  public check() {
+    if (this.mode === 1) {
+      this.mode = 0
+      this.duration = 600
+    }
+  }
+
+  public start() {
+    clear(this.ctx)
+    this.draw()
+
+    requestAnimationFrame(this.loop)
+  }
+
+  public update() {}
+  public draw() {}
 }
-
-const app = new App()
-
 
 function main() {
   const element = document.getElementById('canvas')
   if (!element) return
 
-  const canvas = element as HTMLCanvasElement
+  const app = new App(element as HTMLCanvasElement)
 
-  const width = 375
-  const height = 667
+  const {
+    ctx,
+    rows,
+    cols,
+    padding,
+    size
+  } = app
 
-  canvas.style.width = width + 'px'
-  canvas.style.height = height + 'px'
-  
-  canvas.width = width
-  canvas.height = height
-
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-
-  const rows = 30
-  const size = Math.floor(height / rows)
-  const cols = Math.ceil(width / size)
-  const padding = 3
-
-  const player = new Player(ctx, Math.floor(cols / 2), padding + 4, size)
+  const player = new Player(
+    ctx,
+    Math.floor(cols / 2),
+    padding + 4,
+    size
+  )
   const grid = new Grid(
     rows,
     cols,
     padding,
     size,
   )
-  
-  const timer: Timer = {
-    previous: 0,
-    duration: 600,
-  }
+
+  const timer = new Timer(
+    ctx
+  )
 
   function onKeyDown(e: KeyboardEvent) {
     const k = e.key
@@ -74,7 +114,7 @@ function main() {
       player.x = player.x + step
       player.cells = nextCells
     } else if (k === 's') {
-      timer.duration = 12
+      timer.flash()
     } else if (k === ' ') {
       const nextShape = rotateMatrix(player.shape)
       const nextCells = createCells(
@@ -104,7 +144,12 @@ function main() {
     }
   }
 
-  function update() {
+  function draw() {
+    grid.draw(ctx)
+    player.draw()
+  }
+
+  timer.update = () => {
     if (app.paused) return
   
     const nextY = player.y + 1
@@ -112,7 +157,7 @@ function main() {
 
     if (grid.isInteract(nextCells) || isBottom(rows, padding, nextY, player.shape)) {
       grid.update(player)
-      timer.duration = 600
+      timer.check()
       player.reset()
     } else {
       player.y = nextY
@@ -120,32 +165,12 @@ function main() {
     }
   }
 
-  function draw() {
-    grid.draw(ctx)
-    player.draw()
-  }
-
-  function loop(timestamp: number) {
-    const diff = timestamp - timer.previous
-
-    clear(ctx, width, height)
-
-    if (diff > timer.duration) {
-      update()
-
-      timer.previous = timestamp
-    }
-
+  timer.draw = () => {
     draw()
-
-    requestAnimationFrame(loop)
   }
 
   window.addEventListener('keydown', onKeyDown)
-
-  clear(ctx, width, height)
-  draw()
-  requestAnimationFrame(loop)
+  timer.start()
 }
 
 function getCellsBorder(cells: Cell[]) {
@@ -191,8 +216,15 @@ function isBottom(rows: number, padding: number, y: number, shape: number[][]) {
   return y > rows - padding - length
 }
 
-function clear(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  ctx.clearRect(0, 0, w, h)
+function clear(ctx: CanvasRenderingContext2D) {
+  const {
+    canvas: {
+      width,
+      height
+    }
+  } = ctx
+
+  ctx.clearRect(0, 0, width, height)
 }
 
 main()

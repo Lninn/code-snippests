@@ -1,8 +1,41 @@
 export class App {
   public paused: boolean
 
-  constructor() {
+  public width: number
+  public height: number
+  public ctx: CanvasRenderingContext2D
+  public rows: number
+  public cols: number
+  public padding: number
+  public size: number
+
+  constructor(canvas: HTMLCanvasElement) {
     this.paused = false
+
+    const width = 375
+    const height = 667
+
+    this.width = width
+    this.height = height
+
+    canvas.style.width = width + 'px'
+    canvas.style.height = height + 'px'
+    
+    canvas.width = width
+    canvas.height = height
+
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+    this.ctx = ctx
+
+    const rows = 30
+    const size = Math.floor(height / rows)
+    const cols = Math.ceil(width / size)
+    const padding = 3
+
+    this.rows = rows
+    this.cols = cols
+    this.padding = padding
+    this.size = size
   }
 }
 
