@@ -13,22 +13,40 @@ interface Timer {
   duration: number
 }
 
-let paused = false
+type Key = 't' | 'o' | 'i' | 'l'
+const shapeMap: Record<Key, number[][]> = {
+  o: [
+    [1, 1],
+    [1, 1],
+  ],
+  t: [
+    [1, 1, 1],
+    [0, 1],
+  ],
+  i: [
+    [1, 1, 1, 1]
+  ],
+  l: [
+    [1, 0, 0],
+    [1, 1, 1],
+  ]
+}
+const keys = Object.keys(shapeMap)
+const getShape = () => {
+  const i = getRandomInt(0, keys.length - 1)
+  const key = keys[i] as Key
+
+  return shapeMap[key]
+}
+
+let paused = true
 
 class Player {
   private ctx: CanvasRenderingContext2D
   public x: number
   public y: number
 
-  public shape = [
-    // [1, 2],
-    // [3, 4],
-
-    // [1, 2, 3],
-    // [ , 4],
-
-    [1, 2, 3, 4]
-  ]
+  public shape: number[][] = getShape()
   public cells: Cell[] = []
   private initValues: {
     x: number,
@@ -54,6 +72,7 @@ class Player {
 
     this.x = x
     this.y = y
+    this.shape = getShape()
     this.cells = createCells(this.shape, this.x, this.y, size)
   }
 
@@ -99,7 +118,6 @@ function main() {
 
   const player = new Player(ctx, Math.floor(cols / 2), padding, size)
   const cellList = createGrid(size, rows, cols, padding)
-  console.log(cellList, cols)
 
   const timer: Timer = {
     previous: 0,
@@ -145,7 +163,7 @@ function update(player: Player, rows: number, size: number, padding: number, cel
   const nextCells = createCells(player.shape, player.x, nextY, size)
 
   if (
-    isBottom(rows, padding, nextY) || notCanMove(nextCells, cellList)
+    isBottom(rows, padding, nextY, player.shape) || notCanMove(nextCells, cellList)
   ) {
     // paused = true
 
@@ -221,8 +239,10 @@ function getFullRowNos(cells: Cell[], rows: number, padding: number, cols: numbe
   return rowNos.map(n => +n)
 }
 
-function isBottom(rows: number, padding: number, y: number) {
-  return y > rows - padding - 1
+function isBottom(rows: number, padding: number, y: number, shape: number[][]) {
+  const length = shape.length
+
+  return y > rows - padding - length
 }
 
 function notCanMove(nextCells: Cell[], cellList: Cell[]) {
@@ -345,6 +365,12 @@ function drawCell(ctx: CanvasRenderingContext2D, cell: Cell, strokeStyle?: strin
     ctx.fill()
     ctx.fillStyle = _f
   }
+}
+
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 main()
