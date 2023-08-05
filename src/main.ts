@@ -147,7 +147,7 @@ function update(player: Player, rows: number, size: number, padding: number, cel
   if (
     isBottom(rows, padding, nextY) || notCanMove(nextCells, cellList)
   ) {
-    paused = true
+    // paused = true
 
     const activeCells = getAcitveCells(cellList, player)
     mutateCells(activeCells)
@@ -155,7 +155,8 @@ function update(player: Player, rows: number, size: number, padding: number, cel
     const tagCells = cellList.filter(c => c.status === 1)
     const fullRowNos = getFullRowNos(tagCells, rows, padding, cols)
     if (fullRowNos.length) {
-      doClearCells(cellList, tagCells, fullRowNos)
+      const waitClearCells = getClearCells(tagCells, fullRowNos)
+      doClearCells(cellList, waitClearCells, fullRowNos)
     }
 
     timer.duration = 100
@@ -166,21 +167,17 @@ function update(player: Player, rows: number, size: number, padding: number, cel
   }
 }
 
-function doClearCells(cells: Cell[], tagCells: Cell[], rowNos: number[]) {
+function doClearCells(cells: Cell[], waitClearCells: Cell[], rowNos: number[]) {
 
   const downCells: Cell[] = []
-  const clearCells: Cell[] = []
 
-  for (const cell of tagCells) {
-    if (rowNos.includes(cell.y)) {
-      clearCells.push(cell)
-    } else {
+  for (const cell of waitClearCells) {
+    if (!rowNos.includes(cell.y)) {
       downCells.push(cell)
     }
   }
 
-  clearCells.forEach(c => c.status = 0)
-  downCells.forEach(c => c.status = 0)
+  waitClearCells.forEach(c => c.status = 0)
 
   const finalCells = cells.filter(cell => {
     return downCells.findIndex(downCell => {
@@ -189,6 +186,20 @@ function doClearCells(cells: Cell[], tagCells: Cell[], rowNos: number[]) {
   })
   finalCells.forEach(c => c.status = 1)
 
+}
+
+function getClearCells (tagCells: Cell[], rowNos: number[]) {
+  let cells: Cell[] = []
+
+  for (const rowNo of rowNos) {
+    const clearCells = tagCells.filter(cell => {
+      return cell.y <= rowNo
+    })
+
+    cells = [...cells, ...clearCells]
+  }
+
+  return cells
 }
 
 function getFullRowNos(cells: Cell[], rows: number, padding: number, cols: number) {
