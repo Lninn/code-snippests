@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+canvas {
+  display: block;
+  border: 1px solid #d254b3;
+}
+
+body {
+  display: grid;
+  place-content: center;
+}
