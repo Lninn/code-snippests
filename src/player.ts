@@ -33,7 +33,7 @@ export class Player {
   public x!: number
   public y!: number
   public shape!: number[][]
-  public cells!: Cell[]
+  private cells!: Cell[]
  
   private initValues: {
     x: number,
@@ -51,16 +51,35 @@ export class Player {
     this.init(x, y, size)
   }
 
+  public getNextCellsByStep(step: -1 | 1) {
+    const nextCells = this.cells.map(c => {
+      return {
+        ...c,
+        x: c.x + step
+      }
+    })
+
+    return nextCells
+  }
+
+  public updateByY(y: number, cells: Cell[]) {
+    this.y = y
+    this.cells = cells
+  }
+
+  public updateByStep(step: -1 | 1, cells: Cell[]) {
+    this.x = this.x + step
+    this.cells = cells
+  }
+
+  public updateByShape(shape: number[][], cells: Cell[]) {
+    this.shape = shape
+    this.cells = cells
+  }
+
   public reset() {
     const { x, y, size } = this.initValues
     this.init(x, y, size)
-  }
-
-  private init(x: number, y: number, size: number) {
-    this.shape = rotateMatrix(getShape())
-    this.x = x - Math.floor(this.shape.length / 2)
-    this.y = y
-    this.cells = createCells(this.shape, this.x, this.y, size)
   }
 
   public isCellActive(acCell: Cell) {
@@ -74,10 +93,14 @@ export class Player {
       drawCell(this.ctx, cell, undefined, 'blue')
     }
   }
+
+  private init(x: number, y: number, size: number) {
+    this.shape = rotateMatrix(getShape())
+    this.x = x - Math.floor(this.shape.length / 2)
+    this.y = y
+    this.cells = createCells(this.shape, this.x, this.y, size)
+  }
 }
-
-
-
 
 function getRandomInt(min: number, max: number) {
   min = Math.ceil(min);

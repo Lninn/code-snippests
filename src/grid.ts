@@ -1,26 +1,78 @@
-import { Cell, drawCell } from "./config"
+import { Cell, createCells, drawCell, rotateMatrix } from "./config"
 import { Player } from "./player"
 
 
 export class Grid {
+  private player: Player
   private cells: Cell[]
   private rows: number
   private cols: number
   private padding: number
+  private size: number
 
   constructor(
     rows: number,
     cols: number,
     padding: number,
-    size: number
+    size: number,
+    player: Player
   ) {
 
     this.rows = rows
     this.cols = cols
     this.padding = padding
+    this.player = player
+    this.size = size
 
     const cells = createGrid(size, rows, cols, padding)
     this.cells = cells
+  }
+
+  public transform() {
+    const nextShape = rotateMatrix(this.player.shape)
+    const nextCells = createCells(
+      nextShape,
+      this.player.x,
+      this.player.y,
+      this.size,
+    )
+
+    const {
+      topBorder,
+      bottomBorder,
+      leftBorder,
+      rightBorder,
+    } = borderCheck(nextCells, this.rows, this.cols, this.padding)
+
+    if (topBorder ||
+        bottomBorder ||
+        leftBorder ||
+        rightBorder ||
+        this.hasSomeCellActive(nextCells)
+      ) {
+      return
+    }
+
+    this.player.updateByShape(nextShape, nextCells)
+  }
+
+  public move(step: -1 | 1) {
+    const nextCells = this.player.getNextCellsByStep(step)
+
+    const {
+      leftBorder,
+      rightBorder,
+    } = borderCheck(nextCells, this.rows, this.cols, this.padding)
+
+    if (
+      leftBorder ||
+      rightBorder ||
+      this.hasSomeCellActive(nextCells)
+    ) {
+      return
+    }
+
+    this.player.updateByStep(step, nextCells)
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -48,6 +100,40 @@ export class Grid {
     if (fullRowNos.length) {
       this.clear(tagCells, fullRowNos)
     }
+  }
+
+  public hasSomeCellActive(targetCells: Cell[]) {
+    for (const targetCell of targetCells) {
+      const eachCell = this.cells.find(cell => cell.x === targetCell.x && cell.y === targetCell.y)
+      if (eachCell && eachCell.status === 1) return true
+    }
+  
+    return false
+  }
+
+  public isInteract(nextCells: Cell[]) {
+    const existCells = findCells(
+      this.cells,
+      nextCells,
+    )
+  
+    return existCells.some(cell => cell.status === 1)
+  }
+
+  public getAcitveCells(player: Player) {
+    const acCells: Cell[] = []
+
+    for (const cell of this.cells) {
+      if (player.isCellActive(cell)) {
+        acCells.push(cell)
+      }
+    }
+  
+    return acCells
+  }
+
+  private getTagCells() {
+    return this.cells.filter(c => c.status === 1)
   }
 
   private clear(
@@ -81,40 +167,6 @@ export class Grid {
   
       downCells = actCells
     })
-  }
-
-  private getTagCells() {
-    return this.cells.filter(c => c.status === 1)
-  }
-
-  public hasSomeCellActive(targetCells: Cell[]) {
-    for (const targetCell of targetCells) {
-      const eachCell = this.cells.find(cell => cell.x === targetCell.x && cell.y === targetCell.y)
-      if (eachCell && eachCell.status === 1) return true
-    }
-  
-    return false
-  }
-
-  public isInteract(nextCells: Cell[]) {
-    const existCells = findCells(
-      this.cells,
-      nextCells,
-    )
-  
-    return existCells.some(cell => cell.status === 1)
-  }
-
-  public getAcitveCells(player: Player) {
-    const acCells: Cell[] = []
-
-    for (const cell of this.cells) {
-      if (player.isCellActive(cell)) {
-        acCells.push(cell)
-      }
-    }
-  
-    return acCells
   }
 }
 
@@ -193,4 +245,39 @@ function getClearCells (tagCells: Cell[], rowNos: number[]) {
   }
 
   return [...cells.values()] as Cell[]
+}
+
+function borderCheck(cells: Cell[], rows: number, cols: number, padding: number) {
+  const {
+    top,
+    right,
+    bottom,
+    left
+  } = getCellsBorder(cells)
+
+  const topBorder = bottom < padding
+  const bottomBorder = top > rows - padding - 1
+  
+  const leftBorder = left < padding
+  const rightBorder = right > cols - padding - 1
+
+  return {
+    topBorder,
+    rightBorder,
+    bottomBorder,
+    leftBorder,
+  }
+}
+
+function getCellsBorder(cells: Cell[]) {
+  const xList = cells.map(c => c.x)
+  const yList = cells.map(c => c.y)
+  
+  const left = Math.min(...xList)
+  const right = Math.max(...xList)
+
+  const top = Math.min(...yList)
+  const bottom = Math.max(...yList)
+
+  return { top, right, bottom, left }
 }

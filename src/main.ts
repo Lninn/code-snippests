@@ -1,6 +1,6 @@
 import './index.css'
 
-import { App, Cell, createCells, rotateMatrix } from './config'
+import { App, createCells } from './config'
 import { Player } from './player'
 import { Grid } from './grid'
 
@@ -83,6 +83,7 @@ function main() {
     cols,
     padding,
     size,
+    player,
   )
 
   const timer = new Timer(
@@ -94,53 +95,11 @@ function main() {
 
     if (k === 'a' || k === 'd') {
       const step = k === 'a' ? -1 : 1
-     
-      const nextCells = player.cells.map(c => {
-        return {
-          ...c,
-          x: c.x + step
-        }
-      })
-
-      const {
-        leftBorder,
-        rightBorder,
-      } = borderCheck(nextCells, rows, cols, padding)
-
-      if (leftBorder || rightBorder) {
-        return
-      }
-
-      player.x = player.x + step
-      player.cells = nextCells
+      grid.move(step)
     } else if (k === 's') {
       timer.flash()
     } else if (k === ' ') {
-      const nextShape = rotateMatrix(player.shape)
-      const nextCells = createCells(
-        nextShape,
-        player.x,
-        player.y,
-        size,
-      )
-
-      const {
-        topBorder,
-        bottomBorder,
-        leftBorder,
-        rightBorder,
-      } = borderCheck(nextCells, rows, cols, padding)
-
-      if (topBorder || bottomBorder || leftBorder || rightBorder) {
-        return
-      }
-
-      if (grid.hasSomeCellActive(nextCells)) {
-        return
-      }
-
-      player.shape = nextShape
-      player.cells = nextCells
+      grid.transform()
     }
   }
 
@@ -160,8 +119,7 @@ function main() {
       timer.check()
       player.reset()
     } else {
-      player.y = nextY
-      player.cells = nextCells
+      player.updateByY(nextY, nextCells)
     }
   }
 
@@ -171,43 +129,6 @@ function main() {
 
   window.addEventListener('keydown', onKeyDown)
   timer.start()
-}
-
-function getCellsBorder(cells: Cell[]) {
-  const xList = cells.map(c => c.x)
-  const yList = cells.map(c => c.y)
-  
-  const left = Math.min(...xList)
-  const right = Math.max(...xList)
-
-  const top = Math.min(...yList)
-  const bottom = Math.max(...yList)
-
-  return { top, right, bottom, left }
-}
-
-function borderCheck(cells: Cell[], rows: number, cols: number, padding: number) {
-  // TODO 内容的 check
-
-  const {
-    top,
-    right,
-    bottom,
-    left
-  } = getCellsBorder(cells)
-
-  const topBorder = bottom < padding
-  const bottomBorder = top > rows - padding - 1
-  
-  const leftBorder = left < padding
-  const rightBorder = right > cols - padding - 1
-
-  return {
-    topBorder,
-    rightBorder,
-    bottomBorder,
-    leftBorder,
-  }
 }
 
 function isBottom(rows: number, padding: number, y: number, shape: number[][]) {
