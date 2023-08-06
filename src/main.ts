@@ -1,6 +1,6 @@
 import './index.css'
 
-import { App, createCells } from './config'
+import { App  } from './config'
 import { Player } from './player'
 import { Grid } from './grid'
 
@@ -64,31 +64,15 @@ function main() {
 
   const app = new App(element as HTMLCanvasElement)
 
-  const {
-    ctx,
-    rows,
-    cols,
-    padding,
-    size
-  } = app
+  const { ctx } = app
 
-  const player = new Player(
-    ctx,
-    Math.floor(cols / 2),
-    padding + 4,
-    size
-  )
-  const grid = new Grid(
-    rows,
-    cols,
-    padding,
-    size,
-    player,
-  )
+  const player = new Player(app)
+  const grid = new Grid(player, app)
 
-  const timer = new Timer(
-    ctx
-  )
+  const timer = new Timer(ctx)
+  player.onReset = () => {
+    timer.check()
+  }
 
   function onKeyDown(e: KeyboardEvent) {
     const k = e.key
@@ -110,17 +94,8 @@ function main() {
 
   timer.update = () => {
     if (app.paused) return
-  
-    const nextY = player.y + 1
-    const nextCells = createCells(player.shape, player.x, nextY, size)
 
-    if (grid.isInteract(nextCells) || isBottom(rows, padding, nextY, player.shape)) {
-      grid.update(player)
-      timer.check()
-      player.reset()
-    } else {
-      player.updateByY(nextY, nextCells)
-    }
+    grid.check()
   }
 
   timer.draw = () => {
@@ -129,12 +104,6 @@ function main() {
 
   window.addEventListener('keydown', onKeyDown)
   timer.start()
-}
-
-function isBottom(rows: number, padding: number, y: number, shape: number[][]) {
-  const length = shape.length
-
-  return y > rows - padding - length
 }
 
 function clear(ctx: CanvasRenderingContext2D) {

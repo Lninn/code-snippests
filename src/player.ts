@@ -1,4 +1,4 @@
-import { Cell, createCells, drawCell, rotateMatrix } from "./config"
+import { App, Cell, createCells, drawCell, rotateMatrix } from "./config"
 
 
 type Key = 't' | 'o' | 'i' | 'l'
@@ -28,7 +28,7 @@ const getShape = () => {
 }
 
 export class Player {
-  private ctx: CanvasRenderingContext2D
+  private app: App
   
   public x!: number
   public y!: number
@@ -40,15 +40,43 @@ export class Player {
     y: number,
     size: number
   }
-  constructor(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  constructor(app: App) {
+    const { cols, padding, size } = app
+
     this.initValues = {
-      x,
-      y,
-      size
+      x: Math.floor(cols / 2),
+      y: padding + 4,
+      size,
     }
-    this.ctx = ctx
-   
+    this.app = app
+
+    this.init(this.initValues.x, this.initValues.y, size)
+  }
+
+  public onReset() {}
+
+  public reset() {
+    const { x, y, size } = this.initValues
+    this.onReset()
     this.init(x, y, size)
+  }
+
+  public ifNextIsBottom() {
+    const nextY = this.y + 1
+    const length = this.shape.length
+
+    return nextY > this.app.rows - this.app.padding - length
+  }
+
+  public getNextcells() {
+    const nextCells = this.cells.map(c => {
+      return {
+        ...c,
+        y: c.y + 1,
+      }
+    })
+
+    return nextCells
   }
 
   public getNextCellsByStep(step: -1 | 1) {
@@ -77,11 +105,6 @@ export class Player {
     this.cells = cells
   }
 
-  public reset() {
-    const { x, y, size } = this.initValues
-    this.init(x, y, size)
-  }
-
   public isCellActive(acCell: Cell) {
     return this.cells.some(cell => {
       return cell.x === acCell.x && cell.y === acCell.y
@@ -90,7 +113,7 @@ export class Player {
 
   public draw() {
     for (const cell of this.cells) {
-      drawCell(this.ctx, cell, undefined, 'blue')
+      drawCell(this.app.ctx, cell, undefined, 'blue')
     }
   }
 

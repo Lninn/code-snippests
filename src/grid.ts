@@ -1,31 +1,44 @@
-import { Cell, createCells, drawCell, rotateMatrix } from "./config"
+import { App, Cell, createCells, drawCell, rotateMatrix } from "./config"
 import { Player } from "./player"
 
 
 export class Grid {
+  private app: App
   private player: Player
   private cells: Cell[]
-  private rows: number
-  private cols: number
-  private padding: number
-  private size: number
 
   constructor(
-    rows: number,
-    cols: number,
-    padding: number,
-    size: number,
-    player: Player
+    player: Player,
+    app: App,
   ) {
 
-    this.rows = rows
-    this.cols = cols
-    this.padding = padding
     this.player = player
-    this.size = size
+    this.app = app
+
+    const { rows, cols, padding, size } = app
 
     const cells = createGrid(size, rows, cols, padding)
     this.cells = cells
+  }
+
+  public check() {
+    if (this.player.ifNextIsBottom()) {
+      this.update()
+      this.player.reset()
+    } else {
+      const nextCells = this.player.getNextcells()
+
+      if (this.isInteract(nextCells)) {
+        this.update()
+        this.player.reset()
+      } else {
+        this.player.updateByY(
+          this.player.y + 1,
+          nextCells
+        )
+      }
+    }
+
   }
 
   public transform() {
@@ -34,7 +47,7 @@ export class Grid {
       nextShape,
       this.player.x,
       this.player.y,
-      this.size,
+      this.app.size,
     )
 
     const {
@@ -42,7 +55,7 @@ export class Grid {
       bottomBorder,
       leftBorder,
       rightBorder,
-    } = borderCheck(nextCells, this.rows, this.cols, this.padding)
+    } = borderCheck(nextCells, this.app.rows, this.app.cols, this.app.padding)
 
     if (topBorder ||
         bottomBorder ||
@@ -62,7 +75,7 @@ export class Grid {
     const {
       leftBorder,
       rightBorder,
-    } = borderCheck(nextCells, this.rows, this.cols, this.padding)
+    } = borderCheck(nextCells, this.app.rows, this.app.cols, this.app.padding)
 
     if (
       leftBorder ||
@@ -85,16 +98,16 @@ export class Grid {
     }
   }
 
-  public update(player: Player) {
-    const activeCells = this.getAcitveCells(player)
+  private update() {
+    const activeCells = this.getAcitveCells(this.player)
     mutateCells(activeCells)
 
     const tagCells = this.getTagCells()
     const fullRowNos = getFullRowNos(
       tagCells,
-      this.rows,
-      this.padding,
-      this.cols
+      this.app.rows,
+      this.app.padding,
+      this.app.cols
     )
     
     if (fullRowNos.length) {

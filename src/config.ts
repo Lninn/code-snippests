@@ -10,7 +10,7 @@ export class App {
   public size: number
 
   constructor(canvas: HTMLCanvasElement) {
-    this.paused = false
+    this.paused = true
 
     const width = 375
     const height = 667
@@ -31,6 +31,8 @@ export class App {
     const size = Math.floor(height / rows)
     const cols = Math.ceil(width / size)
     const padding = 3
+
+    console.log({ rows, cols, padding })
 
     this.rows = rows
     this.cols = cols
