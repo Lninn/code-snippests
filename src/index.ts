@@ -27,11 +27,22 @@ const map: Record<string, Matrix> = {
   ],
   i: [
     [1, 1, 1, 1]
+  ],
+  z: [
+    [1, 1, 0],
+    [0, 1, 1],
   ]
 }
 
-function pick(): Matrix {
-  return map['i']
+function pick(name?: string): Matrix {
+  const names = Object.keys(map)
+  const i = getRandomInt(0, names.length - 1)
+  
+  if (!name) {
+    name = names[i]
+  }
+
+  return map[name]
 }
 
 const player = {
@@ -51,7 +62,7 @@ const game = {
 
 const timer = {
   previous: 0,
-  duration: 1000,
+  duration: 330,
   paused: false,
 }
 
@@ -116,11 +127,20 @@ function createCanvas() {
 }
 
 function onLeft() {
+  if (player.x === padding) {
+    return
+  }
+
   playerMove(-1)
   screen(ctx)
 }
 
 function onRight() {
+  const matrixSize = getSize(player.matrix)
+  if (player.x + matrixSize.col === cols - padding) {
+    return
+  }
+
   playerMove(1)
   screen(ctx)
 }
@@ -240,7 +260,9 @@ function isBottom() {
 }
 
 function isNext() {
-  return true
+  const matrixSize = getSize(player.matrix)
+
+  return player.y + matrixSize.row !== rows - padding
 }
 
 function gameCellsSet() {}
@@ -366,6 +388,12 @@ function createPlayerCells(matrix: number[][], startX: number, startY: number) {
   }
 
   return cells
+}
+
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 export { start }
