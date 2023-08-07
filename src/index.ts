@@ -64,11 +64,8 @@ const timer = {
   previous: 0,
   duration: 330,
   paused: false,
+  id: 0,
 }
-
-console.log(
-  player,
-)
 
 register('a', onLeft)
 register('ArrowLeft', onLeft)
@@ -78,15 +75,51 @@ register('ArrowUp', onTransform)
 register(' ', onTransform)
 
 window.addEventListener('keydown', onKeydown)
+window.addEventListener('click', handleClick)
 
 function start() {
-  main()
+  bindEvents()
+}
+
+function end() {
+  clearCanvas(ctx)
+  cancelAnimationFrame(timer.id)
+}
+
+function bindEvents() {
+  const startBtn = document.getElementById('start')
+  if (startBtn) {
+    startBtn.onclick = main
+  }
+
+  const endBtn = document.getElementById('end')
+  if (endBtn) {
+    endBtn.onclick = end
+  }
+
+  const pausedbtn = document.getElementById('paused')
+  if (pausedbtn) {
+    pausedbtn.onclick = () => {
+      timer.paused = !timer.paused
+    }
+  }
+
+  const logBtn = document.getElementById('log')
+  if (logBtn) {
+    logBtn.onclick = () => {
+      console.clear()
+      console.log(
+        player,
+        game,
+      )
+    }
+  }
 }
 
 function main() {
   screen(ctx)
 
-  requestAnimationFrame(loop)
+  timer.id = requestAnimationFrame(loop)
 }
 
 function loop(timestamp: number) {
@@ -98,11 +131,39 @@ function loop(timestamp: number) {
     timer.previous = timestamp
   }
 
-  requestAnimationFrame(loop)
+  timer.id = requestAnimationFrame(loop)
 }
 
 function register(key: string, action: () => void) {
   events[key] = action
+}
+
+function handleClick(ev: MouseEvent) {
+  const { clientX, clientY } = ev
+
+  const { top, left } = canvas.getBoundingClientRect()
+
+  const offsetX = clientX - left
+  const offsetY = clientY - top
+
+  const point: {
+    x: number,
+    y: number
+  } = {
+    x: Math.floor(offsetX / size),
+    y: Math.floor(offsetY / size),
+  }
+
+  const key = point.x + point.y * cols
+
+  const cell = game.cells.find(c => (
+    c.key === key
+  ))
+
+  if (cell) {
+    cell.status = cell.status === 1 ? 0 : 1
+    screen(ctx)
+  }
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -373,13 +434,15 @@ function createPlayerCells(matrix: number[][], startX: number, startY: number) {
       const no = sub[x]
 
       if (no) {
-        const key = x + y * cols
+        const fX = startX + x
+        const fY = startY + y
+        const key = fX + fY * cols
 
         const cell: Cell = {
-          x: startX + x,
-          y: startY + y,
+          x: fX,
+          y: fY,
           key,
-          status: 0,
+          status: 1,
         }
         cells.push(cell)
       }
