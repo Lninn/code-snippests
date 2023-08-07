@@ -4,6 +4,8 @@ import { App  } from './config'
 import { Player } from './player'
 import { Grid } from './grid'
 
+import { start } from './index'
+
 
 class Timer {
   private ctx: CanvasRenderingContext2D
@@ -117,4 +119,4 @@ function clear(ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, width, height)
 }
 
-main()
+start()
