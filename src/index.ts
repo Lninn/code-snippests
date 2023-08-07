@@ -62,7 +62,7 @@ const game = {
 
 const timer = {
   previous: 0,
-  duration: 330,
+  duration: 333,
   paused: false,
   id: 0,
 }
@@ -321,9 +321,11 @@ function isBottom() {
 }
 
 function isNext() {
-  const matrixSize = getSize(player.matrix)
+  const tCells = getMaxDeepCeels()
 
-  return player.y + matrixSize.row !== rows - padding
+  if (!tCells.length) return false
+
+  return deepCellsCheck(tCells)
 }
 
 function gameCellsSet() {}
@@ -333,6 +335,39 @@ function isEnoughToClear() {
 }
 
 function doClear() {}
+
+function getMaxDeepCeels() {
+  // 针对 cells 中的每一ge cell.x 标记其中 y 最大的 cell
+
+  const map: Record<number, Cell> = {}
+
+  for (const cell of player.cells) {
+    
+    let tCell = map[cell.x]
+    
+    if (!tCell) {
+      tCell = cell
+    } else {
+      tCell = tCell.y > cell.y ? tCell : cell
+    }
+    
+    map[cell.x] = tCell
+  }
+
+  return Object.values(map)
+}
+
+function deepCellsCheck(cells: Cell[]) {
+  for (const cell of cells) {
+    const tCell = game.cells.find(c => (
+      c.x === cell.x && c.y === cell.y + 1
+    ))
+
+    if (tCell && tCell.status === 1) return false
+  }
+
+  return true
+}
 
 function reset() {
   const matrix = pick()
