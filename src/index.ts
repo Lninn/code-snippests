@@ -55,18 +55,30 @@ const player = {
 
 reset()
 
-const cells = createGridCells()
-
 const game = {
-  cells,
+  cells: [] as Cell[],
+}
+
+gameInit()
+
+const enum Type {
+  Running,
+  Clear,
 }
 
 const DURATION = 1000
 const timer = {
+  type: Type.Running,
+  yList: [] as number[],
   previous: 0,
   duration: DURATION,
   paused: false,
   id: 0,
+}
+
+const animatTimer = {
+  previous: -1,
+  duration: 500,
 }
 
 register('a', onLeft)
@@ -132,15 +144,69 @@ function bindEvents() {
   if (upSpeedBtn) {
     upSpeedBtn.onclick = upSpeed
   }
+
+  const remberBtn = document.getElementById('rember')
+  if (remberBtn) {
+    remberBtn.onclick = rember
+  }
 }
 
 function main() {
   screen(ctx)
 
-  requestAnimationFrame(loop)
+  loop(0)
 }
 
 function loop(timestamp: number) {
+  switch (timer.type) {
+    case Type.Clear:
+      animat(timestamp)
+      break
+    case Type.Running:
+      running(timestamp)
+      break
+  }
+
+  timer.id = requestAnimationFrame(loop)
+}
+
+// TODO
+
+let aCells: Cell[]
+
+function animat(timestamp: number) {
+  const diff = timestamp - animatTimer.previous
+
+  const y = timer.yList[timer.yList.length - 1]
+  aCells = game.cells.filter(c => c.y === y)
+
+  if (diff <= animatTimer.duration || animatTimer.previous === -1) {
+
+    for (const cell of aCells) {
+      const globalAlpha = diff / animatTimer.duration
+
+      drawCell(ctx, cell, undefined, '#b0823c', globalAlpha)
+    }
+
+    if (animatTimer.previous === -1) {
+      animatTimer.previous = timestamp
+    }
+
+  } else {
+
+    aCells.forEach(c => c.status = 0)
+    screen(ctx)
+
+    console.log('结束')
+    setTimeout(() => {
+      cancelAnimationFrame(timer.id)
+    }, 0)
+
+  }
+
+}
+
+function running(timestamp: number) {
   const diff = timestamp - timer.previous
 
   if (diff > timer.duration) {
@@ -148,8 +214,6 @@ function loop(timestamp: number) {
 
     timer.previous = timestamp
   }
-
-  timer.id = requestAnimationFrame(loop)
 }
 
 function register(key: string, action: () => void) {
@@ -212,6 +276,13 @@ function onLeft() {
 
   playerMove(-1)
   screen(ctx)
+}
+
+function rember() {
+  console.log('rember')
+  localStorage.setItem(
+    'game.cells', JSON.stringify(game.cells)
+  )
 }
 
 function onRight() {
@@ -332,16 +403,21 @@ function gameUpdate() {
   } else {
     const yList = getFullYList()
     if (yList.length) {
-      doClear(yList)
+      timer.type = Type.Clear
+      timer.yList = yList
+      resetAfterClear()
     }
-  
-    reset()
-    screen(ctx)
+  }
+}
 
-    // 加速一次后恢复到正常的间隔
-    if (timer.duration != DURATION) {
-      timer.duration = DURATION
-    }
+function resetAfterClear() {
+  // 在执行 动画之前好像也可以先 reset
+  reset()
+  screen(ctx)
+
+  // 加速一次后恢复到正常的间隔
+  if (timer.duration != DURATION) {
+    timer.duration = DURATION
   }
 }
 
@@ -401,10 +477,6 @@ function getFullYList() {
   return yList.map(y => +y)
 }
 
-function doClear(yList: number[]) {
-  console.log('doClear ', yList)
-}
-
 function getMaxDeepCeels() {
   // 针对 cells 中的每一ge cell.x 标记其中 y 最大的 cell
 
@@ -451,6 +523,29 @@ function reset() {
   player.cells = createPlayerCells(matrix, midX, y)
 }
 
+function gameInit() {
+  let cells: Cell[] = []
+  const values = localStorage.getItem(
+    'game.cells'
+  )
+
+  try {
+    if (values) {
+      cells = JSON.parse(values)
+    }
+
+    if (!cells.length) {
+      throw new Error('empty')
+    }
+    console.log('init from rember')
+  } catch(err) {
+    console.log('gameInit.err ', err)
+    cells = createGridCells()
+  }
+
+  game.cells = cells
+}
+
 function createGridCells() {
   const cells: Cell[] = []
 
@@ -478,7 +573,8 @@ function drawCell(
   ctx: CanvasRenderingContext2D,
   cell: Omit<Cell, 'status' | 'key'>,
   strokeStyle?: string,
-  fillStyle?: string
+  fillStyle?: string,
+  globalAlpha?: number
 ) {
   const [
     left,
@@ -505,6 +601,13 @@ function drawCell(
     ctx.fillStyle = fillStyle
     ctx.fill()
     ctx.fillStyle = _f
+  }
+
+  if (globalAlpha) {
+    const _a = ctx.globalAlpha
+    ctx.globalAlpha = globalAlpha
+    ctx.fill()
+    ctx.globalAlpha = _a
   }
 }
 
