@@ -45,21 +45,262 @@ function pick(name?: string): Matrix {
   return map[name]
 }
 
-const player = {
-  hide: false,
-  x: 0,
-  y: 0,
-  matrix: [] as Matrix,
-  cells: [] as Cell[],
+class Sunwukong {
+  private x: number
+  private y: number
+  private matrix: Matrix
+  private hide: boolean
+
+  public cells: Cell[]
+
+  constructor() {
+    this.x = 0
+    this.y = 0
+    this.cells = []
+    this.matrix = []
+    this.hide = false
+
+    this.reset()
+  }
+
+  public hidePlayer() {
+    this.hide = !this.hide
+    screen(ctx)
+  }
+
+  public onLeft() {
+    if (laosun.x === padding) {
+      return
+    }
+  
+    this.move(-1)
+    screen(ctx)
+  }
+  
+  public onRight() {
+    const matrixSize = getSize(laosun.matrix)
+    if (laosun.x + matrixSize.col === cols - padding) {
+      return
+    }
+  
+    this.move(1)
+    screen(ctx)
+  }
+  
+  public onTransform() {
+    this.transform()
+    screen(ctx)
+  }
+
+  public next() {
+    const y = this.y + 1
+    const nextCells = createPlayerCells(
+      this.matrix,
+      this.x,
+      y,
+    )
+  
+    this.y = y
+    this.cells = nextCells
+  
+    screen(ctx)
+  }
+
+  public isBottom() {
+    const y = this.y
+    const matrixSize = getSize(this.matrix)
+  
+    const maxHeight = rows - padding - matrixSize.row - 1
+  
+    return y > maxHeight
+  }
+
+  public draw() {
+    if (this.hide) return
+
+    for (const cell of this.cells) {
+      drawCell(ctx, cell, '#e74645', '#ffddd5')
+    }
+  }
+
+  public reset() {
+    const matrix = pick()
+    const matrixSize = getSize(matrix)
+  
+    const midX = Math.floor((cols - matrixSize.col) / 2)
+    const y = padding - 1
+  
+    this.x = midX
+    this.y = y
+    this.matrix = matrix
+    this.cells = createPlayerCells(matrix, midX, y)
+  }
+
+  private transform() {
+    const nextMatrix = rotate(this.matrix)
+    const nextCells = createPlayerCells(
+      nextMatrix,
+      this.x,
+      this.y,
+    )
+  
+    this.matrix = nextMatrix
+    this.cells = nextCells
+  }
+  
+  private move(step: -1 | 1) {
+    const x = this.x + step
+    const nextCells = createPlayerCells(
+      this.matrix,
+      x,
+      this.y,
+    )
+  
+    this.x = x
+    this.cells = nextCells
+  }
 }
 
-reset()
+const laosun = new Sunwukong()
 
-const game = {
-  cells: [] as Cell[],
+class Game {
+  public cells: Cell[]
+
+  constructor() {
+    this.cells = []
+
+    this.init()
+  }
+
+  public rember() {
+    console.log('rember')
+    localStorage.setItem(
+      'game.cells', JSON.stringify(this.cells)
+    )
+  }
+
+  public drawCanvas(ctx: CanvasRenderingContext2D) {
+    for (const cell of this.cells) {
+      if (cell.status === 1) {
+        drawCell(ctx, cell, '#3cb07e', '#b0823c')
+      } else {
+        drawCell(ctx, cell, '#6d6dfb', undefined)
+      }
+    }
+  }
+
+  public check() {
+    if (laosun.isBottom()) {
+      this.gameUpdate()
+    } else {
+      if (this.isNext()) {
+        laosun.next()
+      } else {
+        this.gameUpdate()
+      }
+    }
+  }
+
+  private init() {
+    let cells: Cell[] = []
+    const values = localStorage.getItem(
+      'game.cells'
+    )
+  
+    try {
+      if (values) {
+        cells = JSON.parse(values)
+      }
+  
+      if (!cells.length) {
+        throw new Error('empty')
+      }
+      console.log('init from rember')
+    } catch(err) {
+      console.log('gameInit.err ', err)
+      cells = createGridCells()
+    }
+  
+    this.cells = cells
+  }
+
+  private deepCellsCheck(cells: Cell[]) {
+    for (const cell of cells) {
+      const tCell = this.cells.find(c => (
+        c.x === cell.x && c.y === cell.y + 1
+      ))
+  
+      if (tCell && tCell.status === 1) return false
+    }
+  
+    return true
+  }
+
+  private isNext() {
+    const tCells = getMaxDeepCeels()
+  
+    if (!tCells.length) return false
+  
+    return this.deepCellsCheck(tCells)
+  }
+
+  private isEnd() {
+    const cells = this.cells.filter(c => c.y === padding)
+  
+    return cells.some(c => c.status === 1)
+  }
+
+  private gameCellsSet() {
+    const keys = laosun.cells.map(c => c.key)
+  
+    this.cells.forEach(e => {
+      if (keys.includes(e.key)) {
+        e.status = 1
+      }
+    })
+  }
+
+  private gameUpdate() {
+    this.gameCellsSet()
+  
+    if (this.isEnd()) {
+      end()
+    } else {
+      const yList = this.getFullYList()
+      if (yList.length) {
+        timer.type = Type.Clear
+        timer.yList = yList
+        resetAfterClear()
+      }
+    }
+  }
+
+  private getFullYList() {
+    const length = rows - padding * 2
+    const list = Array.from({ length, }, (_, i) => i + padding)
+    const map: Record<number, number> = list.reduce(
+      (accu, num) => {
+        return { ...accu, [num]: 0 }
+      },
+      {}
+    )
+  
+    const tagCells = this.cells.filter(c => c.status === 1)
+  
+    for (const cell of tagCells) {
+      map[cell.y] = map[cell.y] + 1
+    }
+  
+    const yList = Object.keys(map).filter(rowNo => {
+      return map[+rowNo] === (cols - padding * 2)
+    })
+  
+    return yList.map(y => +y)
+  }
+
 }
 
-gameInit()
+const game = new Game()
 
 const enum Type {
   Running,
@@ -81,12 +322,12 @@ const animatTimer = {
   duration: 500,
 }
 
-register('a', onLeft)
-register('ArrowLeft', onLeft)
-register('d', onRight)
-register('ArrowRight', onRight)
-register('ArrowUp', onTransform)
-register(' ', onTransform)
+register('a', laosun.onLeft)
+register('ArrowLeft', laosun.onLeft)
+register('d', laosun.onRight)
+register('ArrowRight', laosun.onRight)
+register('ArrowUp', laosun.onTransform)
+register(' ', laosun.onTransform)
 
 window.addEventListener('keydown', onKeydown)
 window.addEventListener('click', handleClick)
@@ -101,7 +342,7 @@ function end() {
   // 直接在当前运行的函数里执行不会生效
 
   setTimeout(() => {
-    hidePlayer()
+    laosun.hidePlayer()
     cancelAnimationFrame(timer.id)
   }, 0);
 }
@@ -129,7 +370,7 @@ function bindEvents() {
     logBtn.onclick = () => {
       console.clear()
       console.log(
-        player,
+        laosun,
         game,
       )
     }
@@ -137,7 +378,7 @@ function bindEvents() {
 
   const hidePlayerBtn = document.getElementById('hide-player')
   if (hidePlayerBtn) {
-    hidePlayerBtn.onclick = hidePlayer
+    hidePlayerBtn.onclick = laosun.hidePlayer
   }
 
   const upSpeedBtn = document.getElementById('up-speed')
@@ -147,7 +388,7 @@ function bindEvents() {
 
   const remberBtn = document.getElementById('rember')
   if (remberBtn) {
-    remberBtn.onclick = rember
+    remberBtn.onclick = game.rember
   }
 }
 
@@ -169,8 +410,6 @@ function loop(timestamp: number) {
 
   timer.id = requestAnimationFrame(loop)
 }
-
-// TODO
 
 let aCells: Cell[]
 
@@ -269,103 +508,19 @@ function createCanvas() {
   return canvas
 }
 
-function onLeft() {
-  if (player.x === padding) {
-    return
-  }
-
-  playerMove(-1)
-  screen(ctx)
-}
-
-function rember() {
-  console.log('rember')
-  localStorage.setItem(
-    'game.cells', JSON.stringify(game.cells)
-  )
-}
-
-function onRight() {
-  const matrixSize = getSize(player.matrix)
-  if (player.x + matrixSize.col === cols - padding) {
-    return
-  }
-
-  playerMove(1)
-  screen(ctx)
-}
-
-function onTransform() {
-  playerTransform()
-  screen(ctx)
-}
-
 function upSpeed() {
   timer.duration = 30
 }
 
-function hidePlayer() {
-  player.hide = !player.hide
-  screen(ctx)
-}
-
-function playerTransform() {
-  const nextMatrix = rotate(player.matrix)
-  const nextCells = createPlayerCells(
-    nextMatrix,
-    player.x,
-    player.y,
-  )
-
-  player.matrix = nextMatrix
-  player.cells = nextCells
-}
-
-function playerMove(step: -1 | 1) {
-  const x = player.x + step
-  const nextCells = createPlayerCells(
-    player.matrix,
-    x,
-    player.y,
-  )
-
-  player.x = x
-  player.cells = nextCells
-}
-
-function playerNext() {
-  const y = player.y + 1
-  const nextCells = createPlayerCells(
-    player.matrix,
-    player.x,
-    y,
-  )
-
-  player.y = y
-  player.cells = nextCells
-
-  screen(ctx)
-}
-
 function dispatch() {
-  check()
-}
-
-function check() {
-  if (isBottom()) {
-    gameUpdate()
-  } else {
-    if (isNext()) {
-      playerNext()
-    } else {
-      gameUpdate()
-    }
-  }
+  game.check()
 }
 
 function screen(ctx: CanvasRenderingContext2D) {
   clearCanvas(ctx)
-  drawCanvas(ctx)
+
+  game.drawCanvas(ctx)
+  laosun.draw()
 }
 
 function clearCanvas(ctx: CanvasRenderingContext2D) {
@@ -379,40 +534,9 @@ function clearCanvas(ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, width, height)
 }
 
-function drawCanvas(ctx: CanvasRenderingContext2D) {
-  for (const cell of game.cells) {
-    if (cell.status === 1) {
-      drawCell(ctx, cell, '#3cb07e', '#b0823c')
-    } else {
-      drawCell(ctx, cell, '#6d6dfb', undefined)
-    }
-  }
-
-  if (player.hide) return
-
-  for (const cell of player.cells) {
-    drawCell(ctx, cell, '#e74645', '#ffddd5')
-  }
-}
-
-function gameUpdate() {
-  gameCellsSet()
-
-  if (isEnd()) {
-    end()
-  } else {
-    const yList = getFullYList()
-    if (yList.length) {
-      timer.type = Type.Clear
-      timer.yList = yList
-      resetAfterClear()
-    }
-  }
-}
-
 function resetAfterClear() {
   // 在执行 动画之前好像也可以先 reset
-  reset()
+  laosun.reset()
   screen(ctx)
 
   // 加速一次后恢复到正常的间隔
@@ -421,68 +545,12 @@ function resetAfterClear() {
   }
 }
 
-function isBottom() {
-  const y = player.y
-  const matrixSize = getSize(player.matrix)
-
-  const maxHeight = rows - padding - matrixSize.row - 1
-
-  return y > maxHeight
-}
-
-function isNext() {
-  const tCells = getMaxDeepCeels()
-
-  if (!tCells.length) return false
-
-  return deepCellsCheck(tCells)
-}
-
-function isEnd() {
-  const cells = game.cells.filter(c => c.y === padding)
-
-  return cells.some(c => c.status === 1)
-}
-
-function gameCellsSet() {
-  const keys = player.cells.map(c => c.key)
-
-  game.cells.forEach(e => {
-    if (keys.includes(e.key)) {
-      e.status = 1
-    }
-  })
-}
-
-function getFullYList() {
-  const length = rows - padding * 2
-  const list = Array.from({ length, }, (_, i) => i + padding)
-  const map: Record<number, number> = list.reduce(
-    (accu, num) => {
-      return { ...accu, [num]: 0 }
-    },
-    {}
-  )
-
-  const tagCells = game.cells.filter(c => c.status === 1)
-
-  for (const cell of tagCells) {
-    map[cell.y] = map[cell.y] + 1
-  }
-
-  const yList = Object.keys(map).filter(rowNo => {
-    return map[+rowNo] === (cols - padding * 2)
-  })
-
-  return yList.map(y => +y)
-}
-
 function getMaxDeepCeels() {
   // 针对 cells 中的每一ge cell.x 标记其中 y 最大的 cell
 
   const map: Record<number, Cell> = {}
 
-  for (const cell of player.cells) {
+  for (const cell of laosun.cells) {
     
     let tCell = map[cell.x]
     
@@ -496,54 +564,6 @@ function getMaxDeepCeels() {
   }
 
   return Object.values(map)
-}
-
-function deepCellsCheck(cells: Cell[]) {
-  for (const cell of cells) {
-    const tCell = game.cells.find(c => (
-      c.x === cell.x && c.y === cell.y + 1
-    ))
-
-    if (tCell && tCell.status === 1) return false
-  }
-
-  return true
-}
-
-function reset() {
-  const matrix = pick()
-  const matrixSize = getSize(matrix)
-
-  const midX = Math.floor((cols - matrixSize.col) / 2)
-  const y = padding - 1
-
-  player.x = midX
-  player.y = y
-  player.matrix = matrix
-  player.cells = createPlayerCells(matrix, midX, y)
-}
-
-function gameInit() {
-  let cells: Cell[] = []
-  const values = localStorage.getItem(
-    'game.cells'
-  )
-
-  try {
-    if (values) {
-      cells = JSON.parse(values)
-    }
-
-    if (!cells.length) {
-      throw new Error('empty')
-    }
-    console.log('init from rember')
-  } catch(err) {
-    console.log('gameInit.err ', err)
-    cells = createGridCells()
-  }
-
-  game.cells = cells
 }
 
 function createGridCells() {
