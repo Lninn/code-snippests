@@ -46,6 +46,7 @@ function pick(name?: string): Matrix {
 }
 
 const player = {
+  hide: false,
   x: 0,
   y: 0,
   matrix: [] as Matrix,
@@ -62,7 +63,7 @@ const game = {
 
 const timer = {
   previous: 0,
-  duration: 333,
+  duration: 33,
   paused: false,
   id: 0,
 }
@@ -82,8 +83,14 @@ function start() {
 }
 
 function end() {
-  clearCanvas(ctx)
-  cancelAnimationFrame(timer.id)
+  // TODO
+  // 这里结束的时候，重新在另一个 定时器任务里执行状态的更新
+  // 直接在当前运行的函数里执行不会生效
+
+  setTimeout(() => {
+    hidePlayer()
+    cancelAnimationFrame(timer.id)
+  }, 0);
 }
 
 function bindEvents() {
@@ -114,19 +121,24 @@ function bindEvents() {
       )
     }
   }
+
+  const hidePlayerBtn = document.getElementById('hide-player')
+  if (hidePlayerBtn) {
+    hidePlayerBtn.onclick = hidePlayer
+  }
 }
 
 function main() {
   screen(ctx)
 
-  timer.id = requestAnimationFrame(loop)
+  requestAnimationFrame(loop)
 }
 
 function loop(timestamp: number) {
   const diff = timestamp - timer.previous
 
   if (diff > timer.duration) {
-    if (!timer.paused) disatch()
+    if (!timer.paused) dispatch()
 
     timer.previous = timestamp
   }
@@ -211,6 +223,11 @@ function onTransform() {
   screen(ctx)
 }
 
+function hidePlayer() {
+  player.hide = !player.hide
+  screen(ctx)
+}
+
 function playerTransform() {
   const nextMatrix = rotate(player.matrix)
   const nextCells = createPlayerCells(
@@ -245,29 +262,23 @@ function playerNext() {
 
   player.y = y
   player.cells = nextCells
+
+  screen(ctx)
 }
 
-function disatch() {
+function dispatch() {
   check()
 }
 
 function check() {
-  let canUpdateScreen = false
-
   if (isBottom()) {
     gameUpdate()
-    canUpdateScreen = true
   } else {
     if (isNext()) {
       playerNext()
-      canUpdateScreen = true
     } else {
       gameUpdate()
     }
-  }
-
-  if (canUpdateScreen) {
-    screen(ctx)
   }
 }
 
@@ -296,6 +307,8 @@ function drawCanvas(ctx: CanvasRenderingContext2D) {
     }
   }
 
+  if (player.hide) return
+
   for (const cell of player.cells) {
     drawCell(ctx, cell, '#e74645', '#ffddd5')
   }
@@ -304,11 +317,16 @@ function drawCanvas(ctx: CanvasRenderingContext2D) {
 function gameUpdate() {
   gameCellsSet()
 
-  if (isEnoughToClear()) {
-    doClear()
+  if (isEnd()) {
+    end()
+  } else {
+    if (isEnoughToClear()) {
+      doClear()
+    }
+  
+    reset()
+    screen(ctx)
   }
-
-  reset()
 }
 
 function isBottom() {
@@ -328,7 +346,21 @@ function isNext() {
   return deepCellsCheck(tCells)
 }
 
-function gameCellsSet() {}
+function isEnd() {
+  const cells = game.cells.filter(c => c.y === padding)
+
+  return cells.some(c => c.status === 1)
+}
+
+function gameCellsSet() {
+  const keys = player.cells.map(c => c.key)
+
+  game.cells.forEach(e => {
+    if (keys.includes(e.key)) {
+      e.status = 1
+    }
+  })
+}
 
 function isEnoughToClear() {
   return true
@@ -374,11 +406,12 @@ function reset() {
   const matrixSize = getSize(matrix)
 
   const midX = Math.floor((cols - matrixSize.col) / 2)
+  const y = padding - 1
 
   player.x = midX
-  player.y = padding
+  player.y = y
   player.matrix = matrix
-  player.cells = createPlayerCells(matrix, midX, padding)
+  player.cells = createPlayerCells(matrix, midX, y)
 }
 
 function createGridCells() {
