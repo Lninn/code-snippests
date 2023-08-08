@@ -61,9 +61,10 @@ const game = {
   cells,
 }
 
+const DURATION = 1000
 const timer = {
   previous: 0,
-  duration: 33,
+  duration: DURATION,
   paused: false,
   id: 0,
 }
@@ -125,6 +126,11 @@ function bindEvents() {
   const hidePlayerBtn = document.getElementById('hide-player')
   if (hidePlayerBtn) {
     hidePlayerBtn.onclick = hidePlayer
+  }
+
+  const upSpeedBtn = document.getElementById('up-speed')
+  if (upSpeedBtn) {
+    upSpeedBtn.onclick = upSpeed
   }
 }
 
@@ -221,6 +227,10 @@ function onRight() {
 function onTransform() {
   playerTransform()
   screen(ctx)
+}
+
+function upSpeed() {
+  timer.duration = 30
 }
 
 function hidePlayer() {
@@ -320,12 +330,18 @@ function gameUpdate() {
   if (isEnd()) {
     end()
   } else {
-    if (isEnoughToClear()) {
-      doClear()
+    const yList = getFullYList()
+    if (yList.length) {
+      doClear(yList)
     }
   
     reset()
     screen(ctx)
+
+    // 加速一次后恢复到正常的间隔
+    if (timer.duration != DURATION) {
+      timer.duration = DURATION
+    }
   }
 }
 
@@ -362,11 +378,32 @@ function gameCellsSet() {
   })
 }
 
-function isEnoughToClear() {
-  return true
+function getFullYList() {
+  const length = rows - padding * 2
+  const list = Array.from({ length, }, (_, i) => i + padding)
+  const map: Record<number, number> = list.reduce(
+    (accu, num) => {
+      return { ...accu, [num]: 0 }
+    },
+    {}
+  )
+
+  const tagCells = game.cells.filter(c => c.status === 1)
+
+  for (const cell of tagCells) {
+    map[cell.y] = map[cell.y] + 1
+  }
+
+  const yList = Object.keys(map).filter(rowNo => {
+    return map[+rowNo] === (cols - padding * 2)
+  })
+
+  return yList.map(y => +y)
 }
 
-function doClear() {}
+function doClear(yList: number[]) {
+  console.log('doClear ', yList)
+}
 
 function getMaxDeepCeels() {
   // 针对 cells 中的每一ge cell.x 标记其中 y 最大的 cell
